@@ -1,0 +1,23 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+const { blok } = Astro.props;
+const goal = Number(blok.goal) || 0;
+const raised = Number(blok.raised) || 0;
+const pct = goal > 0 ? Math.min(100, Math.round((raised / goal) * 100)) : 0;
+const cur = blok.currency || '';
+const fmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+---
+<section class="campaign" {...storyblokEditable(blok)}>
+  <div class="wrap camp">
+    {blok.image?.filename && <img class="camp-img" src={blok.image.filename} alt={blok.image?.alt || ''} />}
+    <div class="camp-body">
+      <span class="badge">Campagne en cours</span>
+      <h2>{blok.title}</h2>
+      <p>{blok.text}</p>
+      <div class="bar"><div class="fill" style={`width:${pct}%`}></div></div>
+      <div class="camp-stats"><b>{fmt(raised)} {cur}</b> collectés sur {fmt(goal)} {cur} · <span>{pct}%</span></div>
+      <div class="camp-meta">{blok.donors} donateurs</div>
+      {blok.button_label && <a class="btn btn-gold">{blok.button_label}</a>}
+    </div>
+  </div>
+</section>

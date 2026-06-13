@@ -1,0 +1,10 @@
+---
+import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
+import { storyblokEditable } from '@storyblok/astro';
+const { blok } = Astro.props;
+---
+<section class="eco" {...storyblokEditable(blok)}>
+  <div class="wrap eco-grid">
+    {blok.cards?.map((c) => <StoryblokComponent blok={c} />)}
+  </div>
+</section>

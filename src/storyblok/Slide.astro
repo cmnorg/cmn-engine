@@ -1,0 +1,13 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+const { blok } = Astro.props;
+const img = blok.image?.filename;
+---
+<div class="slide" {...storyblokEditable(blok)}>
+  {img && <img src={img} alt={blok.image?.alt || ''} />}
+  <div class="slide-cap">
+    {blok.title && <h2>{blok.title}</h2>}
+    {blok.text && <p>{blok.text}</p>}
+    {blok.button_label && <a class="btn btn-gold">{blok.button_label}</a>}
+  </div>
+</div>

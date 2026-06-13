@@ -1,0 +1,15 @@
+---
+import { storyblokEditable, renderRichText } from '@storyblok/astro';
+const { blok } = Astro.props;
+const titleHtml = blok.title ? renderRichText(blok.title) : '';
+---
+<section class="hero" {...storyblokEditable(blok)}>
+  <div class="wrap">
+    <h1 set:html={titleHtml}></h1>
+    <p class="sub">{blok.subtitle}</p>
+    <div class="cta">
+      {blok.cta1_label && <a class="btn btn-gold">{blok.cta1_label}</a>}
+      {blok.cta2_label && <a class="btn btn-outline">{blok.cta2_label}</a>}
+    </div>
+  </div>
+</section>

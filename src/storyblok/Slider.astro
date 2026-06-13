@@ -1,0 +1,8 @@
+---
+import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
+import { storyblokEditable } from '@storyblok/astro';
+const { blok } = Astro.props;
+---
+<div class="slider" {...storyblokEditable(blok)}>
+  {blok.slides?.map((s) => <StoryblokComponent blok={s} />)}
+</div>
