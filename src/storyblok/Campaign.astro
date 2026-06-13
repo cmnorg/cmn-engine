@@ -6,18 +6,39 @@ const raised = Number(blok.raised) || 0;
 const pct = goal > 0 ? Math.min(100, Math.round((raised / goal) * 100)) : 0;
 const cur = blok.currency || '';
 const fmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+let daysLeft = null;
+if (blok.deadline) {
+  const diff = Math.ceil((new Date(blok.deadline) - new Date()) / 86400000);
+  if (diff > 0) daysLeft = diff;
+}
+function u(l){ if(!l) return '#'; if(l.url) return l.url; if(l.cached_url) return '/' + String(l.cached_url).replace(/^\//,''); return '#'; }
+const img = blok.image?.filename;
 ---
 <section class="campaign" {...storyblokEditable(blok)}>
-  <div class="wrap camp">
-    {blok.image?.filename && <img class="camp-img" src={blok.image.filename} alt={blok.image?.alt || ''} />}
-    <div class="camp-body">
-      <span class="badge">Campagne en cours</span>
-      <h2>{blok.title}</h2>
-      <p>{blok.text}</p>
-      <div class="bar"><div class="fill" style={`width:${pct}%`}></div></div>
-      <div class="camp-stats"><b>{fmt(raised)} {cur}</b> collectés sur {fmt(goal)} {cur} · <span>{pct}%</span></div>
-      <div class="camp-meta">{blok.donors} donateurs</div>
-      {blok.button_label && <a class="btn btn-gold">{blok.button_label}</a>}
+  <div class="wrap">
+    <div class="camp-feat">
+      <div class="camp-media" style={img ? `background-image:linear-gradient(rgba(20,18,14,.12),rgba(20,18,14,.45)),url(${img})` : ''}>
+        {blok.badge && <span class="camp-badge">{blok.badge}</span>}
+      </div>
+      <div class="camp-body">
+        <h2>{blok.title}</h2>
+        <p>{blok.text}</p>
+        <div class="camp-bar"><div class="camp-fill" style={`width:${pct}%`}></div></div>
+        <div class="camp-stats">
+          <span><b>{fmt(raised)} {cur}</b> collectés sur <b>{fmt(goal)} {cur}</b></span>
+          <span class="camp-pct">{pct}%</span>
+        </div>
+        <div class="camp-meta"><b>{blok.donors}</b> donateurs</div>
+        {(blok.deadline_label || daysLeft) &&
+          <div class="camp-deadline">
+            {blok.deadline_label && <span>{blok.deadline_label}</span>}
+            {daysLeft && <span class="camp-days"> · {daysLeft} jours restants</span>}
+          </div>}
+        <div class="camp-cta">
+          {blok.button_label && <a class="btn btn-gold" href={u(blok.button_link)}>{blok.button_label}</a>}
+          {blok.cta2_label && <a class="btn btn-ghost" href={u(blok.cta2_link)}>{blok.cta2_label}</a>}
+        </div>
+      </div>
     </div>
   </div>
 </section>
