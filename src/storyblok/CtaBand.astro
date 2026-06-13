@@ -1,0 +1,13 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+const { blok } = Astro.props;
+function u(l){ if(!l) return '#'; if(l.url) return l.url; if(l.cached_url) return '/' + String(l.cached_url).replace(/^\//,''); return '#'; }
+---
+<section class="band-wrap" {...storyblokEditable(blok)}>
+  <div class="wrap">
+    <div class="band">
+      <h2>{blok.title}</h2>
+      {blok.button_label && <a class="btn btn-gold" href={u(blok.button_link)}>{blok.button_label}</a>}
+    </div>
+  </div>
+</section>

@@ -19,6 +19,7 @@ export default defineConfig({
         campaign: 'storyblok/Campaign',
         eco_grid: 'storyblok/EcoGrid',
         eco_card: 'storyblok/EcoCard',
+        cta_band: 'storyblok/CtaBand',
       },
     }),
   ],

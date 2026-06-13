@@ -21,6 +21,21 @@ try {
   <body>
     <Header settings={settings} />
     <slot />
+    <section class="nlband">
+      <div class="wrap nlwrap">
+        <div class="nltext">
+          <strong>Restez informé de la mission</strong>
+          <span>Nouvelles du terrain, prières exaucées et temps forts — directement dans votre boîte mail.</span>
+        </div>
+        <form class="nlform">
+          <input type="email" placeholder="Votre adresse email" aria-label="Adresse email" required />
+          <button class="btn btn-gold" type="submit">S'inscrire</button>
+        </form>
+      </div>
+      <div class="wrap">
+        <label class="nlconsent"><input type="checkbox" /> <span>J'accepte de recevoir la newsletter de CMN et je peux me désinscrire à tout moment (voir la politique de confidentialité).</span></label>
+      </div>
+    </section>
     <Footer settings={settings} />
   </body>
 </html>
