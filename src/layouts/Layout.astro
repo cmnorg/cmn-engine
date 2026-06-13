@@ -1,6 +1,15 @@
 ---
 import '../styles/global.css';
-const { title = 'CMN' } = Astro.props;
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { useStoryblokApi } from '@storyblok/astro';
+const { title = 'CMN — Christians on Mission for Nations' } = Astro.props;
+let settings = null;
+try {
+  const api = useStoryblokApi();
+  const { data } = await api.get('cdn/stories/settings', { version: 'draft' });
+  settings = data?.story?.content || null;
+} catch (e) { settings = null; }
 ---
 <!doctype html>
 <html lang="fr">
@@ -10,6 +19,8 @@ const { title = 'CMN' } = Astro.props;
     <title>{title}</title>
   </head>
   <body>
+    <Header settings={settings} />
     <slot />
+    <Footer settings={settings} />
   </body>
 </html>

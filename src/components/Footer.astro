@@ -1,0 +1,21 @@
+---
+const { settings } = Astro.props;
+const logoF = settings?.logo_footer?.filename;
+const socials = [
+  ['YouTube', settings?.youtube], ['Facebook', settings?.facebook], ['Instagram', settings?.instagram],
+  ['TikTok', settings?.tiktok], ['LinkedIn', settings?.linkedin]
+].filter(([,v]) => v && (v.url || v.cached_url || (typeof v === 'string' && v)));
+function urlOf(v){ if(!v) return '#'; if(typeof v === 'string') return v; return v.url || v.cached_url || '#'; }
+---
+<footer class="ft">
+  <div class="wrap ft-row">
+    <div>
+      {logoF ? <img class="ft-logo" src={logoF} alt="CMN" /> : <strong class="ft-wm">Christians <span class="g">on Mission</span> for Nations</strong>}
+      <p class="ft-tag">Agir pour transformer, inspirer l'espoir.</p>
+    </div>
+    <div class="ft-soc">
+      {socials.map(([name, v]) => <a href={urlOf(v)} target="_blank" rel="noopener">{name}</a>)}
+    </div>
+  </div>
+  <div class="wrap ft-legal">© CMN — Tous droits réservés.</div>
+</footer>

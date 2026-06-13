@@ -1,0 +1,16 @@
+---
+const { settings } = Astro.props;
+const logo = settings?.logo?.filename;
+const menu = Array.isArray(settings?.menu) ? settings.menu : [];
+function hrefOf(l){ if(!l) return '#'; if(l.url) return l.url; if(l.cached_url) return '/' + String(l.cached_url).replace(/^\//,''); return '#'; }
+---
+<header class="hd">
+  <div class="wrap hd-row">
+    <a class="brand" href="/">
+      {logo ? <img src={logo} alt="CMN" /> : <span class="brand-txt">CMN</span>}
+    </a>
+    <nav class="menu">
+      {menu.map((m) => <a href={hrefOf(m.link)}>{m.label}</a>)}
+    </nav>
+  </div>
+</header>
