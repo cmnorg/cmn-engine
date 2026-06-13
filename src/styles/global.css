@@ -12,14 +12,16 @@ a{color:inherit}
 
 /* header */
 .hd{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
-.hd-row{display:flex;align-items:center;gap:16px;height:74px}
-.brand{display:flex;align-items:center;text-decoration:none}
-.brand img{height:46px;width:auto}
-.brand-txt{font-weight:800;font-size:22px;color:var(--char);letter-spacing:1px}
-.menu{display:flex;gap:16px;margin-left:auto;flex-wrap:wrap}
+.hd-row{display:flex;align-items:center;gap:14px;min-height:74px;flex-wrap:wrap;padding:8px 0}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0}
+.brand svg{height:46px;width:auto}
+.brand-logo{height:46px;width:auto}
+.wm{display:flex;flex-direction:column;line-height:1.05;font-weight:700;font-size:15px;color:var(--char)}
+.wm .g{color:var(--gold)}
+.menu{display:flex;gap:15px;margin-left:auto;flex-wrap:wrap;align-items:center}
 .menu a{font-size:13.5px;color:var(--muted);font-weight:500;text-decoration:none;white-space:nowrap}
 .menu a:hover{color:var(--gold-d)}
-
+.hd-don{margin:0;white-space:nowrap}
 /* hero */
 .hero{background:linear-gradient(rgba(34,34,32,.80),rgba(34,34,32,.93));color:#fff;padding:96px 0}
 .hero h1{font-size:clamp(30px,4.4vw,48px);line-height:1.1;font-weight:800}
