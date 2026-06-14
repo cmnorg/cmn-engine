@@ -1,6 +1,7 @@
 ---
 const { settings } = Astro.props;
 const logoF = settings?.logo_footer?.filename;
+const logoFH = Number(settings?.logo_footer_height) > 0 ? Number(settings.logo_footer_height) : 50;
 const menu = Array.isArray(settings?.menu) ? settings.menu : [];
 function hrefOf(l){ if(!l) return '#'; if(l.url) return l.url; if(l.cached_url) return '/' + String(l.cached_url).replace(/^\//,''); return '#'; }
 function u(v){ if(!v) return ''; if(typeof v==='string') return v; return v.url || v.cached_url || ''; }
@@ -9,7 +10,7 @@ const yt=u(settings?.youtube), fb=u(settings?.facebook), ig=u(settings?.instagra
 <footer class="ft">
   <div class="wrap ft-row">
     <div class="ft-left">
-      {logoF ? <img class="ft-logo" src={logoF} alt="CMN" /> : <strong class="ft-wm">Christians <span class="g">on Mission</span> for Nations</strong>}
+      {logoF ? <img class="ft-logo" src={logoF} alt="CMN" style={`height:${logoFH}px`} /> : <strong class="ft-wm">Christians <span class="g">on Mission</span> for Nations</strong>}
       <p class="ft-tag">Agir pour transformer, inspirer l'espoir.</p>
       <nav class="ft-nav">
         {menu.map((m) => <a href={hrefOf(m.link)}>{m.label}</a>)}
