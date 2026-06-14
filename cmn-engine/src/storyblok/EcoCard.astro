@@ -1,0 +1,11 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+const { blok } = Astro.props;
+---
+<div class="eco-card" {...storyblokEditable(blok)}>
+  {blok.image?.filename && <div class="eco-img" style={`background-image:url(${blok.image.filename})`}></div>}
+  <div class="eco-bd">
+    <h3>{blok.title}</h3>
+    <p>{blok.description}</p>
+  </div>
+</div>

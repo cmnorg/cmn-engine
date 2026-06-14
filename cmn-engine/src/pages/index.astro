@@ -1,0 +1,13 @@
+---
+import { useStoryblokApi } from '@storyblok/astro';
+import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
+import Layout from '../layouts/Layout.astro';
+
+// version: 'draft' montre ton contenu enregistré (même non publié). Passe à 'published' plus tard.
+const storyblokApi = useStoryblokApi();
+const { data } = await storyblokApi.get('cdn/stories/home', { version: 'draft' });
+const story = data.story;
+---
+<Layout title="CMN — Accueil">
+  <StoryblokComponent blok={story.content} />
+</Layout>

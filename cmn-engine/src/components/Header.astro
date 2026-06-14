@@ -1,0 +1,27 @@
+---
+const { settings } = Astro.props;
+const logo = settings?.logo?.filename;
+const menuAll = Array.isArray(settings?.menu) ? settings.menu : [];
+function hrefOf(l){ if(!l) return '#'; if(l.url) return l.url; if(l.cached_url) return '/' + String(l.cached_url).replace(/^\//,''); return '#'; }
+const isDon = (m) => /faire un don|donate|^don$/i.test((m && m.label) || '');
+const nav = menuAll.filter((m) => !isDon(m));
+const donItem = menuAll.find(isDon);
+const donHref = donItem ? hrefOf(donItem.link) : '#';
+const donLabel = donItem ? donItem.label : 'Faire un don';
+---
+<header class="hd">
+  <div class="wrap hd-row">
+    <a class="brand" href="/">
+      {logo ? <img class="brand-logo" src={logo} alt="CMN" /> : <Fragment>
+        <svg viewBox="0 0 86 122" aria-hidden="true"><g stroke="#C0982E" stroke-linecap="round" fill="none">
+          <line x1="8" y1="8" x2="78" y2="8" stroke-width="4.6"/><line x1="11" y1="16" x2="73" y2="16" stroke-width="4.6"/><line x1="14" y1="24" x2="68" y2="24" stroke-width="4.6"/><line x1="17" y1="32" x2="63" y2="32" stroke-width="4.6"/><line x1="20" y1="40" x2="58" y2="40" stroke-width="4.6"/><line x1="23" y1="48" x2="53" y2="48" stroke-width="4.6"/><line x1="26" y1="56" x2="48" y2="56" stroke-width="4.6"/><line x1="29" y1="64" x2="44" y2="64" stroke-width="4.6"/><line x1="32" y1="72" x2="42" y2="72" stroke-width="4.6"/><line x1="33" y1="4" x2="33" y2="68" stroke-width="6.4"/><line x1="21" y1="22" x2="45" y2="22" stroke-width="5.4"/>
+        </g><text x="33" y="112" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="30" fill="#C0982E">CMN</text></svg>
+        <span class="wm"><span>Christians</span><span class="g">on Mission</span><span>for Nations</span></span>
+      </Fragment>}
+    </a>
+    <nav class="menu">
+      {nav.map((m) => <a href={hrefOf(m.link)}>{m.label}</a>)}
+    </nav>
+    <a class="btn btn-gold hd-don" href={donHref}>{donLabel}</a>
+  </div>
+</header>

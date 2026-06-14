@@ -1,0 +1,110 @@
+---
+import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
+import { storyblokEditable } from '@storyblok/astro';
+const { blok } = Astro.props;
+const slides = blok.slides || [];
+---
+<div class="slider" {...storyblokEditable(blok)} aria-roledescription="carrousel" aria-label="Bandeau">
+  <div class="slides">
+    {slides.map((s) => <StoryblokComponent blok={s} />)}
+  </div>
+  <button class="sl-sound" type="button" aria-label="Activer le son" style="display:none">🔇</button>
+  {slides.length > 1 && (
+    <button class="sl-arrow sl-prev" type="button" aria-label="Précédent">‹</button>
+    <button class="sl-arrow sl-next" type="button" aria-label="Suivant">›</button>
+    <div class="sl-dots" role="tablist" aria-label="Diapositives"></div>
+  )}
+</div>
+
+<script>
+  function initSliders() {
+    var IMG_MS = 5500, VIDEO_MS = 16000;
+    document.querySelectorAll('.slider').forEach(function (root) {
+      if (root.dataset.init) return;
+      var slides = Array.prototype.slice.call(root.querySelectorAll('.slide'));
+      if (!slides.length) return;
+      root.dataset.init = '1';
+      var single = slides.length < 2;
+      var dotsWrap = root.querySelector('.sl-dots');
+      var soundBtn = root.querySelector('.sl-sound');
+      var idx = 0, timer = null, paused = false, soundOn = false, rm = false;
+      try { rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (_) {}
+
+      function ytCmd(iframe, func) {
+        try { iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: func, args: [] }), '*'); } catch (_) {}
+      }
+      function media(s) { return { video: s.querySelector('video'), yt: s.querySelector('.slide-yt iframe') }; }
+      function hasVideo(s) { var m = media(s); return !!(m.video || m.yt); }
+      function setSound(s, on) {
+        var m = media(s);
+        if (m.video) { m.video.muted = !on; if (on) { try { m.video.play(); } catch (_) {} } }
+        if (m.yt) { ytCmd(m.yt, on ? 'unMute' : 'mute'); }
+      }
+      function refreshSoundBtn() {
+        if (!soundBtn) return;
+        if (hasVideo(slides[idx])) {
+          soundBtn.style.display = 'flex';
+          soundBtn.textContent = soundOn ? '🔊' : '🔇';
+          soundBtn.setAttribute('aria-label', soundOn ? 'Couper le son' : 'Activer le son');
+        } else {
+          soundBtn.style.display = 'none';
+        }
+      }
+
+      var dots = single ? [] : slides.map(function (_, i) {
+        var d = document.createElement('button');
+        d.type = 'button'; d.setAttribute('role', 'tab');
+        d.setAttribute('aria-label', (i + 1) + ' / ' + slides.length);
+        d.addEventListener('click', function () { show(i); });
+        if (dotsWrap) dotsWrap.appendChild(d);
+        return d;
+      });
+
+      function show(i) {
+        var prev = idx;
+        idx = (i + slides.length) % slides.length;
+        if (prev !== idx) setSound(slides[prev], false);
+        slides.forEach(function (s, k) {
+          s.classList.toggle('on', k === idx);
+          s.setAttribute('aria-hidden', k === idx ? 'false' : 'true');
+        });
+        dots.forEach(function (d, k) {
+          d.classList.toggle('on', k === idx);
+          d.setAttribute('aria-selected', k === idx ? 'true' : 'false');
+        });
+        if (soundOn) setSound(slides[idx], true);
+        refreshSoundBtn();
+        schedule();
+      }
+      function next() { show(idx + 1); }
+      function prev() { show(idx - 1); }
+      function stop() { if (timer) { clearTimeout(timer); timer = null; } }
+      function schedule() {
+        stop();
+        if (rm || paused || single) return;
+        if (soundOn && hasVideo(slides[idx])) return; // laisse regarder avec le son
+        timer = setTimeout(next, hasVideo(slides[idx]) ? VIDEO_MS : IMG_MS);
+      }
+
+      var pv = root.querySelector('.sl-prev'), nx = root.querySelector('.sl-next');
+      if (pv) pv.addEventListener('click', prev);
+      if (nx) nx.addEventListener('click', next);
+      if (soundBtn) soundBtn.addEventListener('click', function () {
+        soundOn = !soundOn;
+        setSound(slides[idx], soundOn);
+        refreshSoundBtn();
+        schedule();
+      });
+      root.addEventListener('mouseenter', stop);
+      root.addEventListener('mouseleave', function () { if (!paused) schedule(); });
+      root.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowLeft') prev();
+        else if (e.key === 'ArrowRight') next();
+      });
+
+      show(0);
+    });
+  }
+  initSliders();
+  document.addEventListener('astro:page-load', initSliders);
+</script>
