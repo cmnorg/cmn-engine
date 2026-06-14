@@ -70,14 +70,27 @@ a{color:inherit}
 .eco-bd p{color:var(--muted);font-size:14px;margin-top:4px}
 
 /* slider */
-.slider{position:relative;width:100%}
-.slide{position:relative;width:100%;aspect-ratio:16/5;min-height:280px;display:flex;align-items:flex-end;color:#fff;background:var(--char)}
-.slide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.slider{position:relative;width:100%;overflow:hidden;background:var(--char);aspect-ratio:16/5;min-height:280px}
+.slides{position:absolute;inset:0}
+.slide{position:absolute;inset:0;opacity:0;transition:opacity .6s ease;display:flex;align-items:flex-end;color:#fff}
+.slide.on{opacity:1}
+.slider:not([data-init]) .slides .slide:first-child{opacity:1}
+.slide img,.slide video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.slide-yt{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.slide-yt iframe{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:max(100%,177.78vh);height:max(100%,56.25vw);border:0}
 .slide::after{content:"";position:absolute;inset:0;background:linear-gradient(rgba(20,18,14,.10),rgba(20,18,14,.72))}
 .slide-cap{position:relative;z-index:2;max-width:var(--max);margin:0 auto;width:100%;padding:0 22px 34px}
 .slide-cap h2{font-size:clamp(22px,3.2vw,40px);line-height:1.12;text-shadow:0 2px 14px rgba(0,0,0,.4)}
 .slide-cap p{font-size:clamp(14px,1.5vw,17px);max-width:560px;margin:8px 0 0;opacity:.96;text-shadow:0 1px 8px rgba(0,0,0,.4)}
-@media(max-width:760px){.slide{aspect-ratio:4/3;min-height:0}}
+.sl-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:4;width:42px;height:42px;border:none;border-radius:50%;background:rgba(0,0,0,.35);color:#fff;font-size:26px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.sl-arrow:hover{background:rgba(0,0,0,.6)}
+.sl-prev{left:14px}.sl-next{right:14px}
+.sl-sound{position:absolute;top:14px;right:14px;z-index:5;width:40px;height:40px;border:none;border-radius:50%;background:rgba(0,0,0,.4);color:#fff;font-size:18px;line-height:1;cursor:pointer;align-items:center;justify-content:center;transition:background .2s}
+.sl-sound:hover{background:rgba(0,0,0,.65)}
+.sl-dots{position:absolute;left:0;right:0;bottom:14px;z-index:4;display:flex;gap:8px;justify-content:center}
+.sl-dots button{width:9px;height:9px;border-radius:50%;border:none;background:rgba(255,255,255,.5);cursor:pointer;padding:0;transition:width .2s,background .2s}
+.sl-dots button.on{background:#fff;width:22px;border-radius:5px}
+@media(max-width:760px){.slider{aspect-ratio:4/3;min-height:0}.sl-arrow{width:34px;height:34px;font-size:20px}}
 /* cta band */
 .band-wrap{padding:0 0 40px}
 .band{background:var(--char);color:#fff;border-radius:var(--r-lg);padding:44px 32px;text-align:center}
