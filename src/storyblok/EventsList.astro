@@ -1,0 +1,164 @@
+---
+import { useStoryblokApi, renderRichText, storyblokEditable } from '@storyblok/astro';
+const { blok } = Astro.props;
+
+const MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+const pad = (n) => (n < 10 ? '0' + n : '' + n);
+function dateStr(y, m, d) {
+  if (d && m) return pad(d) + '/' + pad(m) + '/' + y;
+  if (m) { const n = MONTHS[m - 1]; return n.charAt(0).toUpperCase() + n.slice(1) + ' ' + y; }
+  return '' + y;
+}
+
+let stories = [];
+try {
+  const api = useStoryblokApi();
+  const { data } = await api.get('cdn/stories', { version: 'draft', content_type: 'event', per_page: 100 });
+  stories = data.stories || [];
+} catch (e) { stories = []; }
+
+const fallbackReg = blok.register_fallback?.url || blok.register_fallback?.cached_url || '/contact';
+const all = stories.map((s) => {
+  const c = s.content || {};
+  const y = Number(c.year) || 0, m = Number(c.month) || 0, d = Number(c.day) || 0;
+  return {
+    title: c.title || s.name,
+    place: c.place || '',
+    y, m, d,
+    key: y * 10000 + (m || 1) * 100 + (d || 1),
+    date: dateStr(y, m, d),
+    image: c.image?.filename || '',
+    description: c.description || '',
+    long: c.long_description ? renderRichText(c.long_description) : '',
+    register: !!c.register,
+    registerLink: c.register_link?.url || c.register_link?.cached_url || fallbackReg,
+  };
+});
+
+const now = new Date();
+const Y = now.getFullYear(), M = now.getMonth() + 1, D = now.getDate();
+function isPast(e) {
+  if (e.d && e.m) return new Date(e.y, e.m - 1, e.d) < new Date(Y, M - 1, D);
+  if (e.m) return (e.y < Y) || (e.y === Y && e.m < M);
+  return e.y < Y;
+}
+const upcoming = all.filter((e) => !isPast(e)).sort((a, b) => a.key - b.key);
+const past = all.filter((e) => isPast(e)).sort((a, b) => b.key - a.key);
+
+const L = {
+  up: blok.label_upcoming || 'À venir',
+  past: blok.label_past || 'Passés',
+  more: blok.more_label || 'En savoir plus',
+  reg: blok.register_label || "Je m'inscris",
+  back: blok.back_label || '← Retour aux actualités',
+  empty: blok.empty_label || 'Aucun événement à venir pour le moment.',
+  when: blok.when_label || 'Quand',
+  where: blok.where_label || 'Où',
+};
+---
+<section class="events-sec" {...storyblokEditable(blok)} data-events>
+  <div class="wrap">
+    {blok.title && <h2 class="sec-title">{blok.title}</h2>}
+    <div class="ev-list">
+      <div class="ev-tabs" role="tablist">
+        <button class="ev-tab active" type="button" data-evtab="upcoming">{L.up}</button>
+        <button class="ev-tab" type="button" data-evtab="past">{L.past}</button>
+      </div>
+
+      <div class="ev-grid" data-grid="upcoming">
+        {upcoming.length === 0 && <p class="ev-empty">{L.empty}</p>}
+        {upcoming.map((e) => (
+          <article class="evt-card" data-date={e.date} data-title={e.title} data-place={e.place} data-image={e.image} data-register={e.register ? '1' : ''} data-register-link={e.registerLink}>
+            {e.image && <div class="ph" style={`background-image:url(${e.image})`}></div>}
+            <div class="bd">
+              <span class="badge">{e.date}</span>
+              <h3>{e.title}</h3>
+              {e.place && <div class="ev-place">{e.place}</div>}
+              {e.description && <p>{e.description}</p>}
+              <button class="btn btn-ghost ev-more" type="button">{L.more}</button>
+            </div>
+            <template set:html={e.long}></template>
+          </article>
+        ))}
+      </div>
+
+      <div class="ev-grid" data-grid="past" hidden>
+        {past.length === 0 && <p class="ev-empty">{blok.empty_past || 'Aucun événement passé.'}</p>}
+        {past.map((e) => (
+          <article class="evt-card" data-date={e.date} data-title={e.title} data-place={e.place} data-image={e.image} data-register={e.register ? '1' : ''} data-register-link={e.registerLink}>
+            {e.image && <div class="ph" style={`background-image:url(${e.image})`}></div>}
+            <div class="bd">
+              <span class="badge">{e.date}</span>
+              <h3>{e.title}</h3>
+              {e.place && <div class="ev-place">{e.place}</div>}
+              {e.description && <p>{e.description}</p>}
+              <button class="btn btn-ghost ev-more" type="button">{L.more}</button>
+            </div>
+            <template set:html={e.long}></template>
+          </article>
+        ))}
+      </div>
+    </div>
+
+    <div class="ev-detail" hidden>
+      <button class="btn btn-ghost ev-back" type="button">{L.back}</button>
+      <div class="ev-hero"><div class="ev-hero-ov"><span class="badge ev-d-date"></span><h3 class="ev-d-title"></h3></div></div>
+      <div class="ev-meta">
+        <div><div class="ev-lbl">{L.when}</div><div class="ev-d-when"></div></div>
+        <div><div class="ev-lbl">{L.where}</div><div class="ev-d-where"></div></div>
+      </div>
+      <div class="ev-d-long rich"></div>
+      <div class="ev-d-reg" hidden><a class="btn btn-gold ev-d-reglink">{L.reg}</a></div>
+    </div>
+  </div>
+</section>
+<script>
+  function initEvents() {
+    document.querySelectorAll('[data-events]').forEach(function (root) {
+      if (root.dataset.einit) return;
+      root.dataset.einit = '1';
+      var list = root.querySelector('.ev-list');
+      var detail = root.querySelector('.ev-detail');
+      var tabs = root.querySelectorAll('.ev-tab');
+      var grids = root.querySelectorAll('.ev-grid');
+
+      tabs.forEach(function (t) {
+        t.addEventListener('click', function () {
+          var which = t.getAttribute('data-evtab');
+          tabs.forEach(function (x) { x.classList.remove('active'); });
+          t.classList.add('active');
+          grids.forEach(function (g) { g.hidden = g.getAttribute('data-grid') !== which; });
+        });
+      });
+
+      function openDetail(card) {
+        var img = card.getAttribute('data-image');
+        var hero = detail.querySelector('.ev-hero');
+        hero.style.backgroundImage = img ? ('linear-gradient(rgba(0,0,0,.15),rgba(0,0,0,.45)),url(' + img + ')') : '';
+        detail.querySelector('.ev-d-date').textContent = card.getAttribute('data-date') || '';
+        detail.querySelector('.ev-d-title').textContent = card.getAttribute('data-title') || '';
+        detail.querySelector('.ev-d-when').textContent = card.getAttribute('data-date') || '';
+        detail.querySelector('.ev-d-where').textContent = card.getAttribute('data-place') || '';
+        var tpl = card.querySelector('template');
+        detail.querySelector('.ev-d-long').innerHTML = tpl ? tpl.innerHTML : '';
+        var reg = detail.querySelector('.ev-d-reg');
+        if (card.getAttribute('data-register') === '1') {
+          reg.hidden = false;
+          detail.querySelector('.ev-d-reglink').setAttribute('href', card.getAttribute('data-register-link') || '#');
+        } else { reg.hidden = true; }
+        list.hidden = true;
+        detail.hidden = false;
+        root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      root.querySelectorAll('.ev-more').forEach(function (btn) {
+        btn.addEventListener('click', function () { openDetail(btn.closest('.evt-card')); });
+      });
+      detail.querySelector('.ev-back').addEventListener('click', function () {
+        detail.hidden = true;
+        list.hidden = false;
+      });
+    });
+  }
+  initEvents();
+  document.addEventListener('astro:page-load', initEvents);
+</script>
