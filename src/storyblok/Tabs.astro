@@ -1,0 +1,42 @@
+---
+import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
+import { storyblokEditable } from '@storyblok/astro';
+const { blok } = Astro.props;
+const tabs = blok.items || [];
+---
+<section class="disc-sec" {...storyblokEditable(blok)} data-tabs>
+  <div class="wrap">
+    {blok.label && <div class="phead-label disc-label">{blok.label}</div>}
+    {blok.heading && <h2 class="disc-h2">{blok.heading}</h2>}
+    <div class="disc-tabs" role="tablist">
+      {tabs.map((t, i) => (
+        <button class={`disc-tab${i === 0 ? ' active' : ''}`} type="button" data-tab={i} role="tab">{t.label}</button>
+      ))}
+    </div>
+  </div>
+  {tabs.map((t, i) => (
+    <div class={`disc-pane${i === 0 ? ' active' : ''}`} data-pane={i} {...storyblokEditable(t)}>
+      {t.body?.map((b) => <StoryblokComponent blok={b} />)}
+    </div>
+  ))}
+</section>
+<script>
+  function initTabs() {
+    document.querySelectorAll('[data-tabs]').forEach(function (root) {
+      if (root.dataset.tinit) return;
+      root.dataset.tinit = '1';
+      var btns = root.querySelectorAll('.disc-tab');
+      var panes = root.querySelectorAll('.disc-pane');
+      btns.forEach(function (b) {
+        b.addEventListener('click', function () {
+          var i = b.getAttribute('data-tab');
+          btns.forEach(function (x) { x.classList.remove('active'); });
+          panes.forEach(function (p) { p.classList.toggle('active', p.getAttribute('data-pane') === i); });
+          b.classList.add('active');
+        });
+      });
+    });
+  }
+  initTabs();
+  document.addEventListener('astro:page-load', initTabs);
+</script>
