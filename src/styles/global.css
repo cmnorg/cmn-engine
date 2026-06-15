@@ -191,17 +191,14 @@ a{color:inherit}
 .lead-role{font-size:13px;color:var(--gold-d);font-weight:600;margin-top:2px}
 .lead-arrow{display:inline-block;margin-top:10px;color:var(--gold-d);font-weight:700;font-size:18px}
 .leaders-note{font-size:13px;color:var(--muted);margin-top:18px;font-style:italic}
-/* Modale dirigeant */
-.lead-modal{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
-.lead-modal[hidden]{display:none}
-.lead-modal-backdrop{position:absolute;inset:0;background:rgba(20,18,14,.6)}
-.lead-modal-card{position:relative;z-index:2;background:#fff;border-radius:var(--r-lg);max-width:560px;width:100%;padding:28px;max-height:88vh;overflow:auto;box-shadow:var(--shadow)}
-.lead-modal-x{position:absolute;top:10px;right:14px;border:none;background:none;font-size:28px;line-height:1;cursor:pointer;color:var(--muted)}
-.lead-modal-hero{display:flex;gap:16px;align-items:center}
-.lead-modal-ph{width:96px;height:96px;border-radius:50%;background-size:cover;background-position:center;background-color:var(--soft);flex-shrink:0}
-.lead-modal-role{display:inline-block;background:var(--gold);color:var(--char);font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px}
-.lead-modal-name{margin-top:8px;font-size:22px}
-.lead-modal-bio{margin-top:18px;font-size:15px;line-height:1.75;color:var(--ink);white-space:pre-line}
+/* Vue détail d'un dirigeant (remplace la liste, façon page) */
+.leader-detail{padding:8px 0}
+.leader-back{margin-bottom:18px}
+.leader-hero{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.leader-detail-ph{width:120px;height:120px;border-radius:50%;background-size:cover;background-position:center;background-color:var(--soft);flex-shrink:0}
+.leader-detail-role{display:inline-block;background:var(--gold);color:var(--char);font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px}
+.leader-detail-name{margin-top:10px;font-size:26px}
+.leader-detail-bio{margin-top:20px;font-size:16px;line-height:1.75;color:var(--ink);max-width:760px;white-space:pre-line}
 
 /* ===== Onglets (Tabs) ===== */
 .disc-sec{padding:28px 0}
