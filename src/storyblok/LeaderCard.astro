@@ -3,11 +3,11 @@ import { storyblokEditable } from '@storyblok/astro';
 const { blok } = Astro.props;
 const photo = blok.photo?.filename;
 ---
-<div class="lead-card" {...storyblokEditable(blok)}>
+<button class="lead-card" type="button" {...storyblokEditable(blok)}
+  data-name={blok.name || ''} data-role={blok.role || ''} data-photo={photo || ''}>
   <div class="lead-photo" style={photo ? `background-image:url(${photo})` : undefined}></div>
-  <div class="lead-body">
-    {blok.name && <h3>{blok.name}</h3>}
-    {blok.role && <div class="lead-role">{blok.role}</div>}
-    {blok.bio && <p>{blok.bio}</p>}
-  </div>
-</div>
+  {blok.name && <h3>{blok.name}</h3>}
+  {blok.role && <div class="lead-role">{blok.role}</div>}
+  <span class="lead-arrow" aria-hidden="true">→</span>
+  <div class="lead-bio" hidden>{blok.bio}</div>
+</button>
