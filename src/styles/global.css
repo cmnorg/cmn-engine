@@ -139,7 +139,7 @@ a{color:inherit}
 /* Bloc texte */
 .txt{padding:32px 0 8px}
 .txt .rich{font-size:16px;color:var(--ink)}
-.txt.txt-lead .rich{font-size:18px;color:var(--char)}
+.txt.txt-lead .rich{font-size:17px;color:var(--muted)}
 .rich p{margin-bottom:14px}
 .rich h2{font-size:24px;margin:18px 0 10px}
 .rich h3{font-size:19px;margin:16px 0 8px}
@@ -148,9 +148,9 @@ a{color:inherit}
 .rich a{color:var(--gold-d);text-decoration:underline}
 
 /* Verset */
-.verse-sec{padding:18px 0}
-.verse{border-left:4px solid var(--gold);background:var(--soft);padding:18px 22px;border-radius:0 var(--r) var(--r) 0;font-size:18px;font-style:italic;color:var(--char);max-width:760px}
-.verse cite{display:block;margin-top:8px;font-style:normal;font-weight:600;font-size:14px;color:var(--gold-d)}
+.verse-sec{padding:14px 0}
+.verse{border-left:4px solid var(--gold);padding:10px 0 10px 20px;margin:6px 0;font-size:19px;font-style:italic;font-family:Georgia,"Times New Roman",serif;color:var(--char);max-width:760px}
+.verse cite{font-style:normal;font-weight:600;font-size:15px;color:var(--gold-d)}
 
 /* Grilles valeurs / piliers */
 .vgrid-sec{padding:24px 0}
@@ -159,12 +159,12 @@ a{color:inherit}
 .vgrid.cols-3{grid-template-columns:repeat(3,1fr)}
 @media(max-width:860px){.vgrid.cols-3{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.vgrid{grid-template-columns:1fr!important}}
-.vcard{background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;transition:.18s}
+.vcard{background:var(--white);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;transition:.18s}
 .vcard:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
-.vimg{height:150px;background-size:cover;background-position:center;background-color:var(--soft)}
-.vbody{padding:18px}
-.vbody h3{font-size:17px;margin-bottom:4px}
-.vbody p{color:var(--muted);font-size:14px}
+.vimg{height:170px;background-size:cover;background-position:center;background-color:var(--gold-soft)}
+.vbody{padding:18px 20px}
+.vbody h3{font-size:17px;margin-bottom:6px}
+.vbody p{color:var(--muted);font-size:14px;line-height:1.6;margin:0}
 
 /* Grilles de cartes texte (Vision/Mission, gouvernance) */
 .cgrid-sec{padding:24px 0}
@@ -174,7 +174,7 @@ a{color:inherit}
 .cgrid.cols-4{grid-template-columns:repeat(4,1fr)}
 @media(max-width:860px){.cgrid.cols-3,.cgrid.cols-4{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.cgrid{grid-template-columns:1fr!important}}
-.info-card{background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px}
+.info-card{background:var(--white);border:1px solid var(--line);border-radius:var(--r);padding:24px}
 .info-label{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-d);font-weight:700;margin-bottom:8px}
 .info-card h3{font-size:18px;margin-bottom:6px}
 .info-card p{color:var(--muted);font-size:14.5px}
@@ -192,6 +192,7 @@ a{color:inherit}
 .lead-role{font-size:13px;color:var(--gold-d);font-weight:600;margin-top:2px}
 .lead-body p{color:var(--muted);font-size:13px;margin-top:8px;text-align:left}
 .leaders-note{font-size:13px;color:var(--muted);margin-top:18px;font-style:italic}
+
 /* ===== Onglets (Tabs) ===== */
 .disc-sec{padding:28px 0}
 .disc-label{margin-bottom:6px}
@@ -202,4 +203,5 @@ a{color:inherit}
 .disc-tab.active{color:var(--char);border-bottom-color:var(--gold)}
 .disc-pane{display:none}
 .disc-pane.active{display:block}
+/* Resserre le 1er bloc d'un onglet (pas de double marge) */
 .disc-pane>section:first-child{padding-top:22px}
