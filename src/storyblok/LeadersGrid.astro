@@ -2,28 +2,28 @@
 import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
 import { storyblokEditable } from '@storyblok/astro';
 const { blok } = Astro.props;
+const backLabel = blok.back_label || '← Retour à la gouvernance';
 ---
 <section class="leaders-sec" {...storyblokEditable(blok)} data-leaders>
   <div class="wrap">
-    {blok.title && <h2 class="sec-title">{blok.title}</h2>}
-    {blok.subtitle && <p class="sec-lead">{blok.subtitle}</p>}
-    <div class="leaders-grid">
-      {blok.items?.map((c) => <StoryblokComponent blok={c} />)}
+    <div class="leaders-list">
+      {blok.title && <h2 class="sec-title">{blok.title}</h2>}
+      {blok.subtitle && <p class="sec-lead">{blok.subtitle}</p>}
+      <div class="leaders-grid">
+        {blok.items?.map((c) => <StoryblokComponent blok={c} />)}
+      </div>
+      {blok.note && <p class="leaders-note">{blok.note}</p>}
     </div>
-    {blok.note && <p class="leaders-note">{blok.note}</p>}
-  </div>
-  <div class="lead-modal" hidden>
-    <div class="lead-modal-backdrop" data-close></div>
-    <div class="lead-modal-card" role="dialog" aria-modal="true">
-      <button class="lead-modal-x" type="button" data-close aria-label="Fermer">×</button>
-      <div class="lead-modal-hero">
-        <div class="lead-modal-ph"></div>
+    <div class="leader-detail" hidden>
+      <button class="btn btn-ghost leader-back" type="button">{backLabel}</button>
+      <div class="leader-hero">
+        <div class="leader-detail-ph"></div>
         <div>
-          <span class="lead-modal-role"></span>
-          <h2 class="lead-modal-name"></h2>
+          <span class="leader-detail-role"></span>
+          <h2 class="leader-detail-name"></h2>
         </div>
       </div>
-      <p class="lead-modal-bio"></p>
+      <p class="leader-detail-bio"></p>
     </div>
   </div>
 </section>
@@ -32,12 +32,13 @@ const { blok } = Astro.props;
     document.querySelectorAll('[data-leaders]').forEach(function (root) {
       if (root.dataset.linit) return;
       root.dataset.linit = '1';
-      var modal = root.querySelector('.lead-modal');
-      if (!modal) return;
-      var ph = modal.querySelector('.lead-modal-ph');
-      var roleEl = modal.querySelector('.lead-modal-role');
-      var nameEl = modal.querySelector('.lead-modal-name');
-      var bioEl = modal.querySelector('.lead-modal-bio');
+      var list = root.querySelector('.leaders-list');
+      var detail = root.querySelector('.leader-detail');
+      if (!list || !detail) return;
+      var ph = detail.querySelector('.leader-detail-ph');
+      var roleEl = detail.querySelector('.leader-detail-role');
+      var nameEl = detail.querySelector('.leader-detail-name');
+      var bioEl = detail.querySelector('.leader-detail-bio');
       function open(card) {
         var photo = card.getAttribute('data-photo');
         ph.style.backgroundImage = photo ? ('url(' + photo + ')') : '';
@@ -45,22 +46,18 @@ const { blok } = Astro.props;
         nameEl.textContent = card.getAttribute('data-name') || '';
         var bio = card.querySelector('.lead-bio');
         bioEl.textContent = bio ? bio.textContent : '';
-        modal.hidden = false;
-        document.body.style.overflow = 'hidden';
+        list.hidden = true;
+        detail.hidden = false;
+        root.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
-      function close() {
-        modal.hidden = true;
-        document.body.style.overflow = '';
+      function back() {
+        detail.hidden = true;
+        list.hidden = false;
       }
       root.querySelectorAll('.lead-card').forEach(function (card) {
         card.addEventListener('click', function () { open(card); });
       });
-      modal.querySelectorAll('[data-close]').forEach(function (el) {
-        el.addEventListener('click', close);
-      });
-      document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && !modal.hidden) close();
-      });
+      detail.querySelector('.leader-back').addEventListener('click', back);
     });
   }
   initLeaders();
