@@ -3,8 +3,9 @@ import { storyblokEditable, renderRichText } from '@storyblok/astro';
 const { blok } = Astro.props;
 const html = blok.body ? renderRichText(blok.body) : '';
 const lead = blok.lead ? ' txt-lead' : '';
+const boxed = blok.boxed ? ' txt-boxed' : '';
 ---
-<section class={`txt${lead}`} {...storyblokEditable(blok)}>
+<section class={`txt${lead}${boxed}`} {...storyblokEditable(blok)}>
   <div class="wrap">
     {blok.title && <h2 class="sec-title">{blok.title}</h2>}
     <div class="rich" set:html={html}></div>
