@@ -3,6 +3,10 @@ import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
 import { storyblokEditable } from '@storyblok/astro';
 const { blok } = Astro.props;
 const backLabel = blok.back_label || '← Retour à la gouvernance';
+const verseText = blok.verse_text || '« Allez, faites de toutes les nations des disciples. »';
+const verseRef = blok.verse_ref || 'Matthieu 28:19';
+const contactLabel = blok.contact_label || 'Contacter le bureau';
+const contactLink = blok.contact_link?.url || blok.contact_link?.cached_url || '/contact';
 ---
 <section class="leaders-sec" {...storyblokEditable(blok)} data-leaders>
   <div class="wrap">
@@ -24,6 +28,8 @@ const backLabel = blok.back_label || '← Retour à la gouvernance';
         </div>
       </div>
       <p class="leader-detail-bio"></p>
+      <blockquote class="verse leader-detail-verse">{verseText} <cite>— {verseRef}</cite></blockquote>
+      <a class="btn btn-gold leader-detail-contact" href={contactLink}>{contactLabel}</a>
     </div>
   </div>
 </section>
@@ -35,10 +41,15 @@ const backLabel = blok.back_label || '← Retour à la gouvernance';
       var list = root.querySelector('.leaders-list');
       var detail = root.querySelector('.leader-detail');
       if (!list || !detail) return;
+      var pane = root.closest('.disc-pane');
       var ph = detail.querySelector('.leader-detail-ph');
       var roleEl = detail.querySelector('.leader-detail-role');
       var nameEl = detail.querySelector('.leader-detail-name');
       var bioEl = detail.querySelector('.leader-detail-bio');
+      function siblings() {
+        if (!pane) return [];
+        return Array.prototype.filter.call(pane.children, function (ch) { return ch !== root; });
+      }
       function open(card) {
         var photo = card.getAttribute('data-photo');
         ph.style.backgroundImage = photo ? ('url(' + photo + ')') : '';
@@ -46,13 +57,15 @@ const backLabel = blok.back_label || '← Retour à la gouvernance';
         nameEl.textContent = card.getAttribute('data-name') || '';
         var bio = card.querySelector('.lead-bio');
         bioEl.textContent = bio ? bio.textContent : '';
+        siblings().forEach(function (s) { s.hidden = true; });
         list.hidden = true;
         detail.hidden = false;
-        root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        (pane || root).scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
       function back() {
         detail.hidden = true;
         list.hidden = false;
+        siblings().forEach(function (s) { s.hidden = false; });
       }
       root.querySelectorAll('.lead-card').forEach(function (card) {
         card.addEventListener('click', function () { open(card); });
