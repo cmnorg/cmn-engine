@@ -1,0 +1,14 @@
+---
+import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
+import { storyblokEditable } from '@storyblok/astro';
+const { blok } = Astro.props;
+---
+<section class="vgrid-sec" {...storyblokEditable(blok)}>
+  <div class="wrap">
+    {blok.title && <h2 class="sec-title">{blok.title}</h2>}
+    {blok.subtitle && <p class="sec-lead">{blok.subtitle}</p>}
+    <div class="vgrid cols-3">
+      {blok.items?.map((c) => <StoryblokComponent blok={c} />)}
+    </div>
+  </div>
+</section>

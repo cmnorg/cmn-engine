@@ -1,0 +1,13 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+const { blok } = Astro.props;
+const photo = blok.photo?.filename;
+---
+<div class="lead-card" {...storyblokEditable(blok)}>
+  <div class="lead-photo" style={photo ? `background-image:url(${photo})` : undefined}></div>
+  <div class="lead-body">
+    {blok.name && <h3>{blok.name}</h3>}
+    {blok.role && <div class="lead-role">{blok.role}</div>}
+    {blok.bio && <p>{blok.bio}</p>}
+  </div>
+</div>

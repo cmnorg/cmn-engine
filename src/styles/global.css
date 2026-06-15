@@ -128,3 +128,67 @@ a{color:inherit}
 .ft-legal a{color:#8a887f;text-decoration:none}
 .ft-legal a:hover{color:var(--gold-l)}
 @media(max-width:640px){.ft-right{text-align:left}}
+
+/* ===== Pages intérieures (Nous découvrir, etc.) ===== */
+/* En-tête de page foncé */
+.phead{background:var(--char);background-size:cover;background-position:center;color:#fff;padding:54px 0}
+.phead-label{display:inline-block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-l);font-weight:700;margin-bottom:10px}
+.phead h1{font-size:clamp(26px,4vw,40px);line-height:1.12}
+.phead p{margin-top:10px;font-size:16px;color:#e9e7df;max-width:680px}
+
+/* Bloc texte */
+.txt{padding:32px 0 8px}
+.txt .rich{font-size:16px;color:var(--ink)}
+.txt.txt-lead .rich{font-size:18px;color:var(--char)}
+.rich p{margin-bottom:14px}
+.rich h2{font-size:24px;margin:18px 0 10px}
+.rich h3{font-size:19px;margin:16px 0 8px}
+.rich ul,.rich ol{margin:0 0 14px 22px}
+.rich li{margin-bottom:6px}
+.rich a{color:var(--gold-d);text-decoration:underline}
+
+/* Verset */
+.verse-sec{padding:18px 0}
+.verse{border-left:4px solid var(--gold);background:var(--soft);padding:18px 22px;border-radius:0 var(--r) var(--r) 0;font-size:18px;font-style:italic;color:var(--char);max-width:760px}
+.verse cite{display:block;margin-top:8px;font-style:normal;font-weight:600;font-size:14px;color:var(--gold-d)}
+
+/* Grilles valeurs / piliers */
+.vgrid-sec{padding:24px 0}
+.vgrid{display:grid;gap:18px}
+.vgrid.cols-2{grid-template-columns:repeat(2,1fr)}
+.vgrid.cols-3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:860px){.vgrid.cols-3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.vgrid{grid-template-columns:1fr!important}}
+.vcard{background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;transition:.18s}
+.vcard:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.vimg{height:150px;background-size:cover;background-position:center;background-color:var(--soft)}
+.vbody{padding:18px}
+.vbody h3{font-size:17px;margin-bottom:4px}
+.vbody p{color:var(--muted);font-size:14px}
+
+/* Grilles de cartes texte (Vision/Mission, gouvernance) */
+.cgrid-sec{padding:24px 0}
+.cgrid{display:grid;gap:18px}
+.cgrid.cols-2{grid-template-columns:repeat(2,1fr)}
+.cgrid.cols-3{grid-template-columns:repeat(3,1fr)}
+.cgrid.cols-4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:860px){.cgrid.cols-3,.cgrid.cols-4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.cgrid{grid-template-columns:1fr!important}}
+.info-card{background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px}
+.info-label{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-d);font-weight:700;margin-bottom:8px}
+.info-card h3{font-size:18px;margin-bottom:6px}
+.info-card p{color:var(--muted);font-size:14.5px}
+
+/* Bureau / dirigeants */
+.leaders-sec{padding:24px 0 40px}
+.leaders-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+@media(max-width:860px){.leaders-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.leaders-grid{grid-template-columns:1fr}}
+.lead-card{background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;text-align:center;transition:.18s}
+.lead-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.lead-photo{height:180px;background-size:cover;background-position:center;background-color:var(--soft)}
+.lead-body{padding:16px}
+.lead-body h3{font-size:16px}
+.lead-role{font-size:13px;color:var(--gold-d);font-weight:600;margin-top:2px}
+.lead-body p{color:var(--muted);font-size:13px;margin-top:8px;text-align:left}
+.leaders-note{font-size:13px;color:var(--muted);margin-top:18px;font-style:italic}

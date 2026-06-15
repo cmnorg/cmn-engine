@@ -1,0 +1,12 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+const { blok } = Astro.props;
+const bg = blok.background_image?.filename;
+---
+<section class="phead" {...storyblokEditable(blok)} style={bg ? `background-image:linear-gradient(rgba(20,18,14,.55),rgba(20,18,14,.72)),url(${bg})` : undefined}>
+  <div class="wrap">
+    {blok.label && <div class="phead-label">{blok.label}</div>}
+    <h1>{blok.title}</h1>
+    {blok.subtitle && <p>{blok.subtitle}</p>}
+  </div>
+</section>

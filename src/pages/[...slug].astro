@@ -1,0 +1,27 @@
+---
+import { useStoryblokApi } from '@storyblok/astro';
+import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
+import Layout from '../layouts/Layout.astro';
+
+// Catch-all : génère une page pour chaque story Storyblok (sauf l'accueil et les réglages).
+// Ex. /nous-decouvrir -> story "nous-decouvrir".
+export async function getStaticPaths() {
+  const storyblokApi = useStoryblokApi();
+  const { data } = await storyblokApi.get('cdn/stories', {
+    version: 'draft',
+    per_page: 100,
+    excluding_slugs: 'home,settings',
+  });
+  const stories = (data.stories || []).filter((s) => !s.is_folder);
+  return stories.map((s) => ({
+    params: { slug: s.full_slug },
+    props: { story: s },
+  }));
+}
+
+const { story } = Astro.props;
+const pageTitle = story?.content?.seo_title || story?.name || 'CMN';
+---
+<Layout title={`CMN — ${pageTitle}`}>
+  <StoryblokComponent blok={story.content} />
+</Layout>

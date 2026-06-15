@@ -1,0 +1,12 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+const { blok } = Astro.props;
+const img = blok.image?.filename;
+---
+<div class="vcard" {...storyblokEditable(blok)}>
+  {img && <div class="vimg" style={`background-image:url(${img})`}></div>}
+  <div class="vbody">
+    {blok.title && <h3>{blok.title}</h3>}
+    {blok.description && <p>{blok.description}</p>}
+  </div>
+</div>

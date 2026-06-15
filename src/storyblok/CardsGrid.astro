@@ -1,0 +1,16 @@
+---
+import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
+import { storyblokEditable } from '@storyblok/astro';
+const { blok } = Astro.props;
+const n = Number(blok.columns);
+const cols = n === 3 ? 'cols-3' : n === 4 ? 'cols-4' : 'cols-2';
+---
+<section class="cgrid-sec" {...storyblokEditable(blok)}>
+  <div class="wrap">
+    {blok.title && <h2 class="sec-title">{blok.title}</h2>}
+    {blok.subtitle && <p class="sec-lead">{blok.subtitle}</p>}
+    <div class={`cgrid ${cols}`}>
+      {blok.items?.map((c) => <StoryblokComponent blok={c} />)}
+    </div>
+  </div>
+</section>

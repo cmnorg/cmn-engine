@@ -1,0 +1,12 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+const { blok } = Astro.props;
+---
+<section class="verse-sec" {...storyblokEditable(blok)}>
+  <div class="wrap">
+    <blockquote class="verse">
+      {blok.text}
+      {blok.reference && <cite>— {blok.reference}</cite>}
+    </blockquote>
+  </div>
+</section>
