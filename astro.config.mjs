@@ -34,6 +34,7 @@ export default defineConfig({
         learders_grid: 'storyblok/LeadersGrid',
         tabs: 'storyblok/Tabs',
         tab: 'storyblok/Tab',
+        events_list: 'storyblok/EventsList',
       },
     }),
   ],
