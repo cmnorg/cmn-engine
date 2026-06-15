@@ -12,7 +12,9 @@ export async function getStaticPaths() {
     per_page: 100,
     excluding_slugs: 'home,settings',
   });
-  const stories = (data.stories || []).filter((s) => !s.is_folder);
+  const stories = (data.stories || []).filter(
+    (s) => !s.is_folder && s.content && s.content.component === 'page'
+  );
   return stories.map((s) => ({
     params: { slug: s.full_slug },
     props: { story: s },
