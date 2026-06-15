@@ -31,7 +31,7 @@ export default defineConfig({
         cards_grid: 'storyblok/CardsGrid',
         leader_card: 'storyblok/LeaderCard',
         leaders_grid: 'storyblok/LeadersGrid',
-        learders_grid: 'storyblok/LeardersGrid',
+        learders_grid: 'storyblok/LeadersGrid',
       },
     }),
   ],
