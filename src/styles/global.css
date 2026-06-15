@@ -221,3 +221,34 @@ a{color:inherit}
 .disc-pane.active{display:block}
 /* Resserre le 1er bloc d'un onglet (pas de double marge) */
 .disc-pane>section:first-child{padding-top:22px}
+
+/* ===== Actualités / Événements ===== */
+.events-sec{padding:24px 0 40px}
+.ev-tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);flex-wrap:wrap;margin-bottom:22px}
+.ev-tab{background:none;border:none;padding:12px 10px;font-size:15px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:var(--font);transition:color .15s}
+.ev-tab:hover{color:var(--gold-d)}
+.ev-tab.active{color:var(--char);border-bottom-color:var(--gold)}
+.ev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:860px){.ev-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.ev-grid{grid-template-columns:1fr}}
+.evt-card{background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;display:flex;flex-direction:column;transition:.18s}
+.evt-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.evt-card .ph{height:170px;background-size:cover;background-position:center;background-color:var(--gold-soft)}
+.evt-card .bd{padding:18px 20px;display:flex;flex-direction:column;flex:1}
+.evt-card .badge{display:inline-block;align-self:flex-start;background:var(--gold-soft);color:var(--gold-d);font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;margin-bottom:8px}
+.evt-card h3{font-size:18px;margin-bottom:2px}
+.ev-place{font-size:12px;color:var(--muted);margin-bottom:8px}
+.evt-card .bd p{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:14px}
+.evt-card .ev-more{margin-top:auto;align-self:flex-start}
+.ev-empty{color:var(--muted);font-style:italic;padding:20px 0}
+/* Détail événement */
+.ev-detail{padding:6px 0}
+.ev-back{margin-bottom:16px}
+.ev-hero{height:280px;border-radius:var(--r-lg);background-size:cover;background-position:center;background-color:var(--char);display:flex;align-items:flex-end;overflow:hidden}
+.ev-hero-ov{padding:22px;color:#fff}
+.ev-hero-ov .badge{display:inline-block;background:var(--gold);color:var(--char);font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;margin-bottom:8px}
+.ev-hero-ov h3{font-size:clamp(20px,3vw,30px);line-height:1.15;text-shadow:0 2px 10px rgba(0,0,0,.4)}
+.ev-meta{display:flex;gap:40px;flex-wrap:wrap;margin:20px 0}
+.ev-lbl{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--gold-d);font-weight:700;margin-bottom:2px}
+.ev-d-long{font-size:16px;line-height:1.75;color:var(--ink);max-width:780px}
+.ev-d-reg{margin-top:20px}
