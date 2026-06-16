@@ -12,9 +12,9 @@ function ytId(raw) {
 }
 function assetUrl(a) {
   if (!a) return '';
-  if (Array.isArray(a)) return a[0]?.filename || '';
+  if (Array.isArray(a)) return assetUrl(a[0]);
   if (typeof a === 'string') return a;
-  return a.filename || '';
+  return a.filename || a.url || a.cached_url || '';
 }
 
 let vstories = [], rstories = [];
