@@ -19,9 +19,19 @@ try {
 
 const fallbackReg = blok.register_fallback?.url || blok.register_fallback?.cached_url || '/contact';
 const defaultMore = blok.more_label || 'En savoir plus';
+
+const now = new Date();
+const Y = now.getFullYear(), M = now.getMonth() + 1, Dnow = now.getDate();
+function isPast(y, m, d) {
+  if (d && m) return new Date(y, m - 1, d) < new Date(Y, M - 1, Dnow);
+  if (m) return (y < Y) || (y === Y && m < M);
+  return y < Y;
+}
+
 const all = stories.map((s) => {
   const c = s.content || {};
   const y = Number(c.year) || 0, m = Number(c.month) || 0, d = Number(c.day) || 0;
+  const past = isPast(y, m, d);
   const stats = [
     { v: c.stat1_value, l: c.stat1_label },
     { v: c.stat2_value, l: c.stat2_label },
@@ -30,28 +40,21 @@ const all = stories.map((s) => {
   return {
     title: c.title || s.name,
     place: c.place || '',
-    y, m, d,
+    y, m, d, past,
     key: y * 10000 + (m || 1) * 100 + (d || 1),
     date: dateStr(y, m, d),
     image: c.image?.filename || '',
     description: c.description || '',
     long: c.long_description ? renderRichText(c.long_description) : '',
-    register: !!c.register,
+    register: !!c.register && !past,
     registerLink: c.register_link?.url || c.register_link?.cached_url || fallbackReg,
     stats,
     btn: c.button_label || defaultMore,
   };
 });
 
-const now = new Date();
-const Y = now.getFullYear(), M = now.getMonth() + 1;
-function isPast(e) {
-  if (e.d && e.m) return new Date(e.y, e.m - 1, e.d) < new Date(Y, M - 1, now.getDate());
-  if (e.m) return (e.y < Y) || (e.y === Y && e.m < M);
-  return e.y < Y;
-}
-const upcoming = all.filter((e) => !isPast(e)).sort((a, b) => a.key - b.key);
-const past = all.filter((e) => isPast(e)).sort((a, b) => b.key - a.key);
+const upcoming = all.filter((e) => !e.past).sort((a, b) => a.key - b.key);
+const past = all.filter((e) => e.past).sort((a, b) => b.key - a.key);
 
 const L = {
   up: blok.label_upcoming || 'À venir',
