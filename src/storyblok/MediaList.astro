@@ -1,0 +1,158 @@
+---
+import { useStoryblokApi, renderRichText, storyblokEditable } from '@storyblok/astro';
+const { blok } = Astro.props;
+
+function ytId(raw) {
+  if (!raw) return '';
+  const s = String(raw).trim();
+  const m = s.match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/|\/live\/)([\w-]{6,})/);
+  if (m) return m[1];
+  if (/^[\w-]{6,}$/.test(s)) return s;
+  return '';
+}
+
+let vstories = [], rstories = [];
+try {
+  const api = useStoryblokApi();
+  const [v, r] = await Promise.all([
+    api.get('cdn/stories', { version: 'draft', content_type: 'video', per_page: 100 }),
+    api.get('cdn/stories', { version: 'draft', content_type: 'report', per_page: 100 }),
+  ]);
+  vstories = v.data.stories || [];
+  rstories = r.data.stories || [];
+} catch (e) { vstories = []; rstories = []; }
+
+const videos = vstories.map((s) => {
+  const c = s.content || {};
+  return {
+    title: c.title || s.name,
+    meta: c.info || c.year || '',
+    yt: ytId(c.youtube_id || c.youtube_url || ''),
+    thumb: c.thumbnail?.filename || '',
+    desc: c.description ? (typeof c.description === 'string' ? c.description : renderRichText(c.description)) : '',
+  };
+});
+const reports = rstories.map((s) => {
+  const c = s.content || {};
+  return {
+    title: c.title || s.name,
+    country: c.country || '',
+    date: c.date || '',
+    pdf: c.pdf?.filename || '',
+    desc: c.description || '',
+  };
+});
+
+const L = {
+  vids: blok.label_videos || 'Vidéos',
+  reps: blok.label_reports || 'Rapports de mission',
+  back: blok.back_label || '← Retour aux médias',
+  read: blok.read_label || 'Lire le rapport',
+  soon: blok.soon_label || 'Vidéo bientôt disponible.',
+  pdfSoon: blok.pdf_soon_label || 'PDF à venir',
+  emptyV: blok.empty_videos || 'Aucune vidéo pour le moment.',
+  emptyR: blok.empty_reports || 'Aucun rapport pour le moment.',
+};
+---
+<section class="media-sec" {...storyblokEditable(blok)} data-media>
+  <div class="wrap">
+    {blok.label && <div class="phead-label disc-label">{blok.label}</div>}
+    {blok.title && <h2 class="disc-h2">{blok.title}</h2>}
+    <div class="media-main">
+      <div class="ev-tabs" role="tablist">
+        <button class="ev-tab active" type="button" data-mtab="videos">{L.vids}</button>
+        <button class="ev-tab" type="button" data-mtab="reports">{L.reps}</button>
+      </div>
+      {blok.intro && <p class="sec-lead ev-intro">{blok.intro}</p>}
+
+      <div class="media-grid" data-grid="videos">
+        {videos.length === 0 && <p class="ev-empty">{L.emptyV}</p>}
+        {videos.map((v) => (
+          <article class="vid-card" data-yt={v.yt} data-title={v.title} data-meta={v.meta}>
+            <div class="vid-ph" style={v.thumb ? `background-image:url(${v.thumb})` : undefined}></div>
+            <div class="bd">
+              <h3>{v.title}</h3>
+              {v.meta && <div class="vid-meta">{v.meta}</div>}
+            </div>
+            <template set:html={v.desc}></template>
+          </article>
+        ))}
+      </div>
+
+      <div class="media-grid media-reports" data-grid="reports" hidden>
+        {reports.length === 0 && <p class="ev-empty">{L.emptyR}</p>}
+        {reports.map((r) => (
+          <div class="rep-card">
+            <div class="rep-row">
+              {r.date && <div class="rep-date">{r.date}</div>}
+              <div class="rep-info">
+                <h3>{r.title}</h3>
+                {r.country && <div class="rep-country">{r.country}</div>}
+              </div>
+            </div>
+            {r.desc && <p class="rep-desc">{r.desc}</p>}
+            {r.pdf
+              ? <a class="btn btn-ghost" href={r.pdf} target="_blank" rel="noopener">{L.read}</a>
+              : <span class="rep-soon">{L.pdfSoon}</span>}
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="vid-detail" hidden>
+      <button class="btn btn-ghost vid-back" type="button">{L.back}</button>
+      <div class="video-embed"></div>
+      <h2 class="vid-d-title"></h2>
+      <div class="vid-d-meta"></div>
+      <div class="vid-d-desc rich"></div>
+    </div>
+  </div>
+</section>
+<script define:vars={{ soon: L.soon }}>
+  function initMedia() {
+    document.querySelectorAll('[data-media]').forEach(function (root) {
+      if (root.dataset.minit) return;
+      root.dataset.minit = '1';
+      var main = root.querySelector('.media-main');
+      var detail = root.querySelector('.vid-detail');
+      var tabs = root.querySelectorAll('.ev-tab');
+      var grids = root.querySelectorAll('.media-grid');
+
+      tabs.forEach(function (t) {
+        t.addEventListener('click', function () {
+          var which = t.getAttribute('data-mtab');
+          tabs.forEach(function (x) { x.classList.remove('active'); });
+          t.classList.add('active');
+          grids.forEach(function (g) { g.hidden = g.getAttribute('data-grid') !== which; });
+        });
+      });
+
+      function openVideo(card) {
+        var yt = card.getAttribute('data-yt');
+        var embed = detail.querySelector('.video-embed');
+        if (yt) {
+          embed.innerHTML = '<iframe src="https://www.youtube.com/embed/' + yt + '?rel=0" title="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+        } else {
+          embed.innerHTML = '<div class="video-soon">' + soon + '</div>';
+        }
+        detail.querySelector('.vid-d-title').textContent = card.getAttribute('data-title') || '';
+        detail.querySelector('.vid-d-meta').textContent = card.getAttribute('data-meta') || '';
+        var tpl = card.querySelector('template');
+        detail.querySelector('.vid-d-desc').innerHTML = tpl ? tpl.innerHTML : '';
+        main.hidden = true;
+        detail.hidden = false;
+        root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      root.querySelectorAll('.vid-card').forEach(function (card) {
+        card.addEventListener('click', function () { openVideo(card); });
+      });
+      detail.querySelector('.vid-back').addEventListener('click', function () {
+        detail.querySelector('.video-embed').innerHTML = '';
+        detail.hidden = true;
+        main.hidden = false;
+      });
+    });
+  }
+  initMedia();
+  document.addEventListener('astro:page-load', initMedia);
+</script>
