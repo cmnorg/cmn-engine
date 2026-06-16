@@ -66,12 +66,14 @@ const L = {
 ---
 <section class="events-sec" {...storyblokEditable(blok)} data-events>
   <div class="wrap">
-    {blok.title && <h2 class="sec-title">{blok.title}</h2>}
+    {blok.label && <div class="phead-label disc-label">{blok.label}</div>}
+    {blok.title && <h2 class="disc-h2">{blok.title}</h2>}
     <div class="ev-list">
       <div class="ev-tabs" role="tablist">
         <button class="ev-tab active" type="button" data-evtab="upcoming">{L.up}</button>
         <button class="ev-tab" type="button" data-evtab="past">{L.past}</button>
       </div>
+      {blok.intro && <p class="sec-lead ev-intro">{blok.intro}</p>}
 
       <div class="ev-grid" data-grid="upcoming">
         {upcoming.length === 0 && <p class="ev-empty">{L.empty}</p>}
