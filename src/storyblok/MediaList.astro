@@ -35,9 +35,11 @@ const videos = vstories.map((s) => {
     meta: c.info || c.year || '',
     yt: ytId(c.youtube_id || c.youtube_url || ''),
     thumb: assetUrl(c.thumbnail),
+    theme: c.theme || '',
     desc: c.description ? (typeof c.description === 'string' ? c.description : renderRichText(c.description)) : '',
   };
 });
+const themes = [...new Set(videos.map((v) => v.theme).filter(Boolean))];
 const reports = rstories.map((s) => {
   const c = s.content || {};
   return {
@@ -60,6 +62,7 @@ const L = {
   pdfSoon: blok.pdf_soon_label || 'PDF à venir',
   emptyV: blok.empty_videos || 'Aucune vidéo pour le moment.',
   emptyR: blok.empty_reports || 'Aucun rapport pour le moment.',
+  all: blok.all_label || 'Tous',
 };
 ---
 <section class="media-sec" {...storyblokEditable(blok)} data-media>
@@ -74,12 +77,19 @@ const L = {
 
       <div class="media-pane" data-pane="videos">
         {introV && <p class="sec-lead">{introV}</p>}
+        {themes.length > 0 && (
+          <div class="vid-filters" role="tablist">
+            <button class="vid-filter active" type="button" data-theme="">{L.all}</button>
+            {themes.map((t) => <button class="vid-filter" type="button" data-theme={t}>{t}</button>)}
+          </div>
+        )}
         <div class="media-grid">
           {videos.length === 0 && <p class="ev-empty">{L.emptyV}</p>}
           {videos.map((v) => (
-            <article class="vid-card" data-yt={v.yt} data-title={v.title} data-meta={v.meta}>
+            <article class="vid-card" data-yt={v.yt} data-title={v.title} data-meta={v.meta} data-theme={v.theme}>
               <div class="vid-ph" style={v.thumb ? `background-image:url(${v.thumb})` : undefined}></div>
               <div class="bd">
+                {v.theme && <span class="vid-theme">{v.theme}</span>}
                 <h3>{v.title}</h3>
                 {v.meta && <div class="vid-meta">{v.meta}</div>}
               </div>
@@ -158,6 +168,19 @@ const L = {
       }
       root.querySelectorAll('.vid-card').forEach(function (card) {
         card.addEventListener('click', function () { openVideo(card); });
+      });
+
+      var filters = root.querySelectorAll('.vid-filter');
+      var vcards = root.querySelectorAll('.vid-card');
+      filters.forEach(function (f) {
+        f.addEventListener('click', function () {
+          var th = f.getAttribute('data-theme');
+          filters.forEach(function (x) { x.classList.remove('active'); });
+          f.classList.add('active');
+          vcards.forEach(function (c) {
+            c.hidden = !!th && c.getAttribute('data-theme') !== th;
+          });
+        });
       });
       detail.querySelector('.vid-back').addEventListener('click', function () {
         detail.querySelector('.video-embed').innerHTML = '';
