@@ -298,3 +298,10 @@ a{color:inherit}
 .vid-d-desc{font-size:16px;line-height:1.75;color:var(--ink);max-width:780px}
 
 .media-pane[hidden]{display:none}
+
+/* Filtres thématiques des vidéos */
+.vid-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.vid-filter{background:var(--white);border:1px solid var(--line);color:var(--muted);font-weight:600;font-size:13.5px;padding:8px 16px;border-radius:20px;cursor:pointer;font-family:var(--font);transition:.15s}
+.vid-filter:hover{border-color:var(--gold-l);color:var(--gold-d)}
+.vid-filter.active{background:var(--gold);border-color:var(--gold);color:var(--char)}
+.vid-theme{display:inline-block;background:var(--gold-soft);color:var(--gold-d);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:6px}
