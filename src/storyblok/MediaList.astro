@@ -47,7 +47,7 @@ const reports = rstories.map((s) => {
     title: c.title || s.name,
     country: c.country || '',
     date: c.date || '',
-    pdf: assetUrl(c.pdf),
+    pdf: assetUrl(c.pdf) || assetUrl(c.pdf_link),
     theme: c.theme || '',
     desc: c.description || '',
   };
