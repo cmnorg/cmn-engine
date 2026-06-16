@@ -34,6 +34,7 @@ const videos = vstories.map((s) => {
     title: c.title || s.name,
     meta: c.info || c.year || '',
     yt: ytId(c.youtube_id || c.youtube_url || ''),
+    file: assetUrl(c.video_file),
     thumb: assetUrl(c.thumbnail),
     theme: c.theme || '',
     desc: c.description ? (typeof c.description === 'string' ? c.description : renderRichText(c.description)) : '',
@@ -47,9 +48,11 @@ const reports = rstories.map((s) => {
     country: c.country || '',
     date: c.date || '',
     pdf: assetUrl(c.pdf),
+    theme: c.theme || '',
     desc: c.description || '',
   };
 });
+const repThemes = [...new Set(reports.map((r) => r.theme).filter(Boolean))];
 
 const introV = blok.intro_videos || blok.intro || '';
 const introR = blok.intro_reports || blok.intro || '';
@@ -86,7 +89,7 @@ const L = {
         <div class="media-grid">
           {videos.length === 0 && <p class="ev-empty">{L.emptyV}</p>}
           {videos.map((v) => (
-            <article class="vid-card" data-yt={v.yt} data-title={v.title} data-meta={v.meta} data-theme={v.theme}>
+            <article class="vid-card" data-yt={v.yt} data-file={v.file} data-title={v.title} data-meta={v.meta} data-theme={v.theme}>
               <div class="vid-ph" style={v.thumb ? `background-image:url(${v.thumb})` : undefined}></div>
               <div class="bd">
                 {v.theme && <span class="vid-theme">{v.theme}</span>}
@@ -101,13 +104,20 @@ const L = {
 
       <div class="media-pane" data-pane="reports" hidden>
         {introR && <p class="sec-lead">{introR}</p>}
+        {repThemes.length > 0 && (
+          <div class="vid-filters" role="tablist">
+            <button class="rep-filter active" type="button" data-theme="">{L.all}</button>
+            {repThemes.map((t) => <button class="rep-filter" type="button" data-theme={t}>{t}</button>)}
+          </div>
+        )}
         <div class="media-grid media-reports">
           {reports.length === 0 && <p class="ev-empty">{L.emptyR}</p>}
           {reports.map((r) => (
-            <div class="rep-card">
+            <div class="rep-card" data-theme={r.theme}>
               <div class="rep-row">
                 {r.date && <div class="rep-date">{r.date}</div>}
                 <div class="rep-info">
+                  {r.theme && <span class="vid-theme">{r.theme}</span>}
                   <h3>{r.title}</h3>
                   {r.country && <div class="rep-country">{r.country}</div>}
                 </div>
@@ -152,9 +162,12 @@ const L = {
 
       function openVideo(card) {
         var yt = card.getAttribute('data-yt');
+        var file = card.getAttribute('data-file');
         var embed = detail.querySelector('.video-embed');
         if (yt) {
           embed.innerHTML = '<iframe src="https://www.youtube.com/embed/' + yt + '?rel=0" title="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+        } else if (file) {
+          embed.innerHTML = '<video src="' + file + '" controls autoplay playsinline style="position:absolute;inset:0;width:100%;height:100%;background:#000"></video>';
         } else {
           embed.innerHTML = '<div class="video-soon">' + soon + '</div>';
         }
@@ -170,18 +183,22 @@ const L = {
         card.addEventListener('click', function () { openVideo(card); });
       });
 
-      var filters = root.querySelectorAll('.vid-filter');
-      var vcards = root.querySelectorAll('.vid-card');
-      filters.forEach(function (f) {
-        f.addEventListener('click', function () {
-          var th = f.getAttribute('data-theme');
-          filters.forEach(function (x) { x.classList.remove('active'); });
-          f.classList.add('active');
-          vcards.forEach(function (c) {
-            c.hidden = !!th && c.getAttribute('data-theme') !== th;
+      function bindFilters(filterSel, cardSel) {
+        var filters = root.querySelectorAll(filterSel);
+        var cards = root.querySelectorAll(cardSel);
+        filters.forEach(function (f) {
+          f.addEventListener('click', function () {
+            var th = f.getAttribute('data-theme');
+            filters.forEach(function (x) { x.classList.remove('active'); });
+            f.classList.add('active');
+            cards.forEach(function (c) {
+              c.hidden = !!th && c.getAttribute('data-theme') !== th;
+            });
           });
         });
-      });
+      }
+      bindFilters('.vid-filter', '.vid-card');
+      bindFilters('.rep-filter', '.rep-card');
       detail.querySelector('.vid-back').addEventListener('click', function () {
         detail.querySelector('.video-embed').innerHTML = '';
         detail.hidden = true;
