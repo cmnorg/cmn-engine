@@ -252,3 +252,11 @@ a{color:inherit}
 .ev-lbl{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--gold-d);font-weight:700;margin-bottom:2px}
 .ev-d-long{font-size:16px;line-height:1.75;color:var(--ink);max-width:780px}
 .ev-d-reg{margin-top:20px}
+
+/* Statistiques d'impact dans les cartes événement (rapports de mission) */
+.ev-stats{display:flex;gap:8px;margin:6px 0 14px}
+.ev-stat{flex:1;background:var(--gold-soft);border-radius:12px;padding:10px 6px;text-align:center}
+.ev-stat .n{font-weight:700;color:var(--char);font-size:17px;line-height:1.1}
+.ev-stat .l{font-size:10.5px;color:var(--muted);line-height:1.25;margin-top:3px}
+.ev-d-stats{max-width:460px;margin:16px 0}
+.ev-d-stats .ev-stats{margin:0}
