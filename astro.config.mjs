@@ -36,6 +36,7 @@ export default defineConfig({
         tab: 'storyblok/Tab',
         events_list: 'storyblok/EventsList',
         media_list: 'storyblok/MediaList',
+        programs_list: 'storyblok/ProgramsList',
       },
     }),
   ],
