@@ -263,3 +263,36 @@ a{color:inherit}
 .ev-d-stats .ev-stats{margin:0}
 
 .ev-intro{margin:18px 0 6px}
+
+/* ===== Médias (vidéos + rapports) ===== */
+.media-sec{padding:24px 0 40px}
+.media-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.media-grid[hidden]{display:none}
+@media(max-width:860px){.media-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.media-grid{grid-template-columns:1fr}}
+.vid-card{background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;cursor:pointer;transition:.18s}
+.vid-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.vid-ph{position:relative;height:172px;background-size:cover;background-position:center;background-color:var(--soft)}
+.vid-ph::after{content:"\25B6";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:30px;background:rgba(20,18,14,.30)}
+.vid-card .bd{padding:16px 18px}
+.vid-card h3{font-size:16px}
+.vid-meta{font-size:12px;color:var(--muted);margin-top:2px}
+/* rapports */
+.media-reports{grid-template-columns:repeat(2,1fr)}
+@media(max-width:680px){.media-reports{grid-template-columns:1fr}}
+.rep-card{background:var(--white);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:flex;flex-direction:column}
+.rep-row{display:flex;gap:14px;align-items:center}
+.rep-date{background:var(--gold-soft);color:var(--gold-d);font-weight:700;font-size:13px;padding:8px 12px;border-radius:12px;white-space:nowrap}
+.rep-info h3{font-size:16px}
+.rep-country{font-size:12px;color:var(--muted)}
+.rep-desc{font-size:13px;color:var(--muted);margin:10px 0 12px}
+.rep-card .btn,.rep-soon{align-self:flex-start;margin-top:auto}
+.rep-soon{font-size:13px;color:var(--muted);font-style:italic}
+/* lecteur vidéo */
+.video-embed{position:relative;padding-top:56.25%;border-radius:var(--r-lg);overflow:hidden;background:#222220;margin-bottom:16px}
+.video-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.video-soon{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#cfcdc4;font-size:14px}
+.vid-detail{padding:6px 0}
+.vid-back{margin-bottom:16px}
+.vid-d-meta{color:var(--muted);font-size:14px;margin:2px 0 10px}
+.vid-d-desc{font-size:16px;line-height:1.75;color:var(--ink);max-width:780px}
