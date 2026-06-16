@@ -10,6 +10,12 @@ function ytId(raw) {
   if (/^[\w-]{6,}$/.test(s)) return s;
   return '';
 }
+function assetUrl(a) {
+  if (!a) return '';
+  if (Array.isArray(a)) return a[0]?.filename || '';
+  if (typeof a === 'string') return a;
+  return a.filename || '';
+}
 
 let vstories = [], rstories = [];
 try {
@@ -28,7 +34,7 @@ const videos = vstories.map((s) => {
     title: c.title || s.name,
     meta: c.info || c.year || '',
     yt: ytId(c.youtube_id || c.youtube_url || ''),
-    thumb: c.thumbnail?.filename || '',
+    thumb: assetUrl(c.thumbnail),
     desc: c.description ? (typeof c.description === 'string' ? c.description : renderRichText(c.description)) : '',
   };
 });
@@ -38,16 +44,18 @@ const reports = rstories.map((s) => {
     title: c.title || s.name,
     country: c.country || '',
     date: c.date || '',
-    pdf: c.pdf?.filename || '',
+    pdf: assetUrl(c.pdf),
     desc: c.description || '',
   };
 });
 
+const introV = blok.intro_videos || blok.intro || '';
+const introR = blok.intro_reports || blok.intro || '';
 const L = {
   vids: blok.label_videos || 'Vidéos',
-  reps: blok.label_reports || 'Rapports de mission',
+  reps: blok.label_reports || 'Rapport de la mission',
   back: blok.back_label || '← Retour aux médias',
-  read: blok.read_label || 'Lire le rapport',
+  read: blok.read_label || 'Lire le rapport (PDF)',
   soon: blok.soon_label || 'Vidéo bientôt disponible.',
   pdfSoon: blok.pdf_soon_label || 'PDF à venir',
   emptyV: blok.empty_videos || 'Aucune vidéo pour le moment.',
@@ -63,39 +71,44 @@ const L = {
         <button class="ev-tab active" type="button" data-mtab="videos">{L.vids}</button>
         <button class="ev-tab" type="button" data-mtab="reports">{L.reps}</button>
       </div>
-      {blok.intro && <p class="sec-lead ev-intro">{blok.intro}</p>}
 
-      <div class="media-grid" data-grid="videos">
-        {videos.length === 0 && <p class="ev-empty">{L.emptyV}</p>}
-        {videos.map((v) => (
-          <article class="vid-card" data-yt={v.yt} data-title={v.title} data-meta={v.meta}>
-            <div class="vid-ph" style={v.thumb ? `background-image:url(${v.thumb})` : undefined}></div>
-            <div class="bd">
-              <h3>{v.title}</h3>
-              {v.meta && <div class="vid-meta">{v.meta}</div>}
-            </div>
-            <template set:html={v.desc}></template>
-          </article>
-        ))}
+      <div class="media-pane" data-pane="videos">
+        {introV && <p class="sec-lead">{introV}</p>}
+        <div class="media-grid">
+          {videos.length === 0 && <p class="ev-empty">{L.emptyV}</p>}
+          {videos.map((v) => (
+            <article class="vid-card" data-yt={v.yt} data-title={v.title} data-meta={v.meta}>
+              <div class="vid-ph" style={v.thumb ? `background-image:url(${v.thumb})` : undefined}></div>
+              <div class="bd">
+                <h3>{v.title}</h3>
+                {v.meta && <div class="vid-meta">{v.meta}</div>}
+              </div>
+              <template set:html={v.desc}></template>
+            </article>
+          ))}
+        </div>
       </div>
 
-      <div class="media-grid media-reports" data-grid="reports" hidden>
-        {reports.length === 0 && <p class="ev-empty">{L.emptyR}</p>}
-        {reports.map((r) => (
-          <div class="rep-card">
-            <div class="rep-row">
-              {r.date && <div class="rep-date">{r.date}</div>}
-              <div class="rep-info">
-                <h3>{r.title}</h3>
-                {r.country && <div class="rep-country">{r.country}</div>}
+      <div class="media-pane" data-pane="reports" hidden>
+        {introR && <p class="sec-lead">{introR}</p>}
+        <div class="media-grid media-reports">
+          {reports.length === 0 && <p class="ev-empty">{L.emptyR}</p>}
+          {reports.map((r) => (
+            <div class="rep-card">
+              <div class="rep-row">
+                {r.date && <div class="rep-date">{r.date}</div>}
+                <div class="rep-info">
+                  <h3>{r.title}</h3>
+                  {r.country && <div class="rep-country">{r.country}</div>}
+                </div>
               </div>
+              {r.desc && <p class="rep-desc">{r.desc}</p>}
+              {r.pdf
+                ? <a class="btn btn-ghost" href={r.pdf} target="_blank" rel="noopener">{L.read}</a>
+                : <span class="rep-soon">{L.pdfSoon}</span>}
             </div>
-            {r.desc && <p class="rep-desc">{r.desc}</p>}
-            {r.pdf
-              ? <a class="btn btn-ghost" href={r.pdf} target="_blank" rel="noopener">{L.read}</a>
-              : <span class="rep-soon">{L.pdfSoon}</span>}
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
 
@@ -116,14 +129,14 @@ const L = {
       var main = root.querySelector('.media-main');
       var detail = root.querySelector('.vid-detail');
       var tabs = root.querySelectorAll('.ev-tab');
-      var grids = root.querySelectorAll('.media-grid');
+      var panes = root.querySelectorAll('.media-pane');
 
       tabs.forEach(function (t) {
         t.addEventListener('click', function () {
           var which = t.getAttribute('data-mtab');
           tabs.forEach(function (x) { x.classList.remove('active'); });
           t.classList.add('active');
-          grids.forEach(function (g) { g.hidden = g.getAttribute('data-grid') !== which; });
+          panes.forEach(function (p) { p.hidden = p.getAttribute('data-pane') !== which; });
         });
       });
 
