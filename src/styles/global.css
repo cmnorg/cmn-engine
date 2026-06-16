@@ -296,3 +296,5 @@ a{color:inherit}
 .vid-back{margin-bottom:16px}
 .vid-d-meta{color:var(--muted);font-size:14px;margin:2px 0 10px}
 .vid-d-desc{font-size:16px;line-height:1.75;color:var(--ink);max-width:780px}
+
+.media-pane[hidden]{display:none}
