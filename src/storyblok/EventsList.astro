@@ -18,9 +18,15 @@ try {
 } catch (e) { stories = []; }
 
 const fallbackReg = blok.register_fallback?.url || blok.register_fallback?.cached_url || '/contact';
+const defaultMore = blok.more_label || 'En savoir plus';
 const all = stories.map((s) => {
   const c = s.content || {};
   const y = Number(c.year) || 0, m = Number(c.month) || 0, d = Number(c.day) || 0;
+  const stats = [
+    { v: c.stat1_value, l: c.stat1_label },
+    { v: c.stat2_value, l: c.stat2_label },
+    { v: c.stat3_value, l: c.stat3_label },
+  ].filter((st) => st.v);
   return {
     title: c.title || s.name,
     place: c.place || '',
@@ -32,13 +38,15 @@ const all = stories.map((s) => {
     long: c.long_description ? renderRichText(c.long_description) : '',
     register: !!c.register,
     registerLink: c.register_link?.url || c.register_link?.cached_url || fallbackReg,
+    stats,
+    btn: c.button_label || defaultMore,
   };
 });
 
 const now = new Date();
-const Y = now.getFullYear(), M = now.getMonth() + 1, D = now.getDate();
+const Y = now.getFullYear(), M = now.getMonth() + 1;
 function isPast(e) {
-  if (e.d && e.m) return new Date(e.y, e.m - 1, e.d) < new Date(Y, M - 1, D);
+  if (e.d && e.m) return new Date(e.y, e.m - 1, e.d) < new Date(Y, M - 1, now.getDate());
   if (e.m) return (e.y < Y) || (e.y === Y && e.m < M);
   return e.y < Y;
 }
@@ -48,10 +56,10 @@ const past = all.filter((e) => isPast(e)).sort((a, b) => b.key - a.key);
 const L = {
   up: blok.label_upcoming || 'À venir',
   past: blok.label_past || 'Passés',
-  more: blok.more_label || 'En savoir plus',
   reg: blok.register_label || "Je m'inscris",
   back: blok.back_label || '← Retour aux actualités',
   empty: blok.empty_label || 'Aucun événement à venir pour le moment.',
+  emptyPast: blok.empty_past || 'Aucun événement passé.',
   when: blok.when_label || 'Quand',
   where: blok.where_label || 'Où',
 };
@@ -74,8 +82,13 @@ const L = {
               <span class="badge">{e.date}</span>
               <h3>{e.title}</h3>
               {e.place && <div class="ev-place">{e.place}</div>}
+              {e.stats.length > 0 && (
+                <div class="ev-stats">
+                  {e.stats.map((st) => <div class="ev-stat"><div class="n">{st.v}</div><div class="l">{st.l}</div></div>)}
+                </div>
+              )}
               {e.description && <p>{e.description}</p>}
-              <button class="btn btn-ghost ev-more" type="button">{L.more}</button>
+              <button class="btn btn-ghost ev-more" type="button">{e.btn}</button>
             </div>
             <template set:html={e.long}></template>
           </article>
@@ -83,7 +96,7 @@ const L = {
       </div>
 
       <div class="ev-grid" data-grid="past" hidden>
-        {past.length === 0 && <p class="ev-empty">{blok.empty_past || 'Aucun événement passé.'}</p>}
+        {past.length === 0 && <p class="ev-empty">{L.emptyPast}</p>}
         {past.map((e) => (
           <article class="evt-card" data-date={e.date} data-title={e.title} data-place={e.place} data-image={e.image} data-register={e.register ? '1' : ''} data-register-link={e.registerLink}>
             {e.image && <div class="ph" style={`background-image:url(${e.image})`}></div>}
@@ -91,8 +104,13 @@ const L = {
               <span class="badge">{e.date}</span>
               <h3>{e.title}</h3>
               {e.place && <div class="ev-place">{e.place}</div>}
+              {e.stats.length > 0 && (
+                <div class="ev-stats">
+                  {e.stats.map((st) => <div class="ev-stat"><div class="n">{st.v}</div><div class="l">{st.l}</div></div>)}
+                </div>
+              )}
               {e.description && <p>{e.description}</p>}
-              <button class="btn btn-ghost ev-more" type="button">{L.more}</button>
+              <button class="btn btn-ghost ev-more" type="button">{e.btn}</button>
             </div>
             <template set:html={e.long}></template>
           </article>
@@ -107,6 +125,7 @@ const L = {
         <div><div class="ev-lbl">{L.when}</div><div class="ev-d-when"></div></div>
         <div><div class="ev-lbl">{L.where}</div><div class="ev-d-where"></div></div>
       </div>
+      <div class="ev-d-stats"></div>
       <div class="ev-d-long rich"></div>
       <div class="ev-d-reg" hidden><a class="btn btn-gold ev-d-reglink">{L.reg}</a></div>
     </div>
@@ -139,6 +158,8 @@ const L = {
         detail.querySelector('.ev-d-title').textContent = card.getAttribute('data-title') || '';
         detail.querySelector('.ev-d-when').textContent = card.getAttribute('data-date') || '';
         detail.querySelector('.ev-d-where').textContent = card.getAttribute('data-place') || '';
+        var stats = card.querySelector('.ev-stats');
+        detail.querySelector('.ev-d-stats').innerHTML = stats ? stats.outerHTML : '';
         var tpl = card.querySelector('template');
         detail.querySelector('.ev-d-long').innerHTML = tpl ? tpl.innerHTML : '';
         var reg = detail.querySelector('.ev-d-reg');
