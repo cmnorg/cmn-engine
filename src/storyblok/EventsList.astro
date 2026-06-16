@@ -32,6 +32,7 @@ const all = stories.map((s) => {
   const c = s.content || {};
   const y = Number(c.year) || 0, m = Number(c.month) || 0, d = Number(c.day) || 0;
   const past = isPast(y, m, d);
+  const regLink = c.register_link?.url || c.register_link?.cached_url || '';
   const stats = [
     { v: c.stat1_value, l: c.stat1_label },
     { v: c.stat2_value, l: c.stat2_label },
@@ -46,8 +47,8 @@ const all = stories.map((s) => {
     image: c.image?.filename || '',
     description: c.description || '',
     long: c.long_description ? renderRichText(c.long_description) : '',
-    register: !!c.register && !past,
-    registerLink: c.register_link?.url || c.register_link?.cached_url || fallbackReg,
+    register: (!!c.register || !!regLink) && !past,
+    registerLink: regLink || fallbackReg,
     stats,
     btn: c.button_label || defaultMore,
   };
