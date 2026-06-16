@@ -1,0 +1,111 @@
+---
+import { useStoryblokApi, renderRichText, storyblokEditable } from '@storyblok/astro';
+const { blok } = Astro.props;
+
+function assetUrl(a) {
+  if (!a) return '';
+  if (Array.isArray(a)) return assetUrl(a[0]);
+  if (typeof a === 'string') return a;
+  return a.filename || a.url || a.cached_url || '';
+}
+
+let stories = [];
+try {
+  const api = useStoryblokApi();
+  const { data } = await api.get('cdn/stories', { version: 'draft', content_type: 'program', per_page: 100 });
+  stories = data.stories || [];
+} catch (e) { stories = []; }
+
+const programs = stories.map((s) => {
+  const c = s.content || {};
+  return {
+    title: c.title || s.name,
+    duration: c.duration || '',
+    short: c.short_desc || c.description || '',
+    long: c.long_desc ? renderRichText(c.long_desc) : (c.long_description ? renderRichText(c.long_description) : ''),
+    learn: c.learn_points ? renderRichText(c.learn_points) : '',
+    image: assetUrl(c.image),
+  };
+});
+
+const ctaLabel = blok.cta_label || "S'inscrire";
+const ctaLink = blok.cta_link?.url || blok.cta_link?.cached_url || '/contact';
+const L = {
+  more: blok.more_label || 'Découvrir le programme',
+  back: blok.back_label || '← Retour aux programmes',
+  learn: blok.learn_title || 'Ce que vous y vivrez',
+  empty: blok.empty_label || 'Aucun programme pour le moment.',
+};
+---
+<section class="programs-sec" {...storyblokEditable(blok)} data-programs>
+  <div class="wrap">
+    {blok.label && <div class="phead-label disc-label">{blok.label}</div>}
+    {blok.title && <h2 class="disc-h2">{blok.title}</h2>}
+    <div class="prog-list">
+      {blok.intro && <p class="sec-lead">{blok.intro}</p>}
+      <div class="ev-grid">
+        {programs.length === 0 && <p class="ev-empty">{L.empty}</p>}
+        {programs.map((p) => (
+          <article class="evt-card" data-title={p.title} data-duration={p.duration} data-image={p.image}>
+            {p.image && <div class="ph" style={`background-image:url(${p.image})`}></div>}
+            <div class="bd">
+              {p.duration && <span class="badge">{p.duration}</span>}
+              <h3>{p.title}</h3>
+              {p.short && <p>{p.short}</p>}
+              <button class="btn btn-ghost prog-more" type="button">{L.more}</button>
+            </div>
+            <template class="prog-long" set:html={p.long}></template>
+            <template class="prog-learn" set:html={p.learn}></template>
+          </article>
+        ))}
+      </div>
+    </div>
+
+    <div class="prog-detail" hidden>
+      <button class="btn btn-ghost prog-back" type="button">{L.back}</button>
+      <div class="ev-hero"><div class="ev-hero-ov"><span class="badge prog-d-duration"></span><h3 class="prog-d-title"></h3></div></div>
+      <div class="prog-d-long rich"></div>
+      <div class="prog-d-learn-wrap" hidden>
+        <h3 class="prog-learn-title">{L.learn}</h3>
+        <div class="prog-d-learn rich"></div>
+      </div>
+      <div class="prog-d-cta"><a class="btn btn-gold" href={ctaLink}>{ctaLabel}</a></div>
+    </div>
+  </div>
+</section>
+<script>
+  function initPrograms() {
+    document.querySelectorAll('[data-programs]').forEach(function (root) {
+      if (root.dataset.pinit) return;
+      root.dataset.pinit = '1';
+      var list = root.querySelector('.prog-list');
+      var detail = root.querySelector('.prog-detail');
+      if (!list || !detail) return;
+      function open(card) {
+        var img = card.getAttribute('data-image');
+        var hero = detail.querySelector('.ev-hero');
+        hero.style.backgroundImage = img ? ('linear-gradient(rgba(0,0,0,.15),rgba(0,0,0,.45)),url(' + img + ')') : '';
+        detail.querySelector('.prog-d-duration').textContent = card.getAttribute('data-duration') || '';
+        detail.querySelector('.prog-d-title').textContent = card.getAttribute('data-title') || '';
+        var longTpl = card.querySelector('.prog-long');
+        detail.querySelector('.prog-d-long').innerHTML = longTpl ? longTpl.innerHTML : '';
+        var learnTpl = card.querySelector('.prog-learn');
+        var learnHtml = learnTpl ? learnTpl.innerHTML.trim() : '';
+        detail.querySelector('.prog-d-learn').innerHTML = learnHtml;
+        detail.querySelector('.prog-d-learn-wrap').hidden = !learnHtml;
+        list.hidden = true;
+        detail.hidden = false;
+        root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      root.querySelectorAll('.prog-more').forEach(function (btn) {
+        btn.addEventListener('click', function () { open(btn.closest('.evt-card')); });
+      });
+      detail.querySelector('.prog-back').addEventListener('click', function () {
+        detail.hidden = true;
+        list.hidden = false;
+      });
+    });
+  }
+  initPrograms();
+  document.addEventListener('astro:page-load', initPrograms);
+</script>
