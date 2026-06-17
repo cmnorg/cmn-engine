@@ -1,0 +1,140 @@
+---
+import { useStoryblokApi, renderRichText, storyblokEditable } from '@storyblok/astro';
+const { blok } = Astro.props;
+
+function assetUrl(a) {
+  if (!a) return '';
+  if (Array.isArray(a)) return assetUrl(a[0]);
+  if (typeof a === 'string') return a;
+  return a.filename || a.url || a.cached_url || '';
+}
+function ytId(raw) {
+  if (!raw) return '';
+  const s = String(raw).trim();
+  const m = s.match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/|\/live\/)([\w-]{6,})/);
+  if (m) return m[1];
+  if (/^[\w-]{6,}$/.test(s)) return s;
+  return '';
+}
+
+const yt = ytId(blok.youtube_id || blok.youtube_url || '');
+const file = assetUrl(blok.video_file);
+const summary = blok.summary ? renderRichText(blok.summary) : '';
+const prayer = blok.prayer ? renderRichText(blok.prayer) : '';
+const quiz = Array.isArray(blok.quiz) ? blok.quiz : [];
+
+// Lien retour vers le parcours
+let backUrl = '/academy', backLabel = '← Retour au parcours';
+try {
+  if (blok.track) {
+    const api = useStoryblokApi();
+    const { data } = await api.get('cdn/stories', { version: 'draft', content_type: 'track', filter_query: { key: { in: blok.track } }, per_page: 1 });
+    const tr = (data.stories || [])[0];
+    if (tr) { backUrl = '/' + tr.full_slug; backLabel = '← ' + (tr.content?.title || 'Retour au parcours'); }
+  }
+} catch (e) {}
+---
+<section class="course-page" {...storyblokEditable(blok)} data-course-page data-slug={Astro.params?.slug || ''}>
+  <div class="wrap">
+    <a class="btn btn-ghost" href={backUrl}>{backLabel}</a>
+    <h1 class="course-title">{blok.title}</h1>
+
+    {(yt || file) && (
+      <div class="video-embed course-video">
+        {yt
+          ? <iframe src={`https://www.youtube.com/embed/${yt}?rel=0`} title={blok.title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          : <video src={file} controls playsinline></video>}
+      </div>
+    )}
+
+    {summary && (<div class="course-block"><h2>Résumé</h2><div class="rich" set:html={summary}></div></div>)}
+
+    {blok.verses && (<div class="course-block course-verses"><h2>Versets</h2><blockquote class="verse">{blok.verses}</blockquote></div>)}
+
+    {prayer && (<div class="course-block course-prayer"><h2>Prière guidée</h2><div class="rich" set:html={prayer}></div></div>)}
+
+    {blok.practical_action && (<div class="course-block course-action"><h2>Action pratique</h2><p>{blok.practical_action}</p></div>)}
+
+    {quiz.length > 0 && (
+      <div class="course-block course-quiz" data-quiz>
+        <h2>Quiz</h2>
+        {quiz.map((q, qi) => (
+          <div class="cq" data-correct={q.correct}>
+            <div class="cq-q">{qi + 1}. {q.question}</div>
+            <div class="cq-opts">
+              {[q.option_a, q.option_b, q.option_c, q.option_d].filter(Boolean).map((opt, oi) => (
+                <button class="cq-opt" type="button" data-i={oi + 1}>{opt}</button>
+              ))}
+            </div>
+          </div>
+        ))}
+        <button class="btn btn-ghost cq-check" type="button">Vérifier mes réponses</button>
+        <div class="cq-score" hidden></div>
+      </div>
+    )}
+
+    <div class="course-done-bar">
+      <button class="btn btn-gold course-done" type="button">Marquer ce cours comme terminé</button>
+      <span class="course-done-ok" hidden>✓ Cours terminé</span>
+    </div>
+  </div>
+</section>
+<script>
+  function initCourse() {
+    document.querySelectorAll('[data-course-page]').forEach(function (root) {
+      if (root.dataset.cinit) return; root.dataset.cinit = '1';
+      var slug = root.getAttribute('data-slug') || location.pathname.replace(/^\/|\/$/g, '');
+
+      // Quiz
+      var quiz = root.querySelector('[data-quiz]');
+      if (quiz) {
+        quiz.querySelectorAll('.cq').forEach(function (cq) {
+          cq.querySelectorAll('.cq-opt').forEach(function (opt) {
+            opt.addEventListener('click', function () {
+              cq.querySelectorAll('.cq-opt').forEach(function (x) { x.classList.remove('on'); });
+              opt.classList.add('on');
+            });
+          });
+        });
+        var check = quiz.querySelector('.cq-check');
+        var score = quiz.querySelector('.cq-score');
+        check.addEventListener('click', function () {
+          var cqs = quiz.querySelectorAll('.cq'), good = 0;
+          cqs.forEach(function (cq) {
+            var correct = parseInt(cq.getAttribute('data-correct'), 10);
+            var sel = cq.querySelector('.cq-opt.on');
+            cq.querySelectorAll('.cq-opt').forEach(function (o) { o.classList.remove('ok', 'ko'); });
+            cq.querySelectorAll('.cq-opt').forEach(function (o) {
+              if (parseInt(o.getAttribute('data-i'), 10) === correct) o.classList.add('ok');
+            });
+            if (sel) {
+              if (parseInt(sel.getAttribute('data-i'), 10) === correct) good++;
+              else sel.classList.add('ko');
+            }
+          });
+          score.hidden = false;
+          score.textContent = 'Score : ' + good + ' / ' + cqs.length;
+        });
+      }
+
+      // Terminé (localStorage)
+      function readDone() { try { return JSON.parse(localStorage.getItem('cmn_academy_done') || '{}'); } catch (e) { return {}; } }
+      function writeDone(o) { try { localStorage.setItem('cmn_academy_done', JSON.stringify(o)); } catch (e) {} }
+      var btn = root.querySelector('.course-done');
+      var ok = root.querySelector('.course-done-ok');
+      function refresh() {
+        var done = readDone();
+        if (done[slug]) { btn.textContent = 'Retirer « terminé »'; ok.hidden = false; }
+        else { btn.textContent = 'Marquer ce cours comme terminé'; ok.hidden = true; }
+      }
+      btn.addEventListener('click', function () {
+        var done = readDone();
+        if (done[slug]) delete done[slug]; else done[slug] = true;
+        writeDone(done); refresh();
+      });
+      refresh();
+    });
+  }
+  initCourse();
+  document.addEventListener('astro:page-load', initCourse);
+</script>
