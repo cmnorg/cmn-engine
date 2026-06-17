@@ -99,7 +99,7 @@ const questions = cmsQuestions.length ? cmsQuestions : defaultQuestions;
         </div>
         <div class="quiz-body">
           {questions.map((qq, qi) => (
-            <div class="quiz-q" data-q={qi}>
+            <div class="quiz-q" data-q={qi} hidden={qi > 0 ? true : undefined}>
               <div class="quiz-q-label">{qi + 1}. {qq.q}</div>
               <div class="quiz-opts">
                 {qq.options.map((o) => (
@@ -159,41 +159,61 @@ const questions = cmsQuestions.length ? cmsQuestions : defaultQuestions;
           box.querySelector('.track-prog-txt').textContent = d + '/' + slugs.length + ' terminés';
         }
       });
-      // quiz d'orientation
+      // quiz d'orientation (adaptatif)
       var quiz = root.querySelector('[data-quiz]');
       if (!quiz) return;
       var result = quiz.querySelector('.quiz-result');
       var inner = quiz.querySelector('.quiz-result-inner');
-      function compute() {
-        var qs = quiz.querySelectorAll('.quiz-q');
-        var answered = 0, stages = [];
-        qs.forEach(function (q) {
-          var sel = q.querySelector('.quiz-opt.on');
-          if (sel) { answered++; stages.push(parseInt(sel.getAttribute('data-stage'), 10) || 0); }
-        });
-        if (answered < qs.length) { result.hidden = true; return; }
-        // 1re question = socle spirituel. Si on ne connaît pas encore Jésus / nouveau converti,
-        // on reste à ce niveau. Sinon (chrétien établi), le rôle/aspiration fait monter.
-        var base = stages[0];
-        var stage = base < 2 ? base : Math.max.apply(null, stages);
+      var allQs = Array.prototype.slice.call(quiz.querySelectorAll('.quiz-q'));
+      var firstQ = allQs[0];
+      var laterQs = allQs.slice(1);
+
+      function firstStage() {
+        if (!firstQ) return null;
+        var sel = firstQ.querySelector('.quiz-opt.on');
+        return sel ? (parseInt(sel.getAttribute('data-stage'), 10) || 0) : null;
+      }
+      function setLaterVisible(v) { laterQs.forEach(function (q) { q.hidden = !v; }); }
+      function messageFor(stage) {
+        if (stage === 0) return 'Bienvenue ! C’est une belle décision de vouloir découvrir Jésus. Voici par où commencer :';
+        if (stage === 1) return 'Félicitations pour ce nouveau départ avec Dieu ! Voici les fondations pour bien grandir :';
+        return 'Voici le parcours qui correspond à là où tu en es aujourd’hui :';
+      }
+      function showReco(stage) {
         var key = stageKeys[stage] || stageKeys[0];
         var reco = recoMap[key] || Object.values(recoMap)[0];
         if (!reco) return;
-        inner.innerHTML = '<div class="quiz-reco-label">Parcours recommandé</div>'
+        inner.innerHTML = '<div class="quiz-reco-msg">' + messageFor(stage) + '</div>'
+          + '<div class="quiz-reco-label">Parcours recommandé</div>'
           + '<div class="quiz-reco-title">' + (reco.icon || '') + ' ' + reco.title + '</div>'
           + '<a class="btn btn-gold" href="' + reco.url + '">Commencer ce parcours</a>';
         result.hidden = false;
         result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
-      quiz.querySelectorAll('.quiz-q').forEach(function (q) {
+      function update() {
+        var base = firstStage();
+        if (base === null) { setLaterVisible(false); result.hidden = true; return; }
+        if (base < 2) { setLaterVisible(false); showReco(base); return; }
+        setLaterVisible(true);
+        var stages = [base], complete = true;
+        laterQs.forEach(function (q) {
+          var sel = q.querySelector('.quiz-opt.on');
+          if (sel) stages.push(parseInt(sel.getAttribute('data-stage'), 10) || 0);
+          else complete = false;
+        });
+        if (!complete) { result.hidden = true; return; }
+        showReco(Math.max.apply(null, stages));
+      }
+      allQs.forEach(function (q) {
         q.querySelectorAll('.quiz-opt').forEach(function (opt) {
           opt.addEventListener('click', function () {
             q.querySelectorAll('.quiz-opt').forEach(function (x) { x.classList.remove('on'); });
             opt.classList.add('on');
-            compute();
+            update();
           });
         });
       });
+      setLaterVisible(false);
     });
   }
   initAcademy();
