@@ -1,0 +1,79 @@
+---
+import { useStoryblokApi, storyblokEditable } from '@storyblok/astro';
+const { blok } = Astro.props;
+
+function assetUrl(a) {
+  if (!a) return '';
+  if (Array.isArray(a)) return assetUrl(a[0]);
+  if (typeof a === 'string') return a;
+  return a.filename || a.url || a.cached_url || '';
+}
+
+const key = blok.key || '';
+let courseStories = [];
+try {
+  const api = useStoryblokApi();
+  const { data } = await api.get('cdn/stories', {
+    version: 'draft', content_type: 'course', per_page: 100,
+    filter_query: { track: { in: key } },
+  });
+  courseStories = data.stories || [];
+} catch (e) { courseStories = []; }
+
+const courses = courseStories.map((s) => {
+  const c = s.content || {};
+  return {
+    title: c.title || s.name,
+    summary: c.summary_short || '',
+    order: Number(c.order) || 999,
+    url: '/' + s.full_slug,
+    slug: s.full_slug,
+  };
+}).sort((a, b) => a.order - b.order);
+
+const illus = assetUrl(blok.illustration);
+const backUrl = blok.back_link?.url || blok.back_link?.cached_url || '/academy';
+---
+<section class="track-page" {...storyblokEditable(blok)} data-track-page>
+  <div class="wrap">
+    <a class="btn btn-ghost track-back" href={backUrl}>← Tous les parcours</a>
+    <div class="track-hero" style={illus ? `background-image:linear-gradient(rgba(20,18,14,.45),rgba(20,18,14,.7)),url(${illus})` : undefined}>
+      <div class="track-hero-in">
+        {blok.icon && <span class="track-hero-icon">{blok.icon}</span>}
+        <h1>{blok.title}</h1>
+        {blok.subtitle && <p>{blok.subtitle}</p>}
+        <div class="track-hero-meta">
+          <span>{courses.length} cours</span>
+          {blok.level && <span>· {blok.level}</span>}
+          {blok.duration && <span>· {blok.duration}</span>}
+        </div>
+      </div>
+    </div>
+
+    <div class="course-list" data-progress-host={key}>
+      {courses.length === 0 && <p class="ev-empty">Les cours de ce parcours arrivent bientôt.</p>}
+      {courses.map((co, i) => (
+        <a class="course-row" href={co.url} data-course={co.slug}>
+          <span class="course-num">{i + 1}</span>
+          <span class="course-check" aria-hidden="true">✓</span>
+          <span class="course-info">
+            <strong>{co.title}</strong>
+            {co.summary && <em>{co.summary}</em>}
+          </span>
+          <span class="course-go" aria-hidden="true">→</span>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+<script>
+  function initTrackProgress() {
+    var done;
+    try { done = JSON.parse(localStorage.getItem('cmn_academy_done') || '{}'); } catch (e) { done = {}; }
+    document.querySelectorAll('[data-track-page] .course-row').forEach(function (row) {
+      if (done[row.getAttribute('data-course')]) row.classList.add('is-done');
+    });
+  }
+  initTrackProgress();
+  document.addEventListener('astro:page-load', initTrackProgress);
+</script>
