@@ -403,3 +403,23 @@ a{color:inherit}
 .cq-score{margin-top:10px;font-weight:700;color:var(--gold-d)}
 .course-done-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:22px;margin-top:8px}
 .course-done-ok{color:#2e7d32;font-weight:700}
+
+/* ===== Academy — design premium (overrides) ===== */
+.acad{padding:30px 0 52px}
+.track-grid{gap:24px}
+.track-card{border-radius:22px;transition:transform .22s,box-shadow .22s,border-color .22s}
+.track-card:hover{transform:translateY(-6px);box-shadow:0 18px 42px rgba(30,26,16,.16)}
+.track-illus{height:118px;display:block;align-items:initial;justify-content:initial}
+.track-card.accent-0 .track-illus{background:linear-gradient(135deg,#F7E8C4,#E7C679)}
+.track-card.accent-1 .track-illus{background:linear-gradient(135deg,#DEEAD2,#A6C98A)}
+.track-card.accent-2 .track-illus{background:linear-gradient(135deg,#D8E3F0,#97B6D6)}
+.track-card.accent-3 .track-illus{background:linear-gradient(135deg,#F3DACE,#E0A88D)}
+.track-card.accent-4 .track-illus{background:linear-gradient(135deg,#E8DDF2,#B7A1D6)}
+.track-icon{position:relative;z-index:2;margin:-46px 0 14px;width:62px;height:62px;border-radius:18px;background:#fff;box-shadow:0 8px 18px rgba(30,26,16,.18);display:flex;align-items:center;justify-content:center;font-size:30px;filter:none}
+.track-body{padding:0 22px 24px}
+.track-body h3{font-size:20px;font-weight:700;margin-bottom:6px}
+.track-body p{font-size:14px;color:var(--muted);line-height:1.55;margin-bottom:14px}
+.track-meta{font-size:12.5px;color:var(--gold-d);font-weight:700}
+.track-cta{margin-top:auto;border-radius:14px;box-shadow:0 6px 16px rgba(192,152,46,.30)}
+.acad .disc-h2{font-size:clamp(28px,4vw,42px)}
+.quiz-card{border-radius:22px;box-shadow:0 14px 34px rgba(30,26,16,.10)}
