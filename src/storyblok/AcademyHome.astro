@@ -38,9 +38,10 @@ const tracks = trackStories.map((s) => {
     level: c.level || '',
     duration: c.duration || '',
     cta: c.cta_label || 'Commencer',
-    order: Number(c.order) || 999,
     url: '/' + s.full_slug,
     count: (trackCourses[key] || []).length,
+    advice: c.advice || '',
+    order: Number(c.order) || ({ 'decouvrir': 1, 'premiers-pas': 2, 'disciple': 3, 'faire-disciples': 4, 'leadership': 5 }[key]) || 999,
   };
 }).sort((a, b) => a.order - b.order);
 
@@ -119,10 +120,10 @@ const questions = cmsQuestions.length ? cmsQuestions : defaultQuestions;
       {tracks.length === 0 && <p class="ev-empty">Aucun parcours pour le moment.</p>}
       {tracks.map((t, i) => (
         <a class={`track-card accent-${i % 5}`} href={t.url} data-track={t.key} data-count={t.count}>
-          <div class="track-illus" style={t.illustration ? `background-image:url(${t.illustration})` : undefined}>
-            <span class="track-icon">{t.icon}</span>
-          </div>
+          <div class="track-illus" style={t.illustration ? `background-image:url(${t.illustration})` : undefined}></div>
           <div class="track-body">
+            <span class="track-icon">{t.icon}</span>
+            <span class="track-reco-badge" hidden>✨ Recommandé pour toi</span>
             <h3>{t.title}</h3>
             {t.subtitle && <p>{t.subtitle}</p>}
             <div class="track-meta">
@@ -130,6 +131,7 @@ const questions = cmsQuestions.length ? cmsQuestions : defaultQuestions;
               {t.level && <span>· {t.level}</span>}
               {t.duration && <span>· {t.duration}</span>}
             </div>
+            {t.advice && <div class="track-advice">{t.advice}</div>}
             <div class="track-prog" data-track-prog hidden><div class="track-prog-bar"><i></i></div><span class="track-prog-txt"></span></div>
             <span class="btn btn-gold track-cta">{t.cta}</span>
           </div>
@@ -188,7 +190,19 @@ const questions = cmsQuestions.length ? cmsQuestions : defaultQuestions;
           + '<div class="quiz-reco-title">' + (reco.icon || '') + ' ' + reco.title + '</div>'
           + '<a class="btn btn-gold" href="' + reco.url + '">Commencer ce parcours</a>';
         result.hidden = false;
-        result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        // mettre en avant la carte du parcours recommandé
+        root.querySelectorAll('.track-card').forEach(function (c) {
+          c.classList.remove('is-reco');
+          var b = c.querySelector('.track-reco-badge'); if (b) b.hidden = true;
+        });
+        var card = root.querySelector('.track-card[data-track="' + key + '"]');
+        if (card) {
+          card.classList.add('is-reco');
+          var badge = card.querySelector('.track-reco-badge'); if (badge) badge.hidden = false;
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
       }
       function update() {
         var base = firstStage();
