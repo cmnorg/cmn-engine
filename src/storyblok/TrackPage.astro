@@ -33,11 +33,12 @@ const courses = courseStories.map((s) => {
 
 const illus = assetUrl(blok.illustration);
 const backUrl = blok.back_link?.url || blok.back_link?.cached_url || '/academy';
+const first = courses[0];
 ---
 <section class="track-page" {...storyblokEditable(blok)} data-track-page>
   <div class="wrap">
     <a class="btn btn-ghost track-back" href={backUrl}>← Tous les parcours</a>
-    <div class="track-hero" style={illus ? `background-image:linear-gradient(rgba(20,18,14,.45),rgba(20,18,14,.7)),url(${illus})` : undefined}>
+    <div class="track-hero" style={illus ? `background-image:linear-gradient(rgba(20,18,14,.55),rgba(20,18,14,.78)),url(${illus})` : undefined}>
       <div class="track-hero-in">
         {blok.icon && <span class="track-hero-icon">{blok.icon}</span>}
         <h1>{blok.title}</h1>
@@ -47,10 +48,16 @@ const backUrl = blok.back_link?.url || blok.back_link?.cached_url || '/academy';
           {blok.level && <span>· {blok.level}</span>}
           {blok.duration && <span>· {blok.duration}</span>}
         </div>
+        <div class="track-hero-prog" data-track-prog hidden>
+          <div class="thp-bar"><i></i></div>
+          <span class="thp-txt"></span>
+        </div>
+        {first && <a class="btn btn-gold track-hero-cta" href={first.url}>Commencer le parcours</a>}
       </div>
     </div>
 
-    <div class="course-list" data-progress-host={key}>
+    <h2 class="course-list-title">Les cours du parcours</h2>
+    <div class="course-list">
       {courses.length === 0 && <p class="ev-empty">Les cours de ce parcours arrivent bientôt.</p>}
       {courses.map((co, i) => (
         <a class="course-row" href={co.url} data-course={co.slug}>
@@ -70,8 +77,23 @@ const backUrl = blok.back_link?.url || blok.back_link?.cached_url || '/academy';
   function initTrackProgress() {
     var done;
     try { done = JSON.parse(localStorage.getItem('cmn_academy_done') || '{}'); } catch (e) { done = {}; }
-    document.querySelectorAll('[data-track-page] .course-row').forEach(function (row) {
-      if (done[row.getAttribute('data-course')]) row.classList.add('is-done');
+    document.querySelectorAll('[data-track-page]').forEach(function (root) {
+      var rows = root.querySelectorAll('.course-row');
+      var total = rows.length, d = 0;
+      rows.forEach(function (row) {
+        if (done[row.getAttribute('data-course')]) { row.classList.add('is-done'); d++; }
+      });
+      var prog = root.querySelector('[data-track-prog]');
+      if (prog && total) {
+        prog.hidden = false;
+        prog.querySelector('i').style.width = Math.round((d / total) * 100) + '%';
+        prog.querySelector('.thp-txt').textContent = d + '/' + total + ' cours terminés';
+      }
+      var cta = root.querySelector('.track-hero-cta');
+      if (cta && total) {
+        if (d === total) cta.textContent = '✓ Parcours terminé';
+        else if (d > 0) cta.textContent = 'Reprendre le parcours';
+      }
     });
   }
   initTrackProgress();
