@@ -47,9 +47,10 @@ const tracks = trackStories.map((s) => {
 const recoMap = {};
 tracks.forEach((t) => { recoMap[t.key] = { title: t.title, url: t.url, icon: t.icon }; });
 
-// Questionnaire d'orientation (modifiable plus tard). stage 0..4 -> parcours.
+// Questionnaire d'orientation. stage 0..4 -> parcours.
+// La 1re question sert de "socle" : si stage < 2, on recommande ce niveau quoi qu'il arrive.
 const stageKeys = ['decouvrir', 'premiers-pas', 'disciple', 'faire-disciples', 'leadership'];
-const questions = [
+const defaultQuestions = [
   {
     q: 'Où en es-tu avec Jésus ?',
     options: [
@@ -75,6 +76,11 @@ const questions = [
     ],
   },
 ];
+const cmsQuestions = (blok.orientation || []).map((q) => ({
+  q: q.question || '',
+  options: (q.options || []).map((o) => ({ t: o.label || '', s: Number(o.stage) || 0 })),
+})).filter((q) => q.q && q.options.length);
+const questions = cmsQuestions.length ? cmsQuestions : defaultQuestions;
 ---
 <section class="acad" {...storyblokEditable(blok)} data-academy>
   <div class="wrap">
@@ -160,13 +166,17 @@ const questions = [
       var inner = quiz.querySelector('.quiz-result-inner');
       function compute() {
         var qs = quiz.querySelectorAll('.quiz-q');
-        var answered = 0, max = 0;
+        var answered = 0, stages = [];
         qs.forEach(function (q) {
           var sel = q.querySelector('.quiz-opt.on');
-          if (sel) { answered++; max = Math.max(max, parseInt(sel.getAttribute('data-stage'), 10) || 0); }
+          if (sel) { answered++; stages.push(parseInt(sel.getAttribute('data-stage'), 10) || 0); }
         });
         if (answered < qs.length) { result.hidden = true; return; }
-        var key = stageKeys[max] || stageKeys[0];
+        // 1re question = socle spirituel. Si on ne connaît pas encore Jésus / nouveau converti,
+        // on reste à ce niveau. Sinon (chrétien établi), le rôle/aspiration fait monter.
+        var base = stages[0];
+        var stage = base < 2 ? base : Math.max.apply(null, stages);
+        var key = stageKeys[stage] || stageKeys[0];
         var reco = recoMap[key] || Object.values(recoMap)[0];
         if (!reco) return;
         inner.innerHTML = '<div class="quiz-reco-label">Parcours recommandé</div>'
