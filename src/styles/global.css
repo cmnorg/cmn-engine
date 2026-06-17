@@ -339,8 +339,11 @@ a{color:inherit}
 .track-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 @media(max-width:900px){.track-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.track-grid{grid-template-columns:1fr}}
-.track-card{display:flex;flex-direction:column;background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;text-decoration:none;color:inherit;transition:.18s}
+.track-card{position:relative;display:flex;flex-direction:column;background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;text-decoration:none;color:inherit;transition:.18s}
 .track-card:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-color:var(--gold-l)}
+.track-card.is-reco{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold),var(--shadow)}
+.track-reco-badge{display:inline-block;align-self:flex-start;background:var(--gold);color:var(--char);font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;margin-bottom:10px}
+.track-advice{font-size:12px;color:var(--muted);font-style:italic;margin-bottom:12px}
 .track-illus{height:130px;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;background-color:var(--soft);position:relative}
 .track-icon{font-size:44px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.25))}
 .track-card.accent-0 .track-illus{background-color:#F6EFDC}
