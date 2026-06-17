@@ -1,0 +1,191 @@
+---
+import { useStoryblokApi, storyblokEditable } from '@storyblok/astro';
+const { blok } = Astro.props;
+
+function assetUrl(a) {
+  if (!a) return '';
+  if (Array.isArray(a)) return assetUrl(a[0]);
+  if (typeof a === 'string') return a;
+  return a.filename || a.url || a.cached_url || '';
+}
+
+let trackStories = [], courseStories = [];
+try {
+  const api = useStoryblokApi();
+  const [t, c] = await Promise.all([
+    api.get('cdn/stories', { version: 'draft', content_type: 'track', per_page: 100 }),
+    api.get('cdn/stories', { version: 'draft', content_type: 'course', per_page: 100 }),
+  ]);
+  trackStories = t.data.stories || [];
+  courseStories = c.data.stories || [];
+} catch (e) { trackStories = []; courseStories = []; }
+
+const trackCourses = {};
+courseStories.forEach((s) => {
+  const k = (s.content || {}).track;
+  if (k) (trackCourses[k] = trackCourses[k] || []).push(s.full_slug);
+});
+
+const tracks = trackStories.map((s) => {
+  const c = s.content || {};
+  const key = c.key || s.slug;
+  return {
+    key,
+    title: c.title || s.name,
+    subtitle: c.subtitle || '',
+    icon: c.icon || '',
+    illustration: assetUrl(c.illustration),
+    level: c.level || '',
+    duration: c.duration || '',
+    cta: c.cta_label || 'Commencer',
+    order: Number(c.order) || 999,
+    url: '/' + s.full_slug,
+    count: (trackCourses[key] || []).length,
+  };
+}).sort((a, b) => a.order - b.order);
+
+const recoMap = {};
+tracks.forEach((t) => { recoMap[t.key] = { title: t.title, url: t.url, icon: t.icon }; });
+
+// Questionnaire d'orientation (modifiable plus tard). stage 0..4 -> parcours.
+const stageKeys = ['decouvrir', 'premiers-pas', 'disciple', 'faire-disciples', 'leadership'];
+const questions = [
+  {
+    q: 'Où en es-tu avec Jésus ?',
+    options: [
+      { t: 'Je ne le connais pas encore / je découvre', s: 0 },
+      { t: 'Je viens de donner ma vie à Christ', s: 1 },
+      { t: 'Je suis chrétien depuis un moment', s: 2 },
+    ],
+  },
+  {
+    q: 'Quel est ton engagement aujourd’hui ?',
+    options: [
+      { t: 'Je débute, je cherche des bases', s: 1 },
+      { t: 'Je sers dans une église', s: 2 },
+      { t: 'Je suis responsable, pasteur ou missionnaire', s: 4 },
+    ],
+  },
+  {
+    q: 'Qu’aimerais-tu vivre en priorité ?',
+    options: [
+      { t: 'Mieux connaître Jésus et grandir', s: 2 },
+      { t: 'Annoncer l’Évangile autour de moi', s: 3 },
+      { t: 'Diriger, former ou partir en mission', s: 4 },
+    ],
+  },
+];
+---
+<section class="acad" {...storyblokEditable(blok)} data-academy>
+  <div class="wrap">
+    {blok.label && <div class="phead-label disc-label">{blok.label}</div>}
+    {blok.title && <h2 class="disc-h2">{blok.title}</h2>}
+    {blok.intro && <p class="sec-lead">{blok.intro}</p>}
+
+    {tracks.length > 0 && (
+      <div class="quiz-card" data-quiz>
+        <div class="quiz-head">
+          <span class="quiz-emoji">🧭</span>
+          <div>
+            <h3>{blok.quiz_title || 'Trouve ton parcours'}</h3>
+            <p>{blok.quiz_sub || 'Réponds à 3 questions, on te recommande par où commencer.'}</p>
+          </div>
+        </div>
+        <div class="quiz-body">
+          {questions.map((qq, qi) => (
+            <div class="quiz-q" data-q={qi}>
+              <div class="quiz-q-label">{qi + 1}. {qq.q}</div>
+              <div class="quiz-opts">
+                {qq.options.map((o) => (
+                  <button class="quiz-opt" type="button" data-stage={o.s}>{o.t}</button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div class="quiz-result" hidden>
+          <div class="quiz-result-inner"></div>
+        </div>
+      </div>
+    )}
+
+    <div class="track-grid">
+      {tracks.length === 0 && <p class="ev-empty">Aucun parcours pour le moment.</p>}
+      {tracks.map((t, i) => (
+        <a class={`track-card accent-${i % 5}`} href={t.url} data-track={t.key} data-count={t.count}>
+          <div class="track-illus" style={t.illustration ? `background-image:url(${t.illustration})` : undefined}>
+            <span class="track-icon">{t.icon}</span>
+          </div>
+          <div class="track-body">
+            <h3>{t.title}</h3>
+            {t.subtitle && <p>{t.subtitle}</p>}
+            <div class="track-meta">
+              <span>{t.count} cours</span>
+              {t.level && <span>· {t.level}</span>}
+              {t.duration && <span>· {t.duration}</span>}
+            </div>
+            <div class="track-prog" data-track-prog hidden><div class="track-prog-bar"><i></i></div><span class="track-prog-txt"></span></div>
+            <span class="btn btn-gold track-cta">{t.cta}</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+<script define:vars={{ recoMap, stageKeys, trackCourses }}>
+  function readDone() {
+    try { return JSON.parse(localStorage.getItem('cmn_academy_done') || '{}'); } catch (e) { return {}; }
+  }
+  function initAcademy() {
+    document.querySelectorAll('[data-academy]').forEach(function (root) {
+      if (root.dataset.ainit) return; root.dataset.ainit = '1';
+      // progression par parcours
+      var done = readDone();
+      root.querySelectorAll('.track-card').forEach(function (card) {
+        var key = card.getAttribute('data-track');
+        var slugs = trackCourses[key] || [];
+        if (!slugs.length) return;
+        var d = slugs.filter(function (s) { return done[s]; }).length;
+        if (d > 0) {
+          var box = card.querySelector('[data-track-prog]');
+          box.hidden = false;
+          box.querySelector('i').style.width = Math.round((d / slugs.length) * 100) + '%';
+          box.querySelector('.track-prog-txt').textContent = d + '/' + slugs.length + ' terminés';
+        }
+      });
+      // quiz d'orientation
+      var quiz = root.querySelector('[data-quiz]');
+      if (!quiz) return;
+      var result = quiz.querySelector('.quiz-result');
+      var inner = quiz.querySelector('.quiz-result-inner');
+      function compute() {
+        var qs = quiz.querySelectorAll('.quiz-q');
+        var answered = 0, max = 0;
+        qs.forEach(function (q) {
+          var sel = q.querySelector('.quiz-opt.on');
+          if (sel) { answered++; max = Math.max(max, parseInt(sel.getAttribute('data-stage'), 10) || 0); }
+        });
+        if (answered < qs.length) { result.hidden = true; return; }
+        var key = stageKeys[max] || stageKeys[0];
+        var reco = recoMap[key] || Object.values(recoMap)[0];
+        if (!reco) return;
+        inner.innerHTML = '<div class="quiz-reco-label">Parcours recommandé</div>'
+          + '<div class="quiz-reco-title">' + (reco.icon || '') + ' ' + reco.title + '</div>'
+          + '<a class="btn btn-gold" href="' + reco.url + '">Commencer ce parcours</a>';
+        result.hidden = false;
+        result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      quiz.querySelectorAll('.quiz-q').forEach(function (q) {
+        q.querySelectorAll('.quiz-opt').forEach(function (opt) {
+          opt.addEventListener('click', function () {
+            q.querySelectorAll('.quiz-opt').forEach(function (x) { x.classList.remove('on'); });
+            opt.classList.add('on');
+            compute();
+          });
+        });
+      });
+    });
+  }
+  initAcademy();
+  document.addEventListener('astro:page-load', initAcademy);
+</script>
