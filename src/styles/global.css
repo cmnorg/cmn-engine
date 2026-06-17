@@ -315,3 +315,87 @@ a{color:inherit}
 .prog-d-learn{max-width:780px}
 .prog-d-learn ul,.prog-d-learn ol{margin:0 0 0 20px;line-height:1.9}
 .prog-d-cta{margin-top:22px}
+
+/* ===== CMN Academy (LMS Phase 1) ===== */
+.acad{padding:24px 0 44px}
+/* Quiz d'orientation */
+.quiz-card{background:linear-gradient(135deg,#fff,var(--gold-soft));border:1px solid var(--line);border-radius:var(--r-lg);padding:26px;margin:14px 0 30px;box-shadow:var(--shadow)}
+.quiz-head{display:flex;gap:14px;align-items:flex-start;margin-bottom:18px}
+.quiz-emoji{font-size:30px;line-height:1}
+.quiz-head h3{font-size:20px}
+.quiz-head p{color:var(--muted);font-size:14px;margin-top:2px}
+.quiz-q{margin-bottom:16px}
+.quiz-q-label{font-weight:600;font-size:15px;margin-bottom:8px}
+.quiz-opts{display:flex;gap:8px;flex-wrap:wrap}
+.quiz-opt{background:var(--white);border:1px solid var(--line);color:var(--char);font-size:13.5px;font-weight:500;padding:9px 14px;border-radius:14px;cursor:pointer;font-family:var(--font);transition:.15s;text-align:left}
+.quiz-opt:hover{border-color:var(--gold-l)}
+.quiz-opt.on{background:var(--gold);border-color:var(--gold);color:var(--char);font-weight:600}
+.quiz-result{margin-top:10px}
+.quiz-result-inner{background:var(--char);color:#fff;border-radius:var(--r);padding:20px 22px}
+.quiz-reco-label{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-l);font-weight:700}
+.quiz-reco-title{font-size:21px;font-weight:700;margin:6px 0 14px}
+/* Cartes parcours */
+.track-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:900px){.track-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.track-grid{grid-template-columns:1fr}}
+.track-card{display:flex;flex-direction:column;background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;text-decoration:none;color:inherit;transition:.18s}
+.track-card:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-color:var(--gold-l)}
+.track-illus{height:130px;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;background-color:var(--soft);position:relative}
+.track-icon{font-size:44px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.25))}
+.track-card.accent-0 .track-illus{background-color:#F6EFDC}
+.track-card.accent-1 .track-illus{background-color:#EAF0E6}
+.track-card.accent-2 .track-illus{background-color:#E8EEF4}
+.track-card.accent-3 .track-illus{background-color:#F4EAE6}
+.track-card.accent-4 .track-illus{background-color:#EEE9F2}
+.track-body{padding:20px;display:flex;flex-direction:column;flex:1}
+.track-body h3{font-size:18px;margin-bottom:4px}
+.track-body p{color:var(--muted);font-size:14px;line-height:1.55;margin-bottom:12px}
+.track-meta{font-size:12.5px;color:var(--gold-d);font-weight:600;display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+.track-prog{margin-bottom:12px}
+.track-prog-bar{height:7px;background:var(--gold-soft);border-radius:6px;overflow:hidden}
+.track-prog-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold-d),var(--gold));border-radius:6px}
+.track-prog-txt{font-size:12px;color:var(--muted);display:inline-block;margin-top:5px}
+.track-cta{margin-top:auto;align-self:flex-start}
+/* Page d'un parcours */
+.track-page{padding:24px 0 44px}
+.track-back{margin-bottom:16px}
+.track-hero{border-radius:var(--r-lg);background:var(--char);background-size:cover;background-position:center;color:#fff;padding:40px 30px;margin-bottom:26px}
+.track-hero-icon{font-size:40px}
+.track-hero h1{font-size:clamp(24px,3.4vw,34px);line-height:1.12;margin-top:8px}
+.track-hero p{color:#e9e7df;margin-top:8px;max-width:640px}
+.track-hero-meta{font-size:13px;color:var(--gold-l);font-weight:600;margin-top:12px;display:flex;gap:6px;flex-wrap:wrap}
+.course-list{display:flex;flex-direction:column;gap:10px}
+.course-row{display:flex;align-items:center;gap:14px;background:var(--white);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;text-decoration:none;color:inherit;transition:.15s}
+.course-row:hover{border-color:var(--gold-l);transform:translateX(3px)}
+.course-num{width:30px;height:30px;border-radius:50%;background:var(--gold-soft);color:var(--gold-d);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.course-check{display:none;color:#fff;background:var(--gold);width:30px;height:30px;border-radius:50%;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.course-row.is-done .course-num{display:none}
+.course-row.is-done .course-check{display:flex}
+.course-info{flex:1;display:flex;flex-direction:column}
+.course-info strong{font-size:15.5px}
+.course-info em{font-style:normal;color:var(--muted);font-size:13px;margin-top:2px}
+.course-go{color:var(--gold-d);font-weight:700}
+/* Fiche cours */
+.course-page{padding:24px 0 44px}
+.course-title{font-size:clamp(24px,3.4vw,34px);line-height:1.15;margin:14px 0 18px}
+.course-video{margin-bottom:24px}
+.course-video video{position:absolute;inset:0;width:100%;height:100%}
+.course-block{margin-bottom:26px;max-width:820px}
+.course-block h2{font-size:19px;margin-bottom:10px}
+.course-block .rich{font-size:16px;line-height:1.75}
+.course-verses .verse{font-size:18px}
+.course-prayer{background:var(--gold-soft);border-radius:var(--r);padding:20px 22px}
+.course-action{background:var(--white);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px}
+/* Quiz du cours */
+.course-quiz{background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px}
+.cq{margin-bottom:16px}
+.cq-q{font-weight:600;margin-bottom:8px}
+.cq-opts{display:flex;flex-direction:column;gap:7px}
+.cq-opt{text-align:left;background:var(--bg);border:1px solid var(--line);padding:10px 14px;border-radius:12px;cursor:pointer;font-family:var(--font);font-size:14px;transition:.12s}
+.cq-opt:hover{border-color:var(--gold-l)}
+.cq-opt.on{border-color:var(--gold);background:var(--gold-soft)}
+.cq-opt.ok{border-color:#2e7d32;background:#e8f5e9}
+.cq-opt.ko{border-color:#c62828;background:#fdecea}
+.cq-score{margin-top:10px;font-weight:700;color:var(--gold-d)}
+.course-done-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:22px;margin-top:8px}
+.course-done-ok{color:#2e7d32;font-weight:700}
