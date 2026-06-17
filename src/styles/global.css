@@ -423,3 +423,17 @@ a{color:inherit}
 .track-cta{margin-top:auto;border-radius:14px;box-shadow:0 6px 16px rgba(192,152,46,.30)}
 .acad .disc-h2{font-size:clamp(28px,4vw,42px)}
 .quiz-card{border-radius:22px;box-shadow:0 14px 34px rgba(30,26,16,.10)}
+
+/* ===== Academy — page parcours (améliorations) ===== */
+.track-hero{position:relative}
+.track-hero-icon{display:inline-flex;width:58px;height:58px;border-radius:18px;background:rgba(255,255,255,.16);align-items:center;justify-content:center;font-size:30px;margin-bottom:14px}
+.track-hero-prog{margin-top:18px;max-width:380px}
+.thp-bar{height:8px;background:rgba(255,255,255,.22);border-radius:6px;overflow:hidden}
+.thp-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--gold-l));border-radius:6px;transition:width .4s}
+.thp-txt{font-size:12.5px;color:#e9e7df;display:inline-block;margin-top:7px}
+.track-hero-cta{margin-top:20px;box-shadow:0 8px 20px rgba(0,0,0,.25)}
+.course-list-title{font-size:18px;margin:6px 0 14px}
+.course-row{box-shadow:0 1px 0 rgba(0,0,0,.01)}
+.course-row:hover{box-shadow:0 8px 22px rgba(30,26,16,.10)}
+.course-row.is-done{background:#fbfaf6}
+.course-row.is-done .course-info strong{color:var(--muted)}
