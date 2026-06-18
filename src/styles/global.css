@@ -437,3 +437,30 @@ a{color:inherit}
 .course-row:hover{box-shadow:0 8px 22px rgba(30,26,16,.10)}
 .course-row.is-done{background:#fbfaf6}
 .course-row.is-done .course-info strong{color:var(--muted)}
+
+/* ===== Mur de prière ===== */
+.pw{padding:30px 0 50px}
+.pw-form{background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px;margin:14px 0 30px;box-shadow:var(--shadow)}
+.pw-hp{position:absolute!important;left:-9999px!important;width:1px;height:1px;opacity:0}
+.pw-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.pw-form input[type=text],.pw-form input[type=password],.pw-form select,.pw-form textarea{font-family:var(--font);font-size:15px;border:1px solid var(--line);border-radius:12px;padding:11px 14px;background:var(--bg);color:var(--ink)}
+.pw-form input[type=text]{flex:1;min-width:180px}
+.pw-form select{min-width:180px}
+.pw-form textarea{width:100%;resize:vertical}
+.pw-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:6px}
+.pw-msg{font-size:14px;color:var(--gold-d);font-weight:600}
+.pw-wall-title{font-size:20px;margin:6px 0 16px}
+.pw-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:860px){.pw-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.pw-grid{grid-template-columns:1fr}}
+.pw-card{background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px;display:flex;flex-direction:column}
+.pw-card-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.pw-cat{background:var(--gold-soft);color:var(--gold-d);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
+.pw-name{font-size:12px;color:var(--muted);font-weight:600}
+.pw-text{font-size:15px;line-height:1.6;color:var(--ink);white-space:pre-line;flex:1}
+.pw-pray{margin-top:14px;align-self:flex-start;background:var(--gold-soft);border:1px solid var(--gold-l);color:var(--gold-d);font-weight:700;font-size:14px;padding:8px 16px;border-radius:20px;cursor:pointer;font-family:var(--font);transition:.15s}
+.pw-pray:hover{background:var(--gold);color:var(--char)}
+.pw-empty{color:var(--muted);font-style:italic;padding:18px 0}
+.ad-tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin:18px 0 20px;flex-wrap:wrap}
+.ad-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.ad-actions .btn{margin:0;font-size:13px;padding:8px 14px}
