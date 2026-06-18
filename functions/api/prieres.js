@@ -11,11 +11,17 @@ function json(obj, status = 200) {
 }
 
 export async function onRequestGet({ env }) {
-  if (!env.DB) return json({ prieres: [] });
+  if (!env.DB) return json({ prieres: [], stats: { requests: 0, praying: 0 } });
   const { results } = await env.DB.prepare(
     "SELECT id, name, category, text, count, created_at FROM prieres WHERE status = 'approved' ORDER BY created_at DESC LIMIT 100"
   ).all();
-  return json({ prieres: results || [] });
+  const totals = await env.DB.prepare(
+    "SELECT COUNT(*) AS requests, COALESCE(SUM(count), 0) AS praying FROM prieres WHERE status = 'approved'"
+  ).first();
+  return json({
+    prieres: results || [],
+    stats: { requests: (totals && totals.requests) || 0, praying: (totals && totals.praying) || 0 },
+  });
 }
 
 export async function onRequestPost({ env, request }) {
