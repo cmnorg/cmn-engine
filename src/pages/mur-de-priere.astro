@@ -8,28 +8,56 @@ const categories = [
 ---
 <Layout title="CMN — Mur de prière">
   <section class="pw">
+    <div class="pw-hero">
+      <div class="wrap">
+        <div class="phead-label disc-label">Prière</div>
+        <h1>Mur de prière</h1>
+        <p>Déposez une requête, priez pour les autres. Une chaîne de prière mondiale, en continu.</p>
+      </div>
+    </div>
+
     <div class="wrap">
-      <div class="phead-label disc-label">Mur de prière</div>
-      <h2 class="disc-h2">Déposez et portez les prières</h2>
-      <p class="sec-lead">Partage une requête, prie pour les autres. Chaque demande est relue avant publication.</p>
-
-      <form class="pw-form" id="pwForm">
-        <input type="text" name="website" class="pw-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
-        <div class="pw-row">
-          <input type="text" id="pwName" maxlength="60" placeholder="Ton prénom (facultatif)" />
-          <select id="pwCat">
-            <option value="">Catégorie…</option>
-            {categories.map((c) => <option value={c}>{c}</option>)}
-          </select>
+      <div class="pw-cols">
+        <!-- Pourquoi déposer une prière ? -->
+        <div class="pw-card2 pw-why">
+          <h3>Pourquoi déposer une prière ?</h3>
+          <p>Personne ne devrait porter ses fardeaux seul. Dépose ta requête : une communauté de croyants du monde entier priera avec toi, en toute discrétion.</p>
+          <blockquote class="verse">« Priez les uns pour les autres, afin que vous soyez guéris. » <cite>— Jacques 5:16</cite></blockquote>
+          <div class="pw-stats">
+            <div class="pw-stat"><div class="n" id="stReq">—</div><div class="l">requêtes</div></div>
+            <div class="pw-stat"><div class="n" id="stPray">—</div><div class="l">personnes prient</div></div>
+          </div>
         </div>
-        <textarea id="pwText" maxlength="1500" rows="4" placeholder="Écris ta demande de prière…" required></textarea>
-        <div class="pw-actions">
-          <button type="submit" class="btn btn-gold">Déposer ma prière</button>
-          <span class="pw-msg" id="pwMsg"></span>
-        </div>
-      </form>
 
-      <h3 class="pw-wall-title">Les prières de la communauté</h3>
+        <!-- Déposer un sujet de prière -->
+        <form class="pw-form pw-card2" id="pwForm">
+          <h3>Déposer un sujet de prière</h3>
+          <input type="text" name="website" class="pw-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <div class="pw-field">
+            <label>Prénom (facultatif — laisse vide pour rester anonyme)</label>
+            <input type="text" id="pwName" maxlength="60" placeholder="Ton prénom" />
+          </div>
+          <div class="pw-field">
+            <label>Catégorie</label>
+            <select id="pwCat">
+              <option value="">Choisir…</option>
+              {categories.map((c) => <option value={c}>{c}</option>)}
+            </select>
+          </div>
+          <div class="pw-field">
+            <label>Ton sujet de prière</label>
+            <textarea id="pwText" maxlength="1500" rows="4" placeholder="Écris ta demande de prière…" required></textarea>
+          </div>
+          <div class="pw-actions">
+            <button type="submit" class="btn btn-gold">Déposer ma requête</button>
+            <span class="pw-msg" id="pwMsg"></span>
+          </div>
+          <p class="pw-note">🔒 Tes données restent privées. Les requêtes sont relues avant publication. Évite d'indiquer des informations sensibles (santé détaillée, adresse, téléphone…).</p>
+        </form>
+      </div>
+
+      <h2 class="pw-wall-h">Requêtes de la communauté</h2>
+      <div class="pw-filters" id="pwFilters"></div>
       <div class="pw-grid" id="pwGrid"></div>
       <p class="pw-empty" id="pwEmpty" hidden>Sois le premier à déposer une prière 🙏</p>
     </div>
@@ -39,20 +67,24 @@ const categories = [
     (function () {
       var grid = document.getElementById('pwGrid');
       var empty = document.getElementById('pwEmpty');
+      var filtersEl = document.getElementById('pwFilters');
       var form = document.getElementById('pwForm');
       var msg = document.getElementById('pwMsg');
+      var all = [];
+      var filter = '';
       function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
+      function fmt(n) { return (n || 0).toLocaleString('fr-FR'); }
 
-      function render(list) {
-        grid.innerHTML = list.map(function (p) {
-          return '<article class="pw-card"><div class="pw-card-top">'
-            + (p.category ? ('<span class="pw-cat">' + esc(p.category) + '</span>') : '')
-            + '<span class="pw-name">' + (p.name ? esc(p.name) : 'Anonyme') + '</span></div>'
-            + '<p class="pw-text">' + esc(p.text) + '</p>'
-            + '<button class="pw-pray" data-id="' + esc(p.id) + '">🙏 Je prie <b>' + (p.count || 0) + '</b></button>'
-            + '</article>';
-        }).join('');
-        empty.hidden = list.length > 0;
+      function cardHTML(p) {
+        return '<article class="pw-card" data-cat="' + esc(p.category || '') + '"><div class="pw-card-top">'
+          + (p.category ? ('<span class="pw-cat">' + esc(p.category) + '</span>') : '<span></span>')
+          + '<span class="pw-name">' + (p.name ? esc(p.name) : 'Anonyme') + '</span></div>'
+          + '<p class="pw-text">' + esc(p.text) + '</p>'
+          + '<button class="pw-pray" data-id="' + esc(p.id) + '">🙏 Je prie <b>' + (p.count || 0) + '</b></button>'
+          + '</article>';
+      }
+
+      function bindPray() {
         grid.querySelectorAll('.pw-pray').forEach(function (b) {
           b.addEventListener('click', function () {
             b.disabled = true;
@@ -65,9 +97,38 @@ const categories = [
         });
       }
 
+      function renderWall() {
+        var list = filter ? all.filter(function (p) { return p.category === filter; }) : all;
+        grid.innerHTML = list.map(cardHTML).join('');
+        empty.hidden = list.length > 0;
+        bindPray();
+      }
+
+      function renderFilters() {
+        var cats = [];
+        all.forEach(function (p) { if (p.category && cats.indexOf(p.category) === -1) cats.push(p.category); });
+        if (!cats.length) { filtersEl.innerHTML = ''; return; }
+        filtersEl.innerHTML = '<button class="pw-filter active" data-cat="">Toutes</button>'
+          + cats.map(function (c) { return '<button class="pw-filter" data-cat="' + esc(c) + '">' + esc(c) + '</button>'; }).join('');
+        filtersEl.querySelectorAll('.pw-filter').forEach(function (b) {
+          b.addEventListener('click', function () {
+            filter = b.getAttribute('data-cat');
+            filtersEl.querySelectorAll('.pw-filter').forEach(function (x) { x.classList.remove('active'); });
+            b.classList.add('active');
+            renderWall();
+          });
+        });
+      }
+
       function load() {
         fetch('/api/prieres').then(function (r) { return r.json(); }).then(function (data) {
-          render(data.prieres || []);
+          all = data.prieres || [];
+          var st = data.stats || {};
+          var r = document.getElementById('stReq'), pr = document.getElementById('stPray');
+          if (r) r.textContent = fmt(st.requests);
+          if (pr) pr.textContent = fmt(st.praying);
+          renderFilters();
+          renderWall();
         }).catch(function () { empty.hidden = false; empty.textContent = 'Le mur sera bientôt disponible.'; });
       }
 
@@ -86,8 +147,9 @@ const categories = [
           .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
           .then(function (res) {
             if (res.ok) {
-              if (res.d.status === 'pending') msg.textContent = 'Merci ! Ta prière sera publiée après relecture. 🙏';
-              else { msg.textContent = 'Merci, ta prière est publiée ! 🙏'; }
+              msg.textContent = res.d.status === 'pending'
+                ? 'Merci ! Ta prière sera publiée après relecture. 🙏'
+                : 'Merci, ta prière est publiée ! 🙏';
               form.reset();
               load();
             } else { msg.textContent = (res.d && res.d.error) || 'Une erreur est survenue.'; }
