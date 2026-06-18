@@ -12,7 +12,9 @@ function authorized(env, request) {
   return key && env.ADMIN_KEY && key === env.ADMIN_KEY;
 }
 function tableFor(type) {
-  return type === 'temoignages' ? 'temoignages' : 'prieres';
+  if (type === 'temoignages') return 'temoignages';
+  if (type === 'connect') return 'connect_requests';
+  return 'prieres';
 }
 
 export async function onRequestGet({ env, request }) {
