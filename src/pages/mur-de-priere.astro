@@ -1,0 +1,101 @@
+---
+import Layout from '../layouts/Layout.astro';
+const categories = [
+  'Santé & guérison', 'Famille', 'Couple & mariage', 'Enfants',
+  'Travail & finances', 'Études', 'Ministère & mission', 'Protection',
+  'Voyage', 'Deuil', 'Délivrance', 'Action de grâce', 'Autre',
+];
+---
+<Layout title="CMN — Mur de prière">
+  <section class="pw">
+    <div class="wrap">
+      <div class="phead-label disc-label">Mur de prière</div>
+      <h2 class="disc-h2">Déposez et portez les prières</h2>
+      <p class="sec-lead">Partage une requête, prie pour les autres. Chaque demande est relue avant publication.</p>
+
+      <form class="pw-form" id="pwForm">
+        <input type="text" name="website" class="pw-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <div class="pw-row">
+          <input type="text" id="pwName" maxlength="60" placeholder="Ton prénom (facultatif)" />
+          <select id="pwCat">
+            <option value="">Catégorie…</option>
+            {categories.map((c) => <option value={c}>{c}</option>)}
+          </select>
+        </div>
+        <textarea id="pwText" maxlength="1500" rows="4" placeholder="Écris ta demande de prière…" required></textarea>
+        <div class="pw-actions">
+          <button type="submit" class="btn btn-gold">Déposer ma prière</button>
+          <span class="pw-msg" id="pwMsg"></span>
+        </div>
+      </form>
+
+      <h3 class="pw-wall-title">Les prières de la communauté</h3>
+      <div class="pw-grid" id="pwGrid"></div>
+      <p class="pw-empty" id="pwEmpty" hidden>Sois le premier à déposer une prière 🙏</p>
+    </div>
+  </section>
+
+  <script is:inline>
+    (function () {
+      var grid = document.getElementById('pwGrid');
+      var empty = document.getElementById('pwEmpty');
+      var form = document.getElementById('pwForm');
+      var msg = document.getElementById('pwMsg');
+      function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
+
+      function render(list) {
+        grid.innerHTML = list.map(function (p) {
+          return '<article class="pw-card"><div class="pw-card-top">'
+            + (p.category ? ('<span class="pw-cat">' + esc(p.category) + '</span>') : '')
+            + '<span class="pw-name">' + (p.name ? esc(p.name) : 'Anonyme') + '</span></div>'
+            + '<p class="pw-text">' + esc(p.text) + '</p>'
+            + '<button class="pw-pray" data-id="' + esc(p.id) + '">🙏 Je prie <b>' + (p.count || 0) + '</b></button>'
+            + '</article>';
+        }).join('');
+        empty.hidden = list.length > 0;
+        grid.querySelectorAll('.pw-pray').forEach(function (b) {
+          b.addEventListener('click', function () {
+            b.disabled = true;
+            fetch('/api/je-prie', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: b.getAttribute('data-id') }) })
+              .then(function (r) { return r.json(); })
+              .then(function (d) { b.innerHTML = '🙏 Je prie <b>' + (d.count || 0) + '</b>'; })
+              .catch(function () {})
+              .then(function () { b.disabled = false; });
+          });
+        });
+      }
+
+      function load() {
+        fetch('/api/prieres').then(function (r) { return r.json(); }).then(function (data) {
+          render(data.prieres || []);
+        }).catch(function () { empty.hidden = false; empty.textContent = 'Le mur sera bientôt disponible.'; });
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var text = document.getElementById('pwText').value.trim();
+        if (text.length < 5) { msg.textContent = 'Écris quelques mots de plus.'; return; }
+        msg.textContent = 'Envoi…';
+        var body = {
+          text: text,
+          name: document.getElementById('pwName').value,
+          category: document.getElementById('pwCat').value,
+          website: form.website.value,
+        };
+        fetch('/api/prieres', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
+          .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+          .then(function (res) {
+            if (res.ok) {
+              if (res.d.status === 'pending') msg.textContent = 'Merci ! Ta prière sera publiée après relecture. 🙏';
+              else { msg.textContent = 'Merci, ta prière est publiée ! 🙏'; }
+              form.reset();
+              load();
+            } else { msg.textContent = (res.d && res.d.error) || 'Une erreur est survenue.'; }
+          })
+          .catch(function () { msg.textContent = 'Une erreur est survenue.'; });
+      });
+
+      load();
+    })();
+  </script>
+</Layout>
