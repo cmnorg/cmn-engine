@@ -1,0 +1,91 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="CMN — Modération des prières">
+  <section class="pw">
+    <div class="wrap">
+      <h2 class="disc-h2">Modération — Mur de prière</h2>
+
+      <div id="adAuth">
+        <p class="sec-lead">Entre la clé de modération pour accéder à la file.</p>
+        <div class="pw-row" style="max-width:420px">
+          <input type="password" id="adKey" placeholder="Clé de modération" />
+          <button class="btn btn-gold" id="adGo" type="button">Entrer</button>
+        </div>
+        <p class="pw-msg" id="adMsg"></p>
+      </div>
+
+      <div id="adPanel" hidden>
+        <div class="ad-tabs">
+          <button class="ev-tab active" data-st="pending" type="button">En attente</button>
+          <button class="ev-tab" data-st="approved" type="button">Publiées</button>
+          <button class="ev-tab" data-st="rejected" type="button">Refusées</button>
+        </div>
+        <div id="adList" class="pw-grid"></div>
+        <p class="pw-empty" id="adEmpty" hidden>Rien ici pour le moment.</p>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline>
+    (function () {
+      var key = '';
+      var current = 'pending';
+      var auth = document.getElementById('adAuth');
+      var panel = document.getElementById('adPanel');
+      var list = document.getElementById('adList');
+      var emptyEl = document.getElementById('adEmpty');
+      var adMsg = document.getElementById('adMsg');
+      function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
+
+      function act(id, action) {
+        fetch('/api/admin?key=' + encodeURIComponent(key), {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ id: id, action: action }),
+        }).then(function (r) { return r.json(); }).then(function () { load(); });
+      }
+
+      function render(items) {
+        list.innerHTML = items.map(function (p) {
+          var btns = '';
+          if (current !== 'approved') btns += '<button class="btn btn-gold" data-act="approve" data-id="' + esc(p.id) + '">Publier</button> ';
+          if (current !== 'rejected') btns += '<button class="btn btn-ghost" data-act="reject" data-id="' + esc(p.id) + '">Refuser</button> ';
+          btns += '<button class="btn btn-ghost" data-act="delete" data-id="' + esc(p.id) + '">Supprimer</button>';
+          return '<article class="pw-card"><div class="pw-card-top">'
+            + (p.category ? ('<span class="pw-cat">' + esc(p.category) + '</span>') : '')
+            + '<span class="pw-name">' + (p.name ? esc(p.name) : 'Anonyme') + '</span></div>'
+            + '<p class="pw-text">' + esc(p.text) + '</p>'
+            + '<div class="ad-actions">' + btns + '</div></article>';
+        }).join('');
+        emptyEl.hidden = items.length > 0;
+        list.querySelectorAll('[data-act]').forEach(function (b) {
+          b.addEventListener('click', function () { act(b.getAttribute('data-id'), b.getAttribute('data-act')); });
+        });
+      }
+
+      function load() {
+        fetch('/api/admin?key=' + encodeURIComponent(key) + '&status=' + current)
+          .then(function (r) {
+            if (r.status === 401) { throw new Error('unauthorized'); }
+            return r.json();
+          })
+          .then(function (data) { auth.hidden = true; panel.hidden = false; render(data.prieres || []); })
+          .catch(function () { adMsg.textContent = 'Clé invalide.'; });
+      }
+
+      document.getElementById('adGo').addEventListener('click', function () {
+        key = document.getElementById('adKey').value.trim();
+        if (!key) { adMsg.textContent = 'Entre la clé.'; return; }
+        load();
+      });
+      document.querySelectorAll('.ad-tabs .ev-tab').forEach(function (t) {
+        t.addEventListener('click', function () {
+          document.querySelectorAll('.ad-tabs .ev-tab').forEach(function (x) { x.classList.remove('active'); });
+          t.classList.add('active');
+          current = t.getAttribute('data-st');
+          load();
+        });
+      });
+    })();
+  </script>
+</Layout>
