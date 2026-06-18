@@ -1,10 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
 ---
-<Layout title="CMN — Modération des prières">
+<Layout title="CMN — Modération">
   <section class="pw">
     <div class="wrap">
-      <h2 class="disc-h2">Modération — Mur de prière</h2>
+      <h2 class="disc-h2">Modération</h2>
 
       <div id="adAuth">
         <p class="sec-lead">Entre la clé de modération pour accéder à la file.</p>
@@ -16,10 +16,14 @@ import Layout from '../layouts/Layout.astro';
       </div>
 
       <div id="adPanel" hidden>
-        <div class="ad-tabs">
-          <button class="ev-tab active" data-st="pending" type="button">En attente</button>
-          <button class="ev-tab" data-st="approved" type="button">Publiées</button>
-          <button class="ev-tab" data-st="rejected" type="button">Refusées</button>
+        <div class="ad-tabs" id="adTypeTabs">
+          <button class="ev-tab active" data-type="prieres" type="button">Prières</button>
+          <button class="ev-tab" data-type="temoignages" type="button">Témoignages</button>
+        </div>
+        <div class="ad-tabs" id="adStatusTabs">
+          <button class="pw-filter active" data-st="pending" type="button">En attente</button>
+          <button class="pw-filter" data-st="approved" type="button">Publiés</button>
+          <button class="pw-filter" data-st="rejected" type="button">Refusés</button>
         </div>
         <div id="adList" class="pw-grid"></div>
         <p class="pw-empty" id="adEmpty" hidden>Rien ici pour le moment.</p>
@@ -30,6 +34,7 @@ import Layout from '../layouts/Layout.astro';
   <script is:inline>
     (function () {
       var key = '';
+      var type = 'prieres';
       var current = 'pending';
       var auth = document.getElementById('adAuth');
       var panel = document.getElementById('adPanel');
@@ -41,7 +46,7 @@ import Layout from '../layouts/Layout.astro';
       function act(id, action) {
         fetch('/api/admin?key=' + encodeURIComponent(key), {
           method: 'POST', headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ id: id, action: action }),
+          body: JSON.stringify({ id: id, action: action, type: type }),
         }).then(function (r) { return r.json(); }).then(function () { load(); });
       }
 
@@ -51,9 +56,10 @@ import Layout from '../layouts/Layout.astro';
           if (current !== 'approved') btns += '<button class="btn btn-gold" data-act="approve" data-id="' + esc(p.id) + '">Publier</button> ';
           if (current !== 'rejected') btns += '<button class="btn btn-ghost" data-act="reject" data-id="' + esc(p.id) + '">Refuser</button> ';
           btns += '<button class="btn btn-ghost" data-act="delete" data-id="' + esc(p.id) + '">Supprimer</button>';
+          var sub = (p.name ? esc(p.name) : 'Anonyme') + (p.location ? (' · ' + esc(p.location)) : '');
           return '<article class="pw-card"><div class="pw-card-top">'
-            + (p.category ? ('<span class="pw-cat">' + esc(p.category) + '</span>') : '')
-            + '<span class="pw-name">' + (p.name ? esc(p.name) : 'Anonyme') + '</span></div>'
+            + (p.category ? ('<span class="pw-cat">' + esc(p.category) + '</span>') : '<span></span>')
+            + '<span class="pw-name">' + sub + '</span></div>'
             + '<p class="pw-text">' + esc(p.text) + '</p>'
             + '<div class="ad-actions">' + btns + '</div></article>';
         }).join('');
@@ -64,12 +70,9 @@ import Layout from '../layouts/Layout.astro';
       }
 
       function load() {
-        fetch('/api/admin?key=' + encodeURIComponent(key) + '&status=' + current)
-          .then(function (r) {
-            if (r.status === 401) { throw new Error('unauthorized'); }
-            return r.json();
-          })
-          .then(function (data) { auth.hidden = true; panel.hidden = false; render(data.prieres || []); })
+        fetch('/api/admin?key=' + encodeURIComponent(key) + '&type=' + type + '&status=' + current)
+          .then(function (r) { if (r.status === 401) throw new Error('unauthorized'); return r.json(); })
+          .then(function (data) { auth.hidden = true; panel.hidden = false; render(data.items || []); })
           .catch(function () { adMsg.textContent = 'Clé invalide.'; });
       }
 
@@ -78,12 +81,16 @@ import Layout from '../layouts/Layout.astro';
         if (!key) { adMsg.textContent = 'Entre la clé.'; return; }
         load();
       });
-      document.querySelectorAll('.ad-tabs .ev-tab').forEach(function (t) {
+      document.querySelectorAll('#adTypeTabs .ev-tab').forEach(function (t) {
         t.addEventListener('click', function () {
-          document.querySelectorAll('.ad-tabs .ev-tab').forEach(function (x) { x.classList.remove('active'); });
-          t.classList.add('active');
-          current = t.getAttribute('data-st');
-          load();
+          document.querySelectorAll('#adTypeTabs .ev-tab').forEach(function (x) { x.classList.remove('active'); });
+          t.classList.add('active'); type = t.getAttribute('data-type'); load();
+        });
+      });
+      document.querySelectorAll('#adStatusTabs .pw-filter').forEach(function (t) {
+        t.addEventListener('click', function () {
+          document.querySelectorAll('#adStatusTabs .pw-filter').forEach(function (x) { x.classList.remove('active'); });
+          t.classList.add('active'); current = t.getAttribute('data-st'); load();
         });
       });
     })();
