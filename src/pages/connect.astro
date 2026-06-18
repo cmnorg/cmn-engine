@@ -29,6 +29,7 @@ const groups = groupStories.map((s) => {
 }).sort((a, b) => (a.order - b.order) || (b.members - a.members));
 
 const channelUrl = u(settings.whatsapp_channel) || '#';
+const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '';
 ---
 <Layout title="CMN — Connect">
   <section class="cn">
@@ -75,8 +76,8 @@ const channelUrl = u(settings.whatsapp_channel) || '#';
         </div>
         <div class="cn-card2">
           <h3>Tu veux animer un groupe ?</h3>
-          <p>Lance un groupe pour ta ville, ton pays.</p>
-          <a class="btn btn-gold" href="/contact">Proposer un groupe</a>
+          <p>Lance un groupe pour ta ville, ton pays ou ta passion.</p>
+          <a class="btn btn-gold" href="mailto:hello@cmnorg.org?subject=Proposer%20un%20groupe%20CMN%20Connect">Proposer un groupe</a>
         </div>
       </div>
     </div>
@@ -94,8 +95,9 @@ const channelUrl = u(settings.whatsapp_channel) || '#';
         <div class="pw-field"><label>Groupe choisi</label><input type="text" id="cnGroupName" readonly /></div>
         <div class="pw-field"><label>Numéro WhatsApp</label><input type="tel" id="cnWa" placeholder="+33 6 12 34 56 78" /></div>
         <div class="pw-field"><label>E-mail (facultatif)</label><input type="email" id="cnEmail" placeholder="toi@exemple.com" /></div>
-        <div class="pw-field"><label>Message (facultatif)</label><textarea id="cnMsg" rows="3" placeholder="Un mot pour te présenter…"></textarea></div>
+        <div class="pw-field"><label>Ton message (obligatoire — présente-toi en quelques mots)</label><textarea id="cnMsg" rows="3" placeholder="Bonjour, je m'appelle… et je souhaite rejoindre ce groupe parce que…" required></textarea></div>
         <label class="cn-consent"><input type="checkbox" id="cnConsent" /> <span>J'accepte d'être contacté(e) par CMN pour rejoindre ce groupe.</span></label>
+        {turnstileKey && <div class="cf-turnstile" data-sitekey={turnstileKey} style="margin:4px 0 12px"></div>}
         <button class="btn btn-gold" type="submit" style="width:100%;justify-content:center">Envoyer ma demande</button>
         <span class="pw-msg" id="cnMsgOut"></span>
         <p class="pw-note">🔒 Tes coordonnées ne sont jamais publiées. Elles servent uniquement à t'accueillir dans le groupe.</p>
@@ -103,6 +105,7 @@ const channelUrl = u(settings.whatsapp_channel) || '#';
     </div>
   </div>
 
+  <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <script is:inline define:vars={{ groups }}>
     (function () {
       var wrap = document.getElementById('cnGroups');
@@ -161,16 +164,22 @@ const channelUrl = u(settings.whatsapp_channel) || '#';
         var wa = document.getElementById('cnWa').value.trim();
         var em = document.getElementById('cnEmail').value.trim();
         if (!wa && !em) { msgOut.textContent = 'Indique un numéro WhatsApp ou un e-mail.'; return; }
+        var message = document.getElementById('cnMsg').value.trim();
+        if (message.length < 10) { msgOut.textContent = 'Merci d’écrire un petit message de présentation.'; return; }
+        var ti = form.querySelector('[name="cf-turnstile-response"]');
+        var token = ti ? ti.value : '';
+        if (form.querySelector('.cf-turnstile') && !token) { msgOut.textContent = 'Confirme que tu n’es pas un robot.'; return; }
         msgOut.textContent = 'Envoi…';
         var body = {
           group: document.getElementById('cnGroupName').value,
           whatsapp: wa, email: em,
           message: document.getElementById('cnMsg').value,
-          consent: true, website: form.website.value,
+          consent: true, website: form.website.value, turnstileToken: token,
         };
         fetch('/api/connect', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
           .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
           .then(function (res) {
+            if (window.turnstile) { try { turnstile.reset(); } catch (e) {} }
             if (res.ok) { msgOut.textContent = 'Merci ! Un responsable te contactera bientôt pour t’accueillir 🙏'; form.reset(); }
             else { msgOut.textContent = (res.d && res.d.error) || 'Une erreur est survenue.'; }
           })
