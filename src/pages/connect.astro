@@ -1,0 +1,182 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { useStoryblokApi } from '@storyblok/astro';
+
+function u(v) { if (!v) return ''; if (typeof v === 'string') return v; return v.url || v.cached_url || ''; }
+
+let groupStories = [], settings = {};
+try {
+  const api = useStoryblokApi();
+  const [g, s] = await Promise.all([
+    api.get('cdn/stories', { version: 'draft', content_type: 'group', per_page: 100 }),
+    api.get('cdn/stories/settings', { version: 'draft' }).catch(() => ({ data: { story: { content: {} } } })),
+  ]);
+  groupStories = g.data.stories || [];
+  settings = (s.data && s.data.story && s.data.story.content) || {};
+} catch (e) { groupStories = []; settings = {}; }
+
+const groups = groupStories.map((s) => {
+  const c = s.content || {};
+  return {
+    name: c.name || s.name,
+    type: c.type === 'theme' ? 'theme' : 'pays',
+    flag: c.flag || '🌍',
+    lang: c.language || '',
+    members: Number(c.members) || 0,
+    desc: c.description || '',
+    order: Number(c.order) || 999,
+  };
+}).sort((a, b) => (a.order - b.order) || (b.members - a.members));
+
+const channelUrl = u(settings.whatsapp_channel) || '#';
+---
+<Layout title="CMN — Connect">
+  <section class="cn">
+    <div class="cn-hero">
+      <div class="wrap">
+        <div class="phead-label disc-label">Connect</div>
+        <h1>CMN Connect</h1>
+        <p>Une communauté mondiale : rejoins des groupes, échange, prie et sers avec nous.</p>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <a class="cn-channel" href={channelUrl} target="_blank" rel="noopener">
+        <span class="cn-ch-ic">📣</span>
+        <span class="cn-ch-tx"><strong>Canal d'annonces officiel</strong><span>Reçois nouvelles, événements et sujets de prière de CMN.</span></span>
+        <span class="cn-ch-btn">S'abonner au canal</span>
+      </a>
+
+      <div class="cn-steps">
+        <h3>Nouveau ici ? Rejoins-nous en 3 étapes</h3>
+        <div class="cn-steps-row">
+          <div class="cn-step"><span class="cn-num">1</span><span>Choisis un groupe (pays ou thématique)</span></div>
+          <div class="cn-step"><span class="cn-num">2</span><span>Laisse tes coordonnées pour être ajouté</span></div>
+          <div class="cn-step"><span class="cn-num">3</span><span>Présente-toi, prie et sers avec nous</span></div>
+        </div>
+      </div>
+
+      <div class="cn-toolbar">
+        <input id="cnSearch" type="search" placeholder="Rechercher un groupe…" aria-label="Rechercher un groupe" />
+        <div class="cn-filters" id="cnFilters" role="group" aria-label="Filtrer les groupes">
+          <button class="cn-fil active" type="button" data-f="all">Tous</button>
+          <button class="cn-fil" type="button" data-f="pays">Pays</button>
+          <button class="cn-fil" type="button" data-f="theme">Thématiques</button>
+        </div>
+      </div>
+
+      <div class="cn-grid" id="cnGroups"></div>
+      <p id="cnNone" class="pw-empty" hidden>Aucun groupe ne correspond à ta recherche.</p>
+
+      <div class="cn-bottom">
+        <div class="cn-card2">
+          <h3>Notre charte</h3>
+          <p>Bienveillance, respect et valeurs chrétiennes. Pas de spam ni de polémique : on s'encourage et on prie les uns pour les autres.</p>
+        </div>
+        <div class="cn-card2">
+          <h3>Tu veux animer un groupe ?</h3>
+          <p>Lance un groupe pour ta ville, ton pays ou ta passion.</p>
+          <a class="btn btn-gold" href="/contact">Proposer un groupe</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modale d'adhésion -->
+  <div class="cn-modal" id="cnModal" hidden>
+    <div class="cn-modal-bg" data-close></div>
+    <div class="cn-modal-card" role="dialog" aria-modal="true">
+      <button class="cn-modal-x" type="button" data-close aria-label="Fermer">×</button>
+      <h3>Rejoindre un groupe</h3>
+      <p class="cn-modal-intro">Laisse tes coordonnées : un responsable CMN t'accueillera et t'ajoutera au groupe.</p>
+      <form id="cnForm">
+        <input type="text" name="website" class="pw-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <div class="pw-field"><label>Groupe choisi</label><input type="text" id="cnGroupName" readonly /></div>
+        <div class="pw-field"><label>Numéro WhatsApp</label><input type="tel" id="cnWa" placeholder="+33 6 12 34 56 78" /></div>
+        <div class="pw-field"><label>E-mail (facultatif)</label><input type="email" id="cnEmail" placeholder="toi@exemple.com" /></div>
+        <div class="pw-field"><label>Message (facultatif)</label><textarea id="cnMsg" rows="3" placeholder="Un mot pour te présenter…"></textarea></div>
+        <label class="cn-consent"><input type="checkbox" id="cnConsent" /> <span>J'accepte d'être contacté(e) par CMN pour rejoindre ce groupe.</span></label>
+        <button class="btn btn-gold" type="submit" style="width:100%;justify-content:center">Envoyer ma demande</button>
+        <span class="pw-msg" id="cnMsgOut"></span>
+        <p class="pw-note">🔒 Tes coordonnées ne sont jamais publiées. Elles servent uniquement à t'accueillir dans le groupe.</p>
+      </form>
+    </div>
+  </div>
+
+  <script is:inline define:vars={{ groups }}>
+    (function () {
+      var wrap = document.getElementById('cnGroups');
+      var none = document.getElementById('cnNone');
+      var search = document.getElementById('cnSearch');
+      var modal = document.getElementById('cnModal');
+      var form = document.getElementById('cnForm');
+      var msgOut = document.getElementById('cnMsgOut');
+      var fil = 'all', q = '';
+      function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
+
+      function render() {
+        var list = groups.filter(function (g) {
+          if (fil !== 'all' && g.type !== fil) return false;
+          if (q && g.name.toLowerCase().indexOf(q) < 0) return false;
+          return true;
+        });
+        wrap.innerHTML = list.map(function (g) {
+          var desc = g.desc || (g.type === 'pays' ? 'Connecte-toi à la branche CMN de ta région.' : 'Partage et grandis autour de ce qui te passionne.');
+          return '<div class="cn-card">'
+            + '<div class="cn-card-top"><span class="cn-flag">' + esc(g.flag) + '</span><div><h3>' + esc(g.name) + '</h3>'
+            + '<span class="cn-meta">' + esc(g.lang) + ' · <b>' + g.members + '</b> membres</span></div></div>'
+            + '<p class="cn-desc">' + esc(desc) + '</p>'
+            + '<button class="cn-wa" type="button" data-group="' + esc(g.name) + '">💬 Rejoindre le groupe</button>'
+            + '</div>';
+        }).join('');
+        none.hidden = list.length > 0;
+        wrap.querySelectorAll('.cn-wa').forEach(function (b) {
+          b.addEventListener('click', function () { openModal(b.getAttribute('data-group')); });
+        });
+      }
+
+      function openModal(group) {
+        document.getElementById('cnGroupName').value = group;
+        msgOut.textContent = '';
+        modal.hidden = false;
+        document.body.style.overflow = 'hidden';
+      }
+      function closeModal() { modal.hidden = true; document.body.style.overflow = ''; }
+      modal.querySelectorAll('[data-close]').forEach(function (el) { el.addEventListener('click', closeModal); });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
+
+      if (search) search.addEventListener('input', function () { q = this.value.trim().toLowerCase(); render(); });
+      document.querySelectorAll('#cnFilters .cn-fil').forEach(function (b) {
+        b.addEventListener('click', function () {
+          fil = b.getAttribute('data-f');
+          document.querySelectorAll('#cnFilters .cn-fil').forEach(function (x) { x.classList.remove('active'); });
+          b.classList.add('active'); render();
+        });
+      });
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!document.getElementById('cnConsent').checked) { msgOut.textContent = 'Merci de cocher le consentement.'; return; }
+        var wa = document.getElementById('cnWa').value.trim();
+        var em = document.getElementById('cnEmail').value.trim();
+        if (!wa && !em) { msgOut.textContent = 'Indique un numéro WhatsApp ou un e-mail.'; return; }
+        msgOut.textContent = 'Envoi…';
+        var body = {
+          group: document.getElementById('cnGroupName').value,
+          whatsapp: wa, email: em,
+          message: document.getElementById('cnMsg').value,
+          consent: true, website: form.website.value,
+        };
+        fetch('/api/connect', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
+          .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+          .then(function (res) {
+            if (res.ok) { msgOut.textContent = 'Merci ! Un responsable te contactera bientôt pour t’accueillir 🙏'; form.reset(); }
+            else { msgOut.textContent = (res.d && res.d.error) || 'Une erreur est survenue.'; }
+          })
+          .catch(function () { msgOut.textContent = 'Une erreur est survenue.'; });
+      });
+
+      render();
+    })();
+  </script>
+</Layout>
