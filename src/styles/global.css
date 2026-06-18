@@ -489,3 +489,15 @@ a{color:inherit}
 .pw-filter:hover{border-color:var(--gold-l);color:var(--gold-d)}
 .pw-filter.active{background:var(--gold);border-color:var(--gold);color:var(--char)}
 .pw-wall-h{font-size:22px;margin:8px 0 4px}
+
+/* ===== Témoignages (prières exaucées) ===== */
+.ts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:860px){.ts-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.ts-grid{grid-template-columns:1fr}}
+.ts-card{background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px;display:flex;flex-direction:column}
+.ts-quote{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-size:15.5px;line-height:1.6;color:var(--char);margin:12px 0 16px;flex:1}
+.ts-foot{display:flex;align-items:center;gap:12px}
+.ts-avatar{width:42px;height:42px;border-radius:50%;background:var(--gold-soft);color:var(--gold-d);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ts-name{font-weight:700;font-size:14px}
+.ts-loc{font-size:12px;color:var(--muted)}
+.ts-form{max-width:620px;margin:20px auto 0}
