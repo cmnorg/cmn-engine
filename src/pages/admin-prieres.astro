@@ -19,6 +19,7 @@ import Layout from '../layouts/Layout.astro';
         <div class="ad-tabs" id="adTypeTabs">
           <button class="ev-tab active" data-type="prieres" type="button">Prières</button>
           <button class="ev-tab" data-type="temoignages" type="button">Témoignages</button>
+          <button class="ev-tab" data-type="connect" type="button">Connect</button>
         </div>
         <div class="ad-tabs" id="adStatusTabs">
           <button class="pw-filter active" data-st="pending" type="button">En attente</button>
@@ -56,6 +57,12 @@ import Layout from '../layouts/Layout.astro';
           if (current !== 'approved') btns += '<button class="btn btn-gold" data-act="approve" data-id="' + esc(p.id) + '">Publier</button> ';
           if (current !== 'rejected') btns += '<button class="btn btn-ghost" data-act="reject" data-id="' + esc(p.id) + '">Refuser</button> ';
           btns += '<button class="btn btn-ghost" data-act="delete" data-id="' + esc(p.id) + '">Supprimer</button>';
+          if (type === 'connect') {
+            return '<article class="pw-card"><div class="pw-card-top"><span class="pw-cat">' + esc(p.grp || 'Groupe') + '</span></div>'
+              + '<p class="pw-text">' + (p.message ? esc(p.message) : '(sans message)') + '</p>'
+              + '<p class="pw-name">📱 ' + esc(p.whatsapp || '—') + (p.email ? (' · ✉️ ' + esc(p.email)) : '') + '</p>'
+              + '<div class="ad-actions">' + btns + '</div></article>';
+          }
           var sub = (p.name ? esc(p.name) : 'Anonyme') + (p.location ? (' · ' + esc(p.location)) : '');
           return '<article class="pw-card"><div class="pw-card-top">'
             + (p.category ? ('<span class="pw-cat">' + esc(p.category) + '</span>') : '<span></span>')
