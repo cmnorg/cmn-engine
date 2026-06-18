@@ -501,3 +501,54 @@ a{color:inherit}
 .ts-name{font-weight:700;font-size:14px}
 .ts-loc{font-size:12px;color:var(--muted)}
 .ts-form{max-width:620px;margin:20px auto 0}
+
+/* ===== Connect ===== */
+.cn-hero{background:var(--char);color:#fff;padding:50px 0;margin-bottom:30px}
+.cn-hero h1{font-size:clamp(26px,4vw,40px);line-height:1.12;margin-top:6px}
+.cn-hero p{color:#e9e7df;margin-top:8px;max-width:620px}
+.cn-channel{display:flex;align-items:center;gap:16px;background:var(--gold-soft);border:1px solid var(--gold-l);border-radius:var(--r-lg);padding:18px 22px;text-decoration:none;color:var(--char);margin-bottom:26px;transition:.15s}
+.cn-channel:hover{box-shadow:var(--shadow)}
+.cn-ch-ic{font-size:30px}
+.cn-ch-tx{display:flex;flex-direction:column;flex:1}
+.cn-ch-tx strong{font-size:16px}
+.cn-ch-tx span{font-size:13.5px;color:var(--muted)}
+.cn-ch-btn{background:var(--gold);color:var(--char);font-weight:700;font-size:13.5px;padding:9px 16px;border-radius:20px;white-space:nowrap}
+.cn-steps{margin-bottom:26px}
+.cn-steps h3{font-size:18px;margin-bottom:14px}
+.cn-steps-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:760px){.cn-steps-row{grid-template-columns:1fr}}
+.cn-step{display:flex;align-items:center;gap:12px;background:var(--white);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;font-size:14px}
+.cn-num{width:30px;height:30px;border-radius:50%;background:var(--gold-soft);color:var(--gold-d);font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cn-toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+#cnSearch{flex:1;min-width:200px;font-family:var(--font);font-size:15px;border:1px solid var(--line);border-radius:24px;padding:11px 18px;background:var(--white);color:var(--ink)}
+.cn-filters{display:flex;gap:8px;flex-wrap:wrap}
+.cn-fil{background:var(--white);border:1px solid var(--line);color:var(--muted);font-weight:600;font-size:13px;padding:8px 16px;border-radius:20px;cursor:pointer;font-family:var(--font);transition:.15s}
+.cn-fil:hover{border-color:var(--gold-l);color:var(--gold-d)}
+.cn-fil.active{background:var(--gold);border-color:var(--gold);color:var(--char)}
+.cn-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:860px){.cn-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.cn-grid{grid-template-columns:1fr}}
+.cn-card{background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px;display:flex;flex-direction:column}
+.cn-card-top{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.cn-flag{font-size:30px}
+.cn-card-top h3{font-size:17px}
+.cn-meta{font-size:12.5px;color:var(--muted)}
+.cn-desc{font-size:14px;color:var(--muted);line-height:1.55;margin-bottom:14px;flex:1}
+.cn-wa{align-self:flex-start;background:#25D366;color:#fff;border:none;font-weight:700;font-size:14px;padding:9px 16px;border-radius:12px;cursor:pointer;font-family:var(--font);transition:.15s}
+.cn-wa:hover{filter:brightness(.95)}
+.cn-bottom{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:34px 0 10px}
+@media(max-width:760px){.cn-bottom{grid-template-columns:1fr}}
+.cn-card2{background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);padding:24px}
+.cn-card2 h3{font-size:18px;margin-bottom:8px}
+.cn-card2 p{color:var(--muted);font-size:14.5px;line-height:1.6;margin-bottom:14px}
+/* Modale d'adhésion */
+.cn-modal{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;padding:20px}
+.cn-modal[hidden]{display:none}
+.cn-modal-bg{position:absolute;inset:0;background:rgba(20,18,14,.6)}
+.cn-modal-card{position:relative;z-index:2;background:#fff;border-radius:var(--r-lg);max-width:480px;width:100%;padding:26px;max-height:90vh;overflow:auto;box-shadow:var(--shadow)}
+.cn-modal-x{position:absolute;top:10px;right:14px;border:none;background:none;font-size:28px;line-height:1;cursor:pointer;color:var(--muted)}
+.cn-modal-card h3{font-size:20px}
+.cn-modal-intro{font-size:14px;color:var(--muted);margin:6px 0 16px}
+.cn-modal-card input,.cn-modal-card textarea{width:100%;font-family:var(--font);font-size:15px;border:1px solid var(--line);border-radius:12px;padding:11px 14px;background:var(--bg);color:var(--ink)}
+.cn-consent{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--muted);margin:6px 0 14px}
+.cn-consent input{width:auto;margin-top:3px}
