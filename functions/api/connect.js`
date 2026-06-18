@@ -49,33 +49,3 @@ export async function onRequestPost({ env, request }) {
 
   return json({ ok: true });
 }
-// Connect — demande d'adhésion à un groupe (POST) -> stockée en D1 (connect_requests)
-function json(obj, status = 200) {
-  return new Response(JSON.stringify(obj), {
-    status,
-    headers: { 'content-type': 'application/json; charset=utf-8' },
-  });
-}
-
-export async function onRequestPost({ env, request }) {
-  if (!env.DB) return json({ error: 'Base non configurée' }, 500);
-  let body;
-  try { body = await request.json(); } catch (e) { return json({ error: 'Requête invalide' }, 400); }
-  if (body.website) return json({ ok: true }); // honeypot
-
-  const grp = (body.group || '').toString().trim().slice(0, 80);
-  const whatsapp = (body.whatsapp || '').toString().trim().slice(0, 40);
-  const email = (body.email || '').toString().trim().slice(0, 120);
-  const message = (body.message || '').toString().trim().slice(0, 1000);
-  const consent = body.consent ? 1 : 0;
-
-  if (!consent) return json({ error: 'Merci de cocher le consentement.' }, 400);
-  if (!whatsapp && !email) return json({ error: 'Indique un numéro WhatsApp ou un e-mail.' }, 400);
-
-  const id = crypto.randomUUID();
-  await env.DB.prepare(
-    "INSERT INTO connect_requests (id, grp, whatsapp, email, message, status, created_at) VALUES (?, ?, ?, ?, ?, 'pending', ?)"
-  ).bind(id, grp, whatsapp, email, message, Date.now()).run();
-
-  return json({ ok: true });
-}
