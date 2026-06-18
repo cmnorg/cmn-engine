@@ -5,6 +5,7 @@ const categories = [
   'Travail & finances', 'Études', 'Ministère & mission', 'Protection',
   'Voyage', 'Deuil', 'Délivrance', 'Action de grâce', 'Autre',
 ];
+const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '';
 ---
 <Layout title="CMN — Mur de prière">
   <section class="pw">
@@ -48,6 +49,7 @@ const categories = [
             <label>Ton sujet de prière</label>
             <textarea id="pwText" maxlength="1500" rows="4" placeholder="Écris ta demande de prière…" required></textarea>
           </div>
+          {turnstileKey && <div class="cf-turnstile" data-sitekey={turnstileKey} style="margin:4px 0 10px"></div>}
           <div class="pw-actions">
             <button type="submit" class="btn btn-gold">Déposer ma requête</button>
             <span class="pw-msg" id="pwMsg"></span>
@@ -60,11 +62,52 @@ const categories = [
       <div class="pw-filters" id="pwFilters"></div>
       <div class="pw-grid" id="pwGrid"></div>
       <p class="pw-empty" id="pwEmpty" hidden>Sois le premier à déposer une prière 🙏</p>
+
+      <h2 class="pw-wall-h" style="margin-top:46px">Prières exaucées</h2>
+      <p class="sec-lead">Dieu agit. Voici quelques témoignages de la communauté.</p>
+      <div class="ts-grid" id="tsGrid"></div>
+      <p class="pw-empty" id="tsEmpty" hidden>Les premiers témoignages arriveront bientôt 🙌</p>
+      <div style="text-align:center;margin-top:24px">
+        <button class="btn btn-ghost" id="tsToggle" type="button">Partager un témoignage</button>
+      </div>
+
+      <form class="pw-form pw-card2 ts-form" id="tsForm" hidden>
+        <h3>Partager un témoignage</h3>
+        <input type="text" name="website" class="pw-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <div class="pw-field">
+          <label>Prénom (facultatif)</label>
+          <input type="text" id="tsName" maxlength="60" placeholder="Ton prénom" />
+        </div>
+        <div class="pw-field">
+          <label>Ville · Pays (facultatif)</label>
+          <input type="text" id="tsLoc" maxlength="80" placeholder="Ex. Cotonou · Bénin" />
+        </div>
+        <div class="pw-field">
+          <label>Catégorie</label>
+          <select id="tsCat">
+            <option value="">Choisir…</option>
+            {categories.map((c) => <option value={c}>{c}</option>)}
+          </select>
+        </div>
+        <div class="pw-field">
+          <label>Ton témoignage</label>
+          <textarea id="tsText" maxlength="1500" rows="4" placeholder="Raconte ce que Dieu a fait…" required></textarea>
+        </div>
+        {turnstileKey && <div class="cf-turnstile" data-sitekey={turnstileKey} style="margin:4px 0 10px"></div>}
+        <div class="pw-actions">
+          <button type="submit" class="btn btn-gold">Publier mon témoignage</button>
+          <span class="pw-msg" id="tsMsg"></span>
+        </div>
+        <p class="pw-note">🔒 Les témoignages sont relus avant publication.</p>
+      </form>
     </div>
   </section>
 
+  <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <script is:inline>
     (function () {
+      function tsToken(f) { var i = f.querySelector('[name="cf-turnstile-response"]'); return i ? i.value : ''; }
+      function tsReset() { if (window.turnstile) { try { turnstile.reset(); } catch (e) {} } }
       var grid = document.getElementById('pwGrid');
       var empty = document.getElementById('pwEmpty');
       var filtersEl = document.getElementById('pwFilters');
@@ -136,16 +179,19 @@ const categories = [
         e.preventDefault();
         var text = document.getElementById('pwText').value.trim();
         if (text.length < 5) { msg.textContent = 'Écris quelques mots de plus.'; return; }
+        if (form.querySelector('.cf-turnstile') && !tsToken(form)) { msg.textContent = 'Confirme que tu n’es pas un robot.'; return; }
         msg.textContent = 'Envoi…';
         var body = {
           text: text,
           name: document.getElementById('pwName').value,
           category: document.getElementById('pwCat').value,
           website: form.website.value,
+          turnstileToken: tsToken(form),
         };
         fetch('/api/prieres', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
           .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
           .then(function (res) {
+            tsReset();
             if (res.ok) {
               msg.textContent = res.d.status === 'pending'
                 ? 'Merci ! Ta prière sera publiée après relecture. 🙏'
@@ -157,7 +203,64 @@ const categories = [
           .catch(function () { msg.textContent = 'Une erreur est survenue.'; });
       });
 
+      // ===== Témoignages (prières exaucées) =====
+      var tsGrid = document.getElementById('tsGrid');
+      var tsEmpty = document.getElementById('tsEmpty');
+      var tsForm = document.getElementById('tsForm');
+      var tsMsg = document.getElementById('tsMsg');
+      var tsToggle = document.getElementById('tsToggle');
+
+      function initials(name) {
+        var n = (name || '').trim();
+        if (!n) return '🙏';
+        return n.split(/\s+/).map(function (w) { return w.charAt(0); }).join('').slice(0, 2).toUpperCase();
+      }
+      function tsCard(t) {
+        return '<article class="ts-card">'
+          + (t.category ? ('<span class="pw-cat">' + esc(t.category) + '</span>') : '')
+          + '<p class="ts-quote">« ' + esc(t.text) + ' »</p>'
+          + '<div class="ts-foot"><span class="ts-avatar">' + esc(initials(t.name)) + '</span>'
+          + '<div><div class="ts-name">' + (t.name ? esc(t.name) : 'Anonyme') + '</div>'
+          + (t.location ? ('<div class="ts-loc">' + esc(t.location) + '</div>') : '') + '</div></div>'
+          + '</article>';
+      }
+      function loadTestis() {
+        fetch('/api/temoignages').then(function (r) { return r.json(); }).then(function (data) {
+          var list = data.temoignages || [];
+          tsGrid.innerHTML = list.map(tsCard).join('');
+          tsEmpty.hidden = list.length > 0;
+        }).catch(function () { tsEmpty.hidden = false; });
+      }
+      tsToggle.addEventListener('click', function () {
+        tsForm.hidden = !tsForm.hidden;
+        if (!tsForm.hidden) tsForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+      tsForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var text = document.getElementById('tsText').value.trim();
+        if (text.length < 5) { tsMsg.textContent = 'Écris quelques mots de plus.'; return; }
+        if (tsForm.querySelector('.cf-turnstile') && !tsToken(tsForm)) { tsMsg.textContent = 'Confirme que tu n’es pas un robot.'; return; }
+        tsMsg.textContent = 'Envoi…';
+        var body = {
+          text: text,
+          name: document.getElementById('tsName').value,
+          location: document.getElementById('tsLoc').value,
+          category: document.getElementById('tsCat').value,
+          website: tsForm.website.value,
+          turnstileToken: tsToken(tsForm),
+        };
+        fetch('/api/temoignages', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
+          .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+          .then(function (res) {
+            tsReset();
+            if (res.ok) { tsMsg.textContent = 'Merci ! Ton témoignage sera publié après relecture. 🙌'; tsForm.reset(); }
+            else { tsMsg.textContent = (res.d && res.d.error) || 'Une erreur est survenue.'; }
+          })
+          .catch(function () { tsMsg.textContent = 'Une erreur est survenue.'; });
+      });
+
       load();
+      loadTestis();
     })();
   </script>
 </Layout>
