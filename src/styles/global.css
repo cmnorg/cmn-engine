@@ -464,3 +464,27 @@ a{color:inherit}
 .ad-tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin:18px 0 20px;flex-wrap:wrap}
 .ad-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .ad-actions .btn{margin:0;font-size:13px;padding:8px 14px}
+
+/* ===== Mur de prière — mise en page riche ===== */
+.pw-hero{background:var(--char);background-size:cover;background-position:center;color:#fff;padding:50px 0;margin-bottom:30px}
+.pw-hero h1{font-size:clamp(26px,4vw,40px);line-height:1.12;margin-top:6px}
+.pw-hero p{color:#e9e7df;margin-top:8px;max-width:620px}
+.pw-cols{display:grid;grid-template-columns:1fr 1.1fr;gap:22px;align-items:start;margin-bottom:38px}
+@media(max-width:820px){.pw-cols{grid-template-columns:1fr}}
+.pw-card2{background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);padding:24px}
+.pw-card2 h3{font-size:19px;margin-bottom:10px}
+.pw-why p{color:var(--muted);font-size:15px;line-height:1.6}
+.pw-why .verse{margin:16px 0}
+.pw-stats{display:flex;gap:10px;margin-top:6px}
+.pw-stat{flex:1;background:var(--gold-soft);border-radius:14px;padding:14px 8px;text-align:center}
+.pw-stat .n{font-size:24px;font-weight:700;color:var(--char)}
+.pw-stat .l{font-size:11.5px;color:var(--muted);margin-top:2px}
+.pw-field{margin-bottom:12px}
+.pw-field label{display:block;font-size:13px;font-weight:600;margin-bottom:5px;color:var(--char)}
+.pw-field input,.pw-field select,.pw-field textarea{width:100%}
+.pw-note{font-size:12.5px;color:var(--muted);margin-top:14px;line-height:1.5}
+.pw-filters{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 20px}
+.pw-filter{background:var(--white);border:1px solid var(--line);color:var(--muted);font-weight:600;font-size:13px;padding:7px 14px;border-radius:20px;cursor:pointer;font-family:var(--font);transition:.15s}
+.pw-filter:hover{border-color:var(--gold-l);color:var(--gold-d)}
+.pw-filter.active{background:var(--gold);border-color:var(--gold);color:var(--char)}
+.pw-wall-h{font-size:22px;margin:8px 0 4px}
