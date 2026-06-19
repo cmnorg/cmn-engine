@@ -607,8 +607,8 @@ a{color:inherit}
 .pt-tier.accent-1 .pt-ph{background:linear-gradient(135deg,#DEEAD2,#A6C98A)}
 .pt-tier.accent-2 .pt-ph{background:linear-gradient(135deg,#D8E3F0,#97B6D6)}
 .pt-tier.accent-3 .pt-ph{background:linear-gradient(135deg,#F3DACE,#E0A88D)}
-.pt-bd{padding:0 22px 24px;display:flex;flex-direction:column;flex:1;text-align:center}
-.pt-icon{position:relative;z-index:2;margin:-46px auto 14px;width:62px;height:62px;border-radius:18px;background:#fff;box-shadow:0 8px 18px rgba(30,26,16,.18);display:flex;align-items:center;justify-content:center;font-size:30px}
+.pt-bd{padding:0 22px 24px;display:flex;flex-direction:column;flex:1;text-align:left}
+.pt-icon{position:relative;z-index:2;margin:-46px 0 14px;width:62px;height:62px;border-radius:18px;background:#fff;box-shadow:0 8px 18px rgba(30,26,16,.18);display:flex;align-items:center;justify-content:center;font-size:30px}
 .pt-ribbon{position:absolute;top:12px;right:12px;z-index:2;background:var(--gold);color:#fff;font-size:11px;font-weight:700;padding:5px 12px;border-radius:999px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.18)}
 .pt-badge{font-weight:700;color:var(--char);font-size:15px;margin-bottom:6px}
 .pt-amt strong{font-size:34px;color:var(--char)}
