@@ -20,6 +20,7 @@ import Layout from '../layouts/Layout.astro';
           <button class="ev-tab active" data-type="prieres" type="button">Prières</button>
           <button class="ev-tab" data-type="temoignages" type="button">Témoignages</button>
           <button class="ev-tab" data-type="connect" type="button">Connect</button>
+          <button class="ev-tab" data-type="contact" type="button">Contact</button>
         </div>
         <div class="ad-tabs" id="adStatusTabs">
           <button class="pw-filter active" data-st="pending" type="button">En attente</button>
@@ -61,6 +62,14 @@ import Layout from '../layouts/Layout.astro';
             return '<article class="pw-card"><div class="pw-card-top"><span class="pw-cat">' + esc(p.grp || 'Groupe') + '</span></div>'
               + '<p class="pw-text">' + (p.message ? esc(p.message) : '(sans message)') + '</p>'
               + '<p class="pw-name">📱 ' + esc(p.whatsapp || '—') + (p.email ? (' · ✉️ ' + esc(p.email)) : '') + '</p>'
+              + '<div class="ad-actions">' + btns + '</div></article>';
+          }
+          if (type === 'contact') {
+            return '<article class="pw-card"><div class="pw-card-top">'
+              + '<span class="pw-cat">' + esc(p.subject || 'Message') + '</span>'
+              + '<span class="pw-name">' + (p.name ? esc(p.name) : 'Anonyme') + '</span></div>'
+              + '<p class="pw-text">' + esc(p.message) + '</p>'
+              + '<p class="pw-name"><a href="mailto:' + esc(p.email) + '">✉️ ' + esc(p.email) + '</a></p>'
               + '<div class="ad-actions">' + btns + '</div></article>';
           }
           var sub = (p.name ? esc(p.name) : 'Anonyme') + (p.location ? (' · ' + esc(p.location)) : '');
