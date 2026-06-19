@@ -2,7 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import { useStoryblokApi } from '@storyblok/astro';
 
-function u(v) { if (!v) return ''; if (typeof v === 'string') return v; return v.url || v.cached_url || ''; } 
+function u(v) { if (!v) return ''; if (typeof v === 'string') return v; return v.url || v.cached_url || ''; }
 
 let settings = {};
 try {
@@ -10,10 +10,6 @@ try {
   const { data } = await api.get('cdn/stories/settings', { version: 'draft' });
   settings = (data && data.story && data.story.content) || {};
 } catch (e) { settings = {}; }
-
-// Lien du prestataire de don récurrent (Donorbox / HelloAsso / Stripe). À renseigner dans settings.donate_url.
-// Tant qu'il est vide, le formulaire propose le don par virement / mobile money (toujours fonctionnel).
-const donateUrl = u(settings.donate_url) || '';
 
 const bank = {
   holder: settings.bank_holder || 'À compléter',
@@ -162,7 +158,7 @@ const amounts = [25, 50, 100, 250];
     </div>
   </section>
 
-  <script is:inline define:vars={{ donateUrl }}>
+  <script is:inline>
     (function () {
       var freq = 'monthly';
       var amount = 50;
@@ -270,18 +266,34 @@ const amounts = [25, 50, 100, 250];
           return;
         }
 
-        // Carte / PayPal : redirection vers le prestataire si configuré.
-        if (donateUrl) {
-          var sep = donateUrl.indexOf('?') === -1 ? '?' : '&';
-          var url = donateUrl + sep + 'amount=' + a + '&recurring=' + (freq === 'monthly' ? 'true' : 'false') + '&currency=' + cur;
-          msg.style.color = 'var(--gold-d)';
-          msg.textContent = 'Redirection vers le paiement sécurisé…';
-          window.location.href = url;
-        } else {
-          msg.style.color = 'var(--gold-d)';
-          msg.textContent = 'Merci ! Le paiement par carte / PayPal est en cours d\'activation. En attendant, choisis « Mobile money » ou « Virement bancaire » ci-dessus pour donner dès maintenant. 🙏';
-          var side2 = document.querySelector('.fd-side'); if (side2) side2.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        // Carte / PayPal : création d'une session Stripe Checkout puis redirection.
+        var btn = document.querySelector('.fd-validate');
+        msg.style.color = 'var(--gold-d)';
+        msg.textContent = 'Redirection vers le paiement sécurisé…';
+        if (btn) { btn.disabled = true; }
+        fetch('/api/stripe-checkout', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            amount: a, freq: freq, currency: cur,
+            email: em, name: (document.getElementById('fdFirst').value + ' ' + document.getElementById('fdLast').value).trim(),
+            country: document.getElementById('fdCountry').value,
+            phone: document.getElementById('fdPhone').value,
+            website: form.website.value,
+          }),
+        }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+          .then(function (res) {
+            if (res.ok && res.d && res.d.url) { window.location.href = res.d.url; return; }
+            if (btn) { btn.disabled = false; }
+            msg.style.color = '#c0392b';
+            if (res.d && res.d.error === 'stripe_non_configure') {
+              msg.style.color = 'var(--gold-d)';
+              msg.textContent = 'Le paiement par carte / PayPal est en cours d\'activation. En attendant, choisis « Mobile money » ou « Virement bancaire » ci-dessus pour donner dès maintenant. 🙏';
+              var side2 = document.querySelector('.fd-side'); if (side2) side2.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+              msg.textContent = (res.d && res.d.error) || 'Une erreur est survenue. Réessaie.';
+            }
+          })
+          .catch(function () { if (btn) { btn.disabled = false; } msg.style.color = '#c0392b'; msg.textContent = 'Une erreur est survenue. Réessaie.'; });
       });
     })();
   </script>
