@@ -113,11 +113,11 @@ const amounts = [25, 50, 100, 250];
         <div class="fd-step">
           <h3><span class="fd-num">3</span> Mode de paiement</h3>
           <div class="fd-pays" id="fdPays">
-            <label class="fd-payopt active"><input type="radio" name="pay" value="card" checked /> <span class="fd-pay-ic">💳</span> Carte bancaire</label>
-            <label class="fd-payopt"><input type="radio" name="pay" value="paypal" /> <span class="fd-pay-ic">🅿️</span> PayPal</label>
+            <label class="fd-payopt active"><input type="radio" name="pay" value="online" checked /> <span class="fd-pay-ic">💳</span> Carte ou PayPal</label>
             <label class="fd-payopt"><input type="radio" name="pay" value="momo" /> <span class="fd-pay-ic">📱</span> Mobile money <small>(Afrique)</small></label>
             <label class="fd-payopt"><input type="radio" name="pay" value="bank" /> <span class="fd-pay-ic">🏦</span> Virement bancaire</label>
           </div>
+          <p class="fd-pay-hint">💳 Tu choisiras <strong>Carte</strong> ou <strong>PayPal</strong> sur la page de paiement sécurisée.</p>
           <div class="fd-recap" id="fdRecap">—</div>
           <p class="fd-terms">En validant, tu acceptes nos conditions de don et notre <a href="/confidentialite">politique de confidentialité</a>.</p>
           <button class="btn btn-gold fd-validate" type="submit">Je valide mon don</button>
