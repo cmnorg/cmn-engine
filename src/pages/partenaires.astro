@@ -47,13 +47,12 @@ const tiers = [
 
       <!-- Paliers (avec image éditable depuis Storyblok) -->
       <div class="pt-tiers">
-        {tiers.map((t) => (
-          <article class={`pt-tier${t.popular ? ' feat' : ''}`} data-amount={t.amount}>
+        {tiers.map((t, i) => (
+          <article class={`pt-tier accent-${i}${t.popular ? ' feat' : ''}`} data-amount={t.amount}>
             {t.popular && <div class="pt-ribbon">Le plus choisi</div>}
-            <div class={`pt-ph pt-ph--${t.key}`} style={t.img ? `background-image:url(${t.img})` : ''}>
-              {!t.img && <span class="pt-ph-emoji">{t.emoji}</span>}
-            </div>
+            <div class="pt-ph" style={t.img ? `background-image:url(${t.img})` : ''}></div>
             <div class="pt-bd">
+              <span class="pt-icon">{t.emoji}</span>
               <div class="pt-badge">{t.name}</div>
               <div class="pt-amt"><strong>{t.amount} €</strong><span class="pt-per">/mois</span></div>
               <div class="pt-concrete">{t.concrete}</div>
