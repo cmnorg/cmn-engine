@@ -22,7 +22,7 @@ const socials = [
 
 const subjects = [
   'Question générale', 'Partenariat', 'Demande de prière',
-  'Bénévolat / Mission', 'Presse & médias', 'Faire un don', 'Autre',
+  'Bénévolat / Mission', 'Proposer un groupe (Connect)', 'Presse & médias', 'Faire un don', 'Autre',
 ];
 const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOySkkvvQhUrg';
 ---
@@ -124,6 +124,26 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
       var out = document.getElementById('ctMsgOut');
       var emailEl = document.getElementById('ctEmail');
       var msgEl = document.getElementById('ctMsg');
+
+      // Pré-sélection du sujet depuis l'URL (ex: /contact?sujet=Proposer un groupe (Connect))
+      try {
+        var sujet = new URLSearchParams(window.location.search).get('sujet');
+        if (sujet) {
+          var sel = document.getElementById('ctSubject');
+          var matched = false;
+          for (var i = 0; i < sel.options.length; i++) {
+            if (sel.options[i].value === sujet) { sel.selectedIndex = i; matched = true; break; }
+          }
+          if (!matched) {
+            for (var j = 0; j < sel.options.length; j++) { if (sel.options[j].value === 'Autre') { sel.selectedIndex = j; break; } }
+          }
+          if (sujet.indexOf('groupe') !== -1 && !msgEl.value) {
+            msgEl.value = 'Bonjour, je souhaite proposer / animer un groupe CMN Connect.\n\nNom du groupe envisagé : \nPays ou thématique : \nQuelques mots sur le projet : ';
+          }
+          // amène l'utilisateur directement au formulaire
+          setTimeout(function () { form.scrollIntoView({ behavior: 'smooth', block: 'center' }); document.getElementById('ctName').focus(); }, 150);
+        }
+      } catch (e) {}
       function tok() { return window.__tsToken || ''; }
       // Met un champ en surbrillance d'erreur (rouge) et affiche le message correspondant.
       function fieldError(el, text) {
