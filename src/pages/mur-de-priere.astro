@@ -62,11 +62,13 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
       <div class="pw-filters" id="pwFilters"></div>
       <div class="pw-grid" id="pwGrid"></div>
       <p class="pw-empty" id="pwEmpty" hidden>Sois le premier à déposer une prière 🙏</p>
+      <div class="pw-pager" id="pwPager"></div>
 
       <h2 class="pw-wall-h" style="margin-top:46px">Prières exaucées</h2>
       <p class="sec-lead">Dieu agit. Voici quelques témoignages de la communauté.</p>
       <div class="ts-grid" id="tsGrid"></div>
       <p class="pw-empty" id="tsEmpty" hidden>Les premiers témoignages arriveront bientôt 🙌</p>
+      <div class="pw-pager" id="tsPager"></div>
       <div style="text-align:center;margin-top:24px">
         <button class="btn btn-ghost" id="tsToggle" type="button">Partager un témoignage</button>
       </div>
@@ -146,6 +148,22 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
       function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
       function fmt(n) { return (n || 0).toLocaleString('fr-FR'); }
 
+      var PAGE = 6; // 2 lignes de 3 cartes
+      function renderPager(el, page, pages, go) {
+        if (!el) return;
+        if (pages <= 1) { el.innerHTML = ''; return; }
+        var h = '<button class="pw-page-btn" data-go="' + (page - 1) + '"' + (page <= 1 ? ' disabled' : '') + ' aria-label="Précédent">‹</button>';
+        for (var i = 1; i <= pages; i++) h += '<button class="pw-page-btn' + (i === page ? ' active' : '') + '" data-go="' + i + '">' + i + '</button>';
+        h += '<button class="pw-page-btn" data-go="' + (page + 1) + '"' + (page >= pages ? ' disabled' : '') + ' aria-label="Suivant">›</button>';
+        el.innerHTML = h;
+        el.querySelectorAll('.pw-page-btn').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var p = parseInt(b.getAttribute('data-go'), 10);
+            if (p >= 1 && p <= pages && p !== page) go(p);
+          });
+        });
+      }
+
       function cardHTML(p) {
         return '<article class="pw-card" data-cat="' + esc(p.category || '') + '"><div class="pw-card-top">'
           + (p.category ? ('<span class="pw-cat">' + esc(p.category) + '</span>') : '<span></span>')
@@ -168,11 +186,19 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
         });
       }
 
+      var pwPage = 1;
       function renderWall() {
         var list = filter ? all.filter(function (p) { return p.category === filter; }) : all;
-        grid.innerHTML = list.map(cardHTML).join('');
+        var pages = Math.max(1, Math.ceil(list.length / PAGE));
+        if (pwPage > pages) pwPage = pages;
+        var slice = list.slice((pwPage - 1) * PAGE, pwPage * PAGE);
+        grid.innerHTML = slice.map(cardHTML).join('');
         empty.hidden = list.length > 0;
         bindPray();
+        renderPager(document.getElementById('pwPager'), pwPage, pages, function (p) {
+          pwPage = p; renderWall();
+          var g = document.getElementById('pwGrid'); if (g) g.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
       }
 
       function renderFilters() {
@@ -184,6 +210,7 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
         filtersEl.querySelectorAll('.pw-filter').forEach(function (b) {
           b.addEventListener('click', function () {
             filter = b.getAttribute('data-cat');
+            pwPage = 1;
             filtersEl.querySelectorAll('.pw-filter').forEach(function (x) { x.classList.remove('active'); });
             b.classList.add('active');
             renderWall();
@@ -251,11 +278,23 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
           + (t.location ? ('<div class="ts-loc">' + esc(t.location) + '</div>') : '') + '</div></div>'
           + '</article>';
       }
+      var tsAll = [];
+      var tsPage = 1;
+      function renderTestis() {
+        var pages = Math.max(1, Math.ceil(tsAll.length / PAGE));
+        if (tsPage > pages) tsPage = pages;
+        var slice = tsAll.slice((tsPage - 1) * PAGE, tsPage * PAGE);
+        tsGrid.innerHTML = slice.map(tsCard).join('');
+        tsEmpty.hidden = tsAll.length > 0;
+        renderPager(document.getElementById('tsPager'), tsPage, pages, function (p) {
+          tsPage = p; renderTestis();
+          var g = document.getElementById('tsGrid'); if (g) g.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
       function loadTestis() {
         fetch('/api/temoignages').then(function (r) { return r.json(); }).then(function (data) {
-          var list = data.temoignages || [];
-          tsGrid.innerHTML = list.map(tsCard).join('');
-          tsEmpty.hidden = list.length > 0;
+          tsAll = data.temoignages || [];
+          renderTestis();
         }).catch(function () { tsEmpty.hidden = false; });
       }
       tsToggle.addEventListener('click', function () {
