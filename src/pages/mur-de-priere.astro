@@ -49,7 +49,7 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
             <label>Ton sujet de prière</label>
             <textarea id="pwText" maxlength="1500" rows="4" placeholder="Écris ta demande de prière…" required></textarea>
           </div>
-          {turnstileKey && <div class="cf-turnstile" data-sitekey={turnstileKey} style="margin:4px 0 10px"></div>}
+          {turnstileKey && <div id="tsBoxPw" style="margin:4px 0 10px"></div>}
           <div class="pw-actions">
             <button type="submit" class="btn btn-gold">Déposer ma requête</button>
             <span class="pw-msg" id="pwMsg"></span>
@@ -93,7 +93,7 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
           <label>Ton témoignage</label>
           <textarea id="tsText" maxlength="1500" rows="4" placeholder="Raconte ce que Dieu a fait…" required></textarea>
         </div>
-        {turnstileKey && <div class="cf-turnstile" data-sitekey={turnstileKey} style="margin:4px 0 10px"></div>}
+        {turnstileKey && <div id="tsBoxTs" style="margin:4px 0 10px"></div>}
         <div class="pw-actions">
           <button type="submit" class="btn btn-gold">Publier mon témoignage</button>
           <span class="pw-msg" id="tsMsg"></span>
@@ -104,10 +104,38 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
   </section>
 
   <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-  <script is:inline>
+  <script is:inline define:vars={{ turnstileKey }}>
     (function () {
-      function tsToken(f) { var i = f.querySelector('[name="cf-turnstile-response"]'); return i ? i.value : ''; }
-      function tsReset() { if (window.turnstile) { try { turnstile.reset(); } catch (e) {} } }
+      // ===== Turnstile robuste : rendu explicite (sonde) + non bloquant =====
+      window.__pwToken = ''; window.__tsToken = '';
+      var pwWid = null, tsWid = null;
+      function renderWidget(boxId, cb) {
+        if (!(window.turnstile && window.turnstile.render)) return null;
+        var box = document.getElementById(boxId);
+        if (!box || box.getAttribute('data-rendered')) return null;
+        try {
+          var id = window.turnstile.render('#' + boxId, {
+            sitekey: turnstileKey,
+            callback: cb,
+            'expired-callback': function () { cb(''); },
+            'error-callback': function (code) { cb(''); console.warn('[Turnstile]', boxId, code); }
+          });
+          box.setAttribute('data-rendered', '1');
+          return id;
+        } catch (e) { return null; }
+      }
+      function renderPw() { if (pwWid === null) pwWid = renderWidget('tsBoxPw', function (t) { window.__pwToken = t; }); }
+      function renderTs() { if (tsWid === null) tsWid = renderWidget('tsBoxTs', function (t) { window.__tsToken = t; }); }
+      function tsResetPw() { if (window.turnstile && pwWid !== null) { try { turnstile.reset(pwWid); } catch (e) {} } window.__pwToken = ''; }
+      function tsResetTs() { if (window.turnstile && tsWid !== null) { try { turnstile.reset(tsWid); } catch (e) {} } window.__tsToken = ''; }
+      // Sonde l'arrivée de l'API Cloudflare (immunisé contre le timing) pour le widget visible au chargement.
+      var tsTries = 0;
+      var tsIv = setInterval(function () {
+        tsTries++;
+        if (window.turnstile && window.turnstile.render) { clearInterval(tsIv); renderPw(); }
+        else if (tsTries > 40) { clearInterval(tsIv); }
+      }, 300);
+
       var grid = document.getElementById('pwGrid');
       var empty = document.getElementById('pwEmpty');
       var filtersEl = document.getElementById('pwFilters');
@@ -179,19 +207,18 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
         e.preventDefault();
         var text = document.getElementById('pwText').value.trim();
         if (text.length < 5) { msg.textContent = 'Écris quelques mots de plus.'; return; }
-        if (form.querySelector('.cf-turnstile') && !tsToken(form)) { msg.textContent = 'Confirme que tu n’es pas un robot.'; return; }
         msg.textContent = 'Envoi…';
         var body = {
           text: text,
           name: document.getElementById('pwName').value,
           category: document.getElementById('pwCat').value,
           website: form.website.value,
-          turnstileToken: tsToken(form),
+          turnstileToken: window.__pwToken,
         };
         fetch('/api/prieres', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
           .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
           .then(function (res) {
-            tsReset();
+            tsResetPw();
             if (res.ok) {
               msg.textContent = res.d.status === 'pending'
                 ? 'Merci ! Ta prière sera publiée après relecture. 🙏'
@@ -233,13 +260,12 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
       }
       tsToggle.addEventListener('click', function () {
         tsForm.hidden = !tsForm.hidden;
-        if (!tsForm.hidden) tsForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (!tsForm.hidden) { renderTs(); tsForm.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
       });
       tsForm.addEventListener('submit', function (e) {
         e.preventDefault();
         var text = document.getElementById('tsText').value.trim();
         if (text.length < 5) { tsMsg.textContent = 'Écris quelques mots de plus.'; return; }
-        if (tsForm.querySelector('.cf-turnstile') && !tsToken(tsForm)) { tsMsg.textContent = 'Confirme que tu n’es pas un robot.'; return; }
         tsMsg.textContent = 'Envoi…';
         var body = {
           text: text,
@@ -247,12 +273,12 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
           location: document.getElementById('tsLoc').value,
           category: document.getElementById('tsCat').value,
           website: tsForm.website.value,
-          turnstileToken: tsToken(tsForm),
+          turnstileToken: window.__tsToken,
         };
         fetch('/api/temoignages', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
           .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
           .then(function (res) {
-            tsReset();
+            tsResetTs();
             if (res.ok) { tsMsg.textContent = 'Merci ! Ton témoignage sera publié après relecture. 🙌'; tsForm.reset(); }
             else { tsMsg.textContent = (res.d && res.d.error) || 'Une erreur est survenue.'; }
           })
