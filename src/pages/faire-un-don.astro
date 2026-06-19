@@ -11,19 +11,21 @@ try {
   settings = (data && data.story && data.story.content) || {};
 } catch (e) { settings = {}; }
 
-const bank = {
-  holder: settings.bank_holder || 'À compléter',
-  name: settings.bank_name || 'À compléter',
-  iban: settings.bank_iban || 'À compléter',
-  bic: settings.bank_bic || 'À compléter',
-};
+// On n'affiche que les coordonnées réellement renseignées dans Storyblok (settings).
+const bankLines = [
+  { label: 'Titulaire', val: settings.bank_holder },
+  { label: 'Banque', val: settings.bank_name },
+  { label: 'IBAN', val: settings.bank_iban },
+  { label: 'BIC / SWIFT', val: settings.bank_bic },
+].filter((x) => x.val);
 const momo = [
-  { label: 'Orange Money', val: settings.momo_orange || 'À compléter' },
-  { label: 'MTN MoMo', val: settings.momo_mtn || 'À compléter' },
-  { label: 'Moov Money', val: settings.momo_moov || 'À compléter' },
-  { label: 'M-Pesa', val: settings.momo_mpesa || 'À compléter' },
-  { label: 'Airtel / Wave', val: settings.momo_airtel || 'À compléter' },
-];
+  { label: 'Orange Money', val: settings.momo_orange },
+  { label: 'MTN MoMo', val: settings.momo_mtn },
+  { label: 'Moov Money', val: settings.momo_moov },
+  { label: 'M-Pesa', val: settings.momo_mpesa },
+  { label: 'Airtel / Wave', val: settings.momo_airtel },
+].filter((x) => x.val);
+const hasCoords = bankLines.length > 0 || momo.length > 0;
 
 const currencies = [
   { code: 'EUR', sym: '€' }, { code: 'USD', sym: '$' }, { code: 'CAD', sym: '$' },
@@ -139,14 +141,21 @@ const amounts = [25, 50, 100, 250];
         <div class="fd-card">
           <h3>Virement &amp; mobile money</h3>
           <p class="fd-card-note" style="margin:0 0 12px">Tu préfères donner autrement ? Voici nos coordonnées.</p>
-          <div class="fd-sub">Virement bancaire</div>
-          <div class="fd-kv"><span>Titulaire</span><strong>{bank.holder}</strong></div>
-          <div class="fd-kv"><span>Banque</span><strong>{bank.name}</strong></div>
-          <div class="fd-kv"><span>IBAN</span><strong>{bank.iban}</strong></div>
-          <div class="fd-kv"><span>BIC / SWIFT</span><strong>{bank.bic}</strong></div>
-          <div class="fd-sub">Mobile money <small>(Afrique)</small></div>
-          {momo.map((m) => <div class="fd-kv"><span>{m.label}</span><strong>{m.val}</strong></div>)}
-          <p class="fd-card-note">Indique ton nom en référence, puis écris-nous via le <a href="/contact?sujet=Faire un don">formulaire de contact</a> pour recevoir ton reçu.</p>
+          {bankLines.length > 0 && (
+            <Fragment>
+              <div class="fd-sub">Virement bancaire</div>
+              {bankLines.map((b) => <div class="fd-kv"><span>{b.label}</span><strong>{b.val}</strong></div>)}
+            </Fragment>
+          )}
+          {momo.length > 0 && (
+            <Fragment>
+              <div class="fd-sub">Mobile money <small>(Afrique)</small></div>
+              {momo.map((m) => <div class="fd-kv"><span>{m.label}</span><strong>{m.val}</strong></div>)}
+            </Fragment>
+          )}
+          {hasCoords
+            ? <p class="fd-card-note">Indique ton nom en référence, puis écris-nous via le <a href="/contact?sujet=Faire un don">formulaire de contact</a> pour recevoir ton reçu.</p>
+            : <p class="fd-card-note" style="border:0;margin:0">Coordonnées bientôt disponibles. En attendant, écris-nous via le <a href="/contact?sujet=Faire un don">formulaire de contact</a>.</p>}
         </div>
 
         <div class="fd-card">
