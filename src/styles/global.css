@@ -560,8 +560,10 @@ a{color:inherit}
 .ct-hero h1{font-size:clamp(26px,4vw,40px);line-height:1.12;margin:6px 0 0;color:#fff}
 .ct-hero p{color:#e9e7df;margin-top:8px;max-width:620px}
 .ct-hero .disc-label{color:var(--gold-l)}
-.ct-cols{display:grid;grid-template-columns:0.85fr 1.15fr;gap:28px;margin:40px 0 64px;align-items:start}
-.ct-info{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:26px}
+.ct-cols{display:grid;grid-template-columns:0.85fr 1.15fr;gap:28px;margin:40px 0 64px;align-items:stretch}
+.ct-info,.ct-form{height:100%}
+.ct-info{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:26px}
+.ct-info .ct-quick{margin-top:auto}
 .ct-info h3{margin:0 0 6px;font-size:20px;color:var(--char)}
 .ct-info-lead{color:var(--muted);font-size:14px;margin:0 0 18px}
 .ct-line{display:flex;gap:12px;align-items:center;text-decoration:none;color:var(--char);padding:12px 0;border-top:1px solid var(--line)}
