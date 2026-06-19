@@ -1,11 +1,10 @@
-// Connect — demande d'adhésion à un groupe (POST) -> stockée en D1 (connect_requests)
+// Contact — réception d'un message (POST) -> D1 (contact_messages)
 function json(obj, status = 200) {
   return new Response(JSON.stringify(obj), {
     status,
     headers: { 'content-type': 'application/json; charset=utf-8' },
   });
 }
-
 async function verifyTurnstile(token, secret, request) {
   if (!token) return false;
   const form = new FormData();
@@ -20,32 +19,57 @@ async function verifyTurnstile(token, secret, request) {
   } catch (e) { return false; }
 }
 
+// Validation syntaxique stricte
+const EMAIL_RE = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
+
+// Vérifie que le domaine de l'e-mail peut recevoir du courrier (MX, sinon A).
+// "Fail open" : en cas d'erreur réseau on n'empêche pas l'envoi.
+async function domainCanReceiveMail(domain) {
+  async function dns(type) {
+    try {
+      const r = await fetch(
+        'https://cloudflare-dns.com/dns-query?name=' + encodeURIComponent(domain) + '&type=' + type,
+        { headers: { accept: 'application/dns-json' } }
+      );
+      return await r.json();
+    } catch (e) { return null; }
+  }
+  const mx = await dns('MX');
+  if (mx === null) return true; // DNS indisponible -> on laisse passer
+  if (mx.Answer && mx.Answer.some((a) => a.type === 15)) return true;
+  const a = await dns('A');
+  if (a === null) return true;
+  return !!(a.Answer && a.Answer.length);
+}
+
 export async function onRequestPost({ env, request }) {
   if (!env.DB) return json({ error: 'Base non configurée' }, 500);
   let body;
   try { body = await request.json(); } catch (e) { return json({ error: 'Requête invalide' }, 400); }
   if (body.website) return json({ ok: true }); // honeypot
 
-  // Anti-robot (actif seulement si la clé secrète Turnstile est configurée)
   if (env.TURNSTILE_SECRET) {
     const ok = await verifyTurnstile(body.turnstileToken, env.TURNSTILE_SECRET, request);
     if (!ok) return json({ error: 'Vérification anti-robot échouée. Réessaie.' }, 400);
   }
 
-  const grp = (body.group || '').toString().trim().slice(0, 80);
-  const whatsapp = (body.whatsapp || '').toString().trim().slice(0, 40);
+  const name = (body.name || '').toString().trim().slice(0, 80);
   const email = (body.email || '').toString().trim().slice(0, 120);
-  const message = (body.message || '').toString().trim().slice(0, 1000);
-  const consent = body.consent ? 1 : 0;
+  const subject = (body.subject || '').toString().trim().slice(0, 80);
+  const message = (body.message || '').toString().trim().slice(0, 3000);
 
-  if (!consent) return json({ error: 'Merci de cocher le consentement.' }, 400);
-  if (!whatsapp && !email) return json({ error: 'Indique un numéro WhatsApp ou un e-mail.' }, 400);
-  if (message.length < 10) return json({ error: "Merci d'écrire un message de présentation (au moins 10 caractères)." }, 400);
+  if (!EMAIL_RE.test(email)) return json({ error: 'Indique une adresse e-mail valide.' }, 400);
+  if (message.length < 10) return json({ error: 'Ton message doit faire au moins 10 caractères.' }, 400);
+
+  // Vérifie que le domaine existe et peut recevoir du courrier
+  const domain = email.split('@')[1].toLowerCase();
+  const reachable = await domainCanReceiveMail(domain);
+  if (!reachable) return json({ error: "Le domaine de cet e-mail ne semble pas exister. Vérifie l'adresse." }, 400);
 
   const id = crypto.randomUUID();
   await env.DB.prepare(
-    "INSERT INTO connect_requests (id, grp, whatsapp, email, message, status, created_at) VALUES (?, ?, ?, ?, ?, 'pending', ?)"
-  ).bind(id, grp, whatsapp, email, message, Date.now()).run();
+    "INSERT INTO contact_messages (id, name, email, subject, message, status, created_at) VALUES (?, ?, ?, ?, ?, 'pending', ?)"
+  ).bind(id, name, email, subject, message, Date.now()).run();
 
   return json({ ok: true });
 }
