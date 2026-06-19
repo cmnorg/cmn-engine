@@ -46,7 +46,9 @@ export async function onRequestPost({ env, request }) {
   // Honeypot anti-robot : si ce champ caché est rempli, on ignore (en faisant semblant d'accepter).
   if (body.website) return json({ ok: true });
 
-  if (env.TURNSTILE_SECRET) {
+  // Best-effort : on vérifie le jeton Turnstile s'il est fourni (et on refuse s'il est invalide).
+  // S'il n'y en a pas (widget non chargé chez le visiteur), on laisse passer : honeypot + modération protègent déjà.
+  if (env.TURNSTILE_SECRET && body.turnstileToken) {
     const ok = await verifyTurnstile(body.turnstileToken, env.TURNSTILE_SECRET, request);
     if (!ok) return json({ error: 'Vérification anti-robot échouée. Réessaie.' }, 400);
   }
