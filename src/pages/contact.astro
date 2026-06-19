@@ -2,7 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import { useStoryblokApi } from '@storyblok/astro';
 
-function u(v) { if (!v) return ''; if (typeof v === 'string') return v; return v.url || v.cached_url || ''; }
+function u(v) { if (!v) return ''; if (typeof v === 'string') return v; return v.filename || v.url || v.cached_url || ''; }
 
 let settings = {};
 try {
@@ -60,7 +60,7 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
           <div class="ct-quick">
             <strong>Accès rapides</strong>
             <a href="/faire-un-don">💛 Faire un don</a>
-            <a href="/mur-de-priere">🙏 Déposer une demande de prière</a>
+            <a href="/mur-de-priere">🙏 Déposer une prière</a>
             <a href="/connect">🌍 Rejoindre un groupe</a>
           </div>
         </aside>
