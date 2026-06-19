@@ -685,6 +685,7 @@ a{color:inherit}
 .fd-payopt.active{border-color:var(--gold);background:var(--gold-soft)}
 .fd-payopt input{accent-color:var(--gold)}
 .fd-pay-ic{font-size:17px}
+.fd-pay-hint{font-size:12.5px;color:var(--muted);margin:0 0 14px}
 .fd-recap{background:var(--gold-soft);border:1px solid var(--gold-l);border-radius:12px;padding:14px;text-align:center;font-weight:700;color:var(--gold-d);font-size:17px}
 .fd-terms{font-size:12px;color:var(--muted);margin:12px 0}
 .fd-validate{width:100%;justify-content:center;font-size:16px;padding:14px}
