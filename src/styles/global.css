@@ -461,6 +461,11 @@ a{color:inherit}
 .pw-pray{margin-top:14px;align-self:flex-start;background:var(--gold-soft);border:1px solid var(--gold-l);color:var(--gold-d);font-weight:700;font-size:14px;padding:8px 16px;border-radius:20px;cursor:pointer;font-family:var(--font);transition:.15s}
 .pw-pray:hover{background:var(--gold);color:var(--char)}
 .pw-empty{color:var(--muted);font-style:italic;padding:18px 0}
+.pw-pager{display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;margin:22px 0 0}
+.pw-page-btn{min-width:38px;height:38px;padding:0 10px;border:1px solid var(--line);background:#fff;border-radius:10px;font-size:14px;font-weight:600;color:var(--char);cursor:pointer;transition:.15s}
+.pw-page-btn:hover:not(:disabled):not(.active){border-color:var(--gold-l);background:var(--gold-soft)}
+.pw-page-btn.active{background:var(--gold);border-color:var(--gold);color:#fff}
+.pw-page-btn:disabled{opacity:.4;cursor:default}
 .ad-tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin:18px 0 20px;flex-wrap:wrap}
 .ad-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .ad-actions .btn{margin:0;font-size:13px;padding:8px 14px}
