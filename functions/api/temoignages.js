@@ -36,7 +36,8 @@ export async function onRequestPost({ env, request }) {
   try { body = await request.json(); } catch (e) { return json({ error: 'Requête invalide' }, 400); }
   if (body.website) return json({ ok: true }); // honeypot
 
-  if (env.TURNSTILE_SECRET) {
+  // Best-effort : jeton vérifié seulement s'il est fourni ; sinon honeypot + modération protègent.
+  if (env.TURNSTILE_SECRET && body.turnstileToken) {
     const ok = await verifyTurnstile(body.turnstileToken, env.TURNSTILE_SECRET, request);
     if (!ok) return json({ error: 'Vérification anti-robot échouée. Réessaie.' }, 400);
   }
