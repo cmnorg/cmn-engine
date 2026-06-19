@@ -33,7 +33,9 @@ const currencies = [
   { code: 'EUR', sym: '€' }, { code: 'USD', sym: '$' }, { code: 'CAD', sym: '$' },
   { code: 'GBP', sym: '£' }, { code: 'CHF', sym: 'CHF' }, { code: 'XOF', sym: 'FCFA' },
 ];
-const countries = ['France', 'Belgique', 'Suisse', 'Canada', 'Luxembourg', 'Togo', 'Bénin', 'Madagascar', "Côte d'Ivoire", 'Cameroun', 'RD Congo', 'Sénégal', 'Burkina Faso', 'Mali', 'États-Unis', 'Royaume-Uni', 'Autre'];
+// Pays fréquents en tête, puis liste mondiale complète (ordre alphabétique).
+const topCountries = ['France', 'Belgique', 'Suisse', 'Canada', 'Luxembourg', 'Togo', 'Bénin', 'Madagascar', "Côte d'Ivoire", 'Cameroun', 'RD Congo', 'Sénégal', 'États-Unis', 'Royaume-Uni'];
+const allCountries = ['Afghanistan','Afrique du Sud','Albanie','Algérie','Allemagne','Andorre','Angola','Antigua-et-Barbuda','Arabie saoudite','Argentine','Arménie','Australie','Autriche','Azerbaïdjan','Bahamas','Bahreïn','Bangladesh','Barbade','Belgique','Belize','Bénin','Bhoutan','Biélorussie','Birmanie (Myanmar)','Bolivie','Bosnie-Herzégovine','Botswana','Brésil','Brunei','Bulgarie','Burkina Faso','Burundi','Cambodge','Cameroun','Canada','Cap-Vert','Chili','Chine','Chypre','Colombie','Comores','Congo','Corée du Nord','Corée du Sud','Costa Rica',"Côte d'Ivoire",'Croatie','Cuba','Danemark','Djibouti','Dominique','Égypte','Émirats arabes unis','Équateur','Érythrée','Espagne','Estonie','Eswatini','États-Unis','Éthiopie','Fidji','Finlande','France','Gabon','Gambie','Géorgie','Ghana','Grèce','Grenade','Guatemala','Guinée','Guinée équatoriale','Guinée-Bissau','Guyana','Haïti','Honduras','Hongrie','Inde','Indonésie','Irak','Iran','Irlande','Islande','Israël','Italie','Jamaïque','Japon','Jordanie','Kazakhstan','Kenya','Kirghizistan','Kiribati','Koweït','Laos','Lesotho','Lettonie','Liban','Liberia','Libye','Liechtenstein','Lituanie','Luxembourg','Macédoine du Nord','Madagascar','Malaisie','Malawi','Maldives','Mali','Malte','Maroc','Marshall (Îles)','Maurice','Mauritanie','Mexique','Micronésie','Moldavie','Monaco','Mongolie','Monténégro','Mozambique','Namibie','Nauru','Népal','Nicaragua','Niger','Nigeria','Norvège','Nouvelle-Zélande','Oman','Ouganda','Ouzbékistan','Pakistan','Palaos','Palestine','Panama','Papouasie-Nouvelle-Guinée','Paraguay','Pays-Bas','Pérou','Philippines','Pologne','Portugal','Qatar','RD Congo','République centrafricaine','République dominicaine','République tchèque','Roumanie','Royaume-Uni','Russie','Rwanda','Saint-Christophe-et-Niévès','Saint-Marin','Saint-Vincent-et-les-Grenadines','Sainte-Lucie','Salomon (Îles)','Salvador','Samoa','São Tomé-et-Principe','Sénégal','Serbie','Seychelles','Sierra Leone','Singapour','Slovaquie','Slovénie','Somalie','Soudan','Soudan du Sud','Sri Lanka','Suède','Suisse','Suriname','Syrie','Tadjikistan','Tanzanie','Tchad','Thaïlande','Timor oriental','Togo','Tonga','Trinité-et-Tobago','Tunisie','Turkménistan','Turquie','Tuvalu','Ukraine','Uruguay','Vanuatu','Vatican','Venezuela','Vietnam','Yémen','Zambie','Zimbabwe'];
 const amounts = [25, 50, 100, 250];
 ---
 <Layout title="CMN — Faire un don">
@@ -83,7 +85,12 @@ const amounts = [25, 50, 100, 250];
             <label for="fdCountry">Mon pays de résidence</label>
             <select id="fdCountry">
               <option value="">— Choisir —</option>
-              {countries.map((c) => <option value={c}>{c}</option>)}
+              <optgroup label="Fréquents">
+                {topCountries.map((c) => <option value={c}>{c}</option>)}
+              </optgroup>
+              <optgroup label="Tous les pays">
+                {allCountries.map((c) => <option value={c}>{c}</option>)}
+              </optgroup>
             </select>
           </div>
         </div>
@@ -108,7 +115,13 @@ const amounts = [25, 50, 100, 250];
 
         <!-- Étape 3 -->
         <div class="fd-step">
-          <h3><span class="fd-num">3</span> Paiement</h3>
+          <h3><span class="fd-num">3</span> Mode de paiement</h3>
+          <div class="fd-pays" id="fdPays">
+            <label class="fd-payopt active"><input type="radio" name="pay" value="card" checked /> <span class="fd-pay-ic">💳</span> Carte bancaire</label>
+            <label class="fd-payopt"><input type="radio" name="pay" value="paypal" /> <span class="fd-pay-ic">🅿️</span> PayPal</label>
+            <label class="fd-payopt"><input type="radio" name="pay" value="momo" /> <span class="fd-pay-ic">📱</span> Mobile money <small>(Afrique)</small></label>
+            <label class="fd-payopt"><input type="radio" name="pay" value="bank" /> <span class="fd-pay-ic">🏦</span> Virement bancaire</label>
+          </div>
           <div class="fd-recap" id="fdRecap">—</div>
           <p class="fd-terms">En validant, tu acceptes nos conditions de don et notre <a href="/confidentialite">politique de confidentialité</a>.</p>
           <button class="btn btn-gold fd-validate" type="submit">Je valide mon don</button>
@@ -199,6 +212,18 @@ const amounts = [25, 50, 100, 250];
       });
       curEl.addEventListener('change', function () { setSymbols(); updateRecap(); });
 
+      // Mode de paiement (surbrillance + libellé du bouton)
+      function payMethod() { var r = form.querySelector('input[name="pay"]:checked'); return r ? r.value : 'card'; }
+      document.querySelectorAll('.fd-payopt').forEach(function (lab) {
+        lab.addEventListener('click', function () {
+          document.querySelectorAll('.fd-payopt').forEach(function (x) { x.classList.remove('active'); });
+          lab.classList.add('active');
+          var btn = document.querySelector('.fd-validate');
+          var m = payMethod();
+          if (btn) btn.textContent = (m === 'momo' || m === 'bank') ? 'Voir les coordonnées' : 'Je valide mon don';
+        });
+      });
+
       // Pré-remplissage depuis l'URL (paliers Partenaires : ?amount=&freq=)
       try {
         var p = new URLSearchParams(window.location.search);
@@ -235,18 +260,27 @@ const amounts = [25, 50, 100, 250];
         if (!document.getElementById('fdPhone').value.trim()) { msg.textContent = 'Indique un téléphone.'; return; }
 
         var cur = curEl.value;
+        var method = payMethod();
+
+        // Mobile money / virement : on oriente vers les coordonnées (colonne de droite).
+        if (method === 'momo' || method === 'bank') {
+          msg.style.color = 'var(--gold-d)';
+          msg.textContent = 'Parfait ! Utilise les coordonnées ci-contre (' + (method === 'momo' ? 'mobile money' : 'virement bancaire') + '), indique ton nom en référence, puis écris-nous pour recevoir ton reçu. 🙏';
+          var side1 = document.querySelector('.fd-side'); if (side1) side1.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          return;
+        }
+
+        // Carte / PayPal : redirection vers le prestataire si configuré.
         if (donateUrl) {
-          // Redirection vers le prestataire de paiement (montant + fréquence + devise transmis)
           var sep = donateUrl.indexOf('?') === -1 ? '?' : '&';
           var url = donateUrl + sep + 'amount=' + a + '&recurring=' + (freq === 'monthly' ? 'true' : 'false') + '&currency=' + cur;
           msg.style.color = 'var(--gold-d)';
           msg.textContent = 'Redirection vers le paiement sécurisé…';
           window.location.href = url;
         } else {
-          // Pas encore de prestataire connecté : on oriente vers virement / mobile money.
           msg.style.color = 'var(--gold-d)';
-          msg.textContent = 'Merci ! Le paiement en ligne est en cours d\'activation. En attendant, tu peux donner dès maintenant par virement ou mobile money (ci-contre), ou nous écrire via le formulaire de contact. 🙏';
-          var side = document.querySelector('.fd-side'); if (side) side.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          msg.textContent = 'Merci ! Le paiement par carte / PayPal est en cours d\'activation. En attendant, choisis « Mobile money » ou « Virement bancaire » ci-dessus pour donner dès maintenant. 🙏';
+          var side2 = document.querySelector('.fd-side'); if (side2) side2.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       });
     })();
