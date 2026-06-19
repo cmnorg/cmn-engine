@@ -137,14 +137,29 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
       }
       var form = document.getElementById('ctForm');
       var out = document.getElementById('ctMsgOut');
-      var tsUsed = !!document.getElementById('tsBox');
+      var emailEl = document.getElementById('ctEmail');
+      var msgEl = document.getElementById('ctMsg');
       function tok() { return window.__tsToken || ''; }
+      // Met un champ en surbrillance d'erreur (rouge) et affiche le message correspondant.
+      function fieldError(el, text) {
+        out.textContent = text;
+        if (el) { el.classList.add('field-error'); el.focus(); }
+      }
+      function clearErrors() {
+        emailEl.classList.remove('field-error');
+        msgEl.classList.remove('field-error');
+      }
+      // Retire la surbrillance dès que l'utilisateur corrige le champ.
+      emailEl.addEventListener('input', function () { emailEl.classList.remove('field-error'); });
+      msgEl.addEventListener('input', function () { msgEl.classList.remove('field-error'); });
+
       form.addEventListener('submit', function (e) {
         e.preventDefault();
-        var email = document.getElementById('ctEmail').value.trim();
-        var message = document.getElementById('ctMsg').value.trim();
-        if (email.indexOf('@') < 1) { out.textContent = 'Indique une adresse e-mail valide.'; return; }
-        if (message.length < 10) { out.textContent = 'Écris quelques mots de plus.'; return; }
+        clearErrors();
+        var email = emailEl.value.trim();
+        var message = msgEl.value.trim();
+        if (email.indexOf('@') < 1) { fieldError(emailEl, 'Indique une adresse e-mail valide.'); return; }
+        if (message.length < 10) { fieldError(msgEl, 'Écris quelques mots de plus (au moins 10 caractères).'); return; }
         if (!document.getElementById('ctConsent').checked) { out.textContent = 'Merci de cocher le consentement.'; return; }
         out.textContent = 'Envoi…';
         var body = {
@@ -160,7 +175,13 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
           .then(function (res) {
             if (window.turnstile) { try { turnstile.reset(); window.__tsToken = ''; } catch (e) {} }
             if (res.ok) { out.textContent = 'Merci ! Ton message a bien été envoyé. Nous te répondrons bientôt 🙏'; form.reset(); }
-            else { out.textContent = (res.d && res.d.error) || 'Une erreur est survenue.'; }
+            else {
+              var msg = (res.d && res.d.error) || 'Une erreur est survenue.';
+              // Si l'erreur concerne l'e-mail, on surligne le champ e-mail.
+              if (/mail|domaine/i.test(msg)) fieldError(emailEl, msg);
+              else if (/message|caract/i.test(msg)) fieldError(msgEl, msg);
+              else out.textContent = msg;
+            }
           })
           .catch(function () { out.textContent = 'Une erreur est survenue.'; });
       });
