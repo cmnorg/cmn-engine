@@ -1,0 +1,254 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { useStoryblokApi } from '@storyblok/astro';
+
+function u(v) { if (!v) return ''; if (typeof v === 'string') return v; return v.url || v.cached_url || ''; }
+
+let settings = {};
+try {
+  const api = useStoryblokApi();
+  const { data } = await api.get('cdn/stories/settings', { version: 'draft' });
+  settings = (data && data.story && data.story.content) || {};
+} catch (e) { settings = {}; }
+
+// Lien du prestataire de don récurrent (Donorbox / HelloAsso / Stripe). À renseigner dans settings.donate_url.
+// Tant qu'il est vide, le formulaire propose le don par virement / mobile money (toujours fonctionnel).
+const donateUrl = u(settings.donate_url) || '';
+
+const bank = {
+  holder: settings.bank_holder || 'À compléter',
+  name: settings.bank_name || 'À compléter',
+  iban: settings.bank_iban || 'À compléter',
+  bic: settings.bank_bic || 'À compléter',
+};
+const momo = [
+  { label: 'Orange Money', val: settings.momo_orange || 'À compléter' },
+  { label: 'MTN MoMo', val: settings.momo_mtn || 'À compléter' },
+  { label: 'Moov Money', val: settings.momo_moov || 'À compléter' },
+  { label: 'M-Pesa', val: settings.momo_mpesa || 'À compléter' },
+  { label: 'Airtel / Wave', val: settings.momo_airtel || 'À compléter' },
+];
+
+const currencies = [
+  { code: 'EUR', sym: '€' }, { code: 'USD', sym: '$' }, { code: 'CAD', sym: '$' },
+  { code: 'GBP', sym: '£' }, { code: 'CHF', sym: 'CHF' }, { code: 'XOF', sym: 'FCFA' },
+];
+const countries = ['France', 'Belgique', 'Suisse', 'Canada', 'Luxembourg', 'Togo', 'Bénin', 'Madagascar', "Côte d'Ivoire", 'Cameroun', 'RD Congo', 'Sénégal', 'Burkina Faso', 'Mali', 'États-Unis', 'Royaume-Uni', 'Autre'];
+const amounts = [25, 50, 100, 250];
+---
+<Layout title="CMN — Faire un don">
+  <section class="fd">
+    <div class="fd-hero">
+      <div class="wrap">
+        <div class="disc-label">Faire un don</div>
+        <h1>Soutenir la mission</h1>
+        <p>Ta générosité transforme des vies, en toute transparence. Don ponctuel ou mensuel, en quelques secondes.</p>
+        <div class="fd-trust">
+          <span>🔒 Paiement 100 % sécurisé</span>
+          <span>🧾 Reçu envoyé par e-mail</span>
+          <span>✋ Don mensuel modifiable ou arrêtable à tout moment</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="wrap fd-cols">
+      <!-- FORMULAIRE -->
+      <form class="fd-form" id="fdForm" novalidate>
+        <input type="text" name="website" class="pw-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+        <!-- Étape 1 -->
+        <div class="fd-step">
+          <h3><span class="fd-num">1</span> Mon soutien</h3>
+          <div class="fd-freq" role="group" aria-label="Fréquence">
+            <button type="button" class="fd-freq-btn active" data-freq="monthly">Mensuel <small>recommandé</small></button>
+            <button type="button" class="fd-freq-btn" data-freq="once">Ponctuel</button>
+          </div>
+
+          <div class="fd-line">
+            <label for="fdCur">Devise</label>
+            <select id="fdCur">
+              {currencies.map((c) => <option value={c.code} data-sym={c.sym}>{c.sym} {c.code}</option>)}
+            </select>
+          </div>
+
+          <div class="fd-amts" id="fdAmts">
+            {amounts.map((a) => <button type="button" class={`fd-amt${a === 50 ? ' active' : ''}`} data-v={a}><span class="fd-amt-v">{a}</span><span class="fd-amt-sym">€</span></button>)}
+          </div>
+          <div class="fd-custom-wrap">
+            <input id="fdCustom" type="number" min="1" step="1" placeholder="Autre montant" inputmode="numeric" />
+            <span class="fd-custom-sym">€</span>
+          </div>
+
+          <div class="fd-field">
+            <label for="fdCountry">Mon pays de résidence</label>
+            <select id="fdCountry">
+              <option value="">— Choisir —</option>
+              {countries.map((c) => <option value={c}>{c}</option>)}
+            </select>
+          </div>
+        </div>
+
+        <!-- Étape 2 -->
+        <div class="fd-step">
+          <h3><span class="fd-num">2</span> Mes coordonnées</h3>
+          <div class="fd-civ">
+            <label class="fd-pill"><input type="radio" name="civ" value="Mme" /> Mme</label>
+            <label class="fd-pill"><input type="radio" name="civ" value="M." /> M.</label>
+            <label class="fd-pill"><input type="radio" name="civ" value="-" checked /> Non renseigné</label>
+          </div>
+          <div class="fd-grid2">
+            <div class="fd-field"><label>Prénom *</label><input id="fdFirst" maxlength="60" required /></div>
+            <div class="fd-field"><label>Nom *</label><input id="fdLast" maxlength="60" required /></div>
+          </div>
+          <div class="fd-field"><label>E-mail *</label><input id="fdEmail" type="email" maxlength="120" required /></div>
+          <div class="fd-field"><label>Confirme ton e-mail *</label><input id="fdEmail2" type="email" maxlength="120" required /></div>
+          <div class="fd-field"><label>Téléphone *</label><input id="fdPhone" type="tel" maxlength="30" required /></div>
+          <label class="fd-check"><input type="checkbox" id="fdConsent" /> <span>J'autorise CMN à m'envoyer par e-mail les informations importantes concernant mon don.</span></label>
+        </div>
+
+        <!-- Étape 3 -->
+        <div class="fd-step">
+          <h3><span class="fd-num">3</span> Paiement</h3>
+          <div class="fd-recap" id="fdRecap">—</div>
+          <p class="fd-terms">En validant, tu acceptes nos conditions de don et notre <a href="/confidentialite">politique de confidentialité</a>.</p>
+          <button class="btn btn-gold fd-validate" type="submit">Je valide mon don</button>
+          <p class="fd-secure">🔒 Transaction sécurisée — nous ne stockons jamais tes données bancaires.</p>
+          <p class="fd-msg" id="fdMsg"></p>
+        </div>
+      </form>
+
+      <!-- COLONNE LATÉRALE -->
+      <aside class="fd-side">
+        <div class="fd-card">
+          <h3>Où vont tes dons</h3>
+          <div class="fd-leg"><span class="fd-sw" style="background:var(--gold-d)"></span>Terrain &amp; humanitaire<b>72 %</b></div>
+          <div class="fd-leg"><span class="fd-sw" style="background:var(--gold)"></span>Formation &amp; missions<b>18 %</b></div>
+          <div class="fd-leg"><span class="fd-sw" style="background:var(--gold-l)"></span>Fonctionnement<b>10 %</b></div>
+          <p class="fd-card-note">Don 100 % sécurisé. Un reçu t'est envoyé par e-mail. Tu peux modifier ou arrêter un don mensuel à tout moment.</p>
+        </div>
+
+        <div class="fd-card">
+          <h3>Virement &amp; mobile money</h3>
+          <p class="fd-card-note" style="margin:0 0 12px">Tu préfères donner autrement ? Voici nos coordonnées.</p>
+          <div class="fd-sub">Virement bancaire</div>
+          <div class="fd-kv"><span>Titulaire</span><strong>{bank.holder}</strong></div>
+          <div class="fd-kv"><span>Banque</span><strong>{bank.name}</strong></div>
+          <div class="fd-kv"><span>IBAN</span><strong>{bank.iban}</strong></div>
+          <div class="fd-kv"><span>BIC / SWIFT</span><strong>{bank.bic}</strong></div>
+          <div class="fd-sub">Mobile money <small>(Afrique)</small></div>
+          {momo.map((m) => <div class="fd-kv"><span>{m.label}</span><strong>{m.val}</strong></div>)}
+          <p class="fd-card-note">Indique ton nom en référence, puis écris-nous via le <a href="/contact?sujet=Faire un don">formulaire de contact</a> pour recevoir ton reçu.</p>
+        </div>
+
+        <div class="fd-card">
+          <h3>Une question ?</h3>
+          <p class="fd-card-note" style="margin:0 0 12px">Sur ton don, un reçu fiscal ou un autre moyen de paiement, on est là pour t'aider.</p>
+          <a class="btn btn-ghost" href="/contact?sujet=Faire un don">Nous contacter</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <script is:inline define:vars={{ donateUrl }}>
+    (function () {
+      var freq = 'monthly';
+      var amount = 50;
+      var curEl = document.getElementById('fdCur');
+      var customEl = document.getElementById('fdCustom');
+      var recap = document.getElementById('fdRecap');
+      var msg = document.getElementById('fdMsg');
+      var form = document.getElementById('fdForm');
+
+      function sym() { var o = curEl.options[curEl.selectedIndex]; return o ? o.getAttribute('data-sym') : '€'; }
+
+      function setSymbols() {
+        var s = sym();
+        document.querySelectorAll('.fd-amt-sym').forEach(function (e) { e.textContent = s; });
+        var cs = document.querySelector('.fd-custom-sym'); if (cs) cs.textContent = s;
+      }
+
+      function currentAmount() {
+        var c = parseInt(customEl.value, 10);
+        if (c > 0) return c;
+        return amount;
+      }
+
+      function updateRecap() {
+        var a = currentAmount();
+        var freqWord = freq === 'monthly' ? ' / mois' : '';
+        recap.textContent = a > 0 ? ('Ton don : ' + a + ' ' + sym() + freqWord) : 'Choisis un montant';
+      }
+
+      // Fréquence
+      document.querySelectorAll('.fd-freq-btn').forEach(function (b) {
+        b.addEventListener('click', function () {
+          document.querySelectorAll('.fd-freq-btn').forEach(function (x) { x.classList.remove('active'); });
+          b.classList.add('active'); freq = b.getAttribute('data-freq'); updateRecap();
+        });
+      });
+      // Montants
+      document.querySelectorAll('.fd-amt').forEach(function (b) {
+        b.addEventListener('click', function () {
+          document.querySelectorAll('.fd-amt').forEach(function (x) { x.classList.remove('active'); });
+          b.classList.add('active'); amount = parseInt(b.getAttribute('data-v'), 10); customEl.value = ''; updateRecap();
+        });
+      });
+      customEl.addEventListener('input', function () {
+        if (customEl.value) document.querySelectorAll('.fd-amt').forEach(function (x) { x.classList.remove('active'); });
+        updateRecap();
+      });
+      curEl.addEventListener('change', function () { setSymbols(); updateRecap(); });
+
+      // Pré-remplissage depuis l'URL (paliers Partenaires : ?amount=&freq=)
+      try {
+        var p = new URLSearchParams(window.location.search);
+        var qa = parseInt(p.get('amount'), 10);
+        var qf = p.get('freq');
+        if (qf === 'once' || qf === 'monthly') {
+          freq = qf;
+          document.querySelectorAll('.fd-freq-btn').forEach(function (x) { x.classList.toggle('active', x.getAttribute('data-freq') === freq); });
+        }
+        if (qa > 0) {
+          var matched = false;
+          document.querySelectorAll('.fd-amt').forEach(function (x) {
+            var on = parseInt(x.getAttribute('data-v'), 10) === qa;
+            x.classList.toggle('active', on); if (on) matched = true;
+          });
+          if (matched) { amount = qa; } else { customEl.value = qa; }
+        }
+      } catch (e) {}
+
+      setSymbols(); updateRecap();
+
+      // Validation + envoi
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (form.website.value) return; // honeypot
+        msg.style.color = '#c0392b';
+        var a = currentAmount();
+        if (!(a > 0)) { msg.textContent = 'Choisis un montant.'; return; }
+        if (!document.getElementById('fdFirst').value.trim() || !document.getElementById('fdLast').value.trim()) { msg.textContent = 'Indique ton prénom et ton nom.'; return; }
+        var em = document.getElementById('fdEmail').value.trim();
+        var em2 = document.getElementById('fdEmail2').value.trim();
+        if (em.indexOf('@') < 1) { msg.textContent = 'Indique un e-mail valide.'; return; }
+        if (em !== em2) { msg.textContent = 'Les deux e-mails ne correspondent pas.'; return; }
+        if (!document.getElementById('fdPhone').value.trim()) { msg.textContent = 'Indique un téléphone.'; return; }
+
+        var cur = curEl.value;
+        if (donateUrl) {
+          // Redirection vers le prestataire de paiement (montant + fréquence + devise transmis)
+          var sep = donateUrl.indexOf('?') === -1 ? '?' : '&';
+          var url = donateUrl + sep + 'amount=' + a + '&recurring=' + (freq === 'monthly' ? 'true' : 'false') + '&currency=' + cur;
+          msg.style.color = 'var(--gold-d)';
+          msg.textContent = 'Redirection vers le paiement sécurisé…';
+          window.location.href = url;
+        } else {
+          // Pas encore de prestataire connecté : on oriente vers virement / mobile money.
+          msg.style.color = 'var(--gold-d)';
+          msg.textContent = 'Merci ! Le paiement en ligne est en cours d\'activation. En attendant, tu peux donner dès maintenant par virement ou mobile money (ci-contre), ou nous écrire via le formulaire de contact. 🙏';
+          var side = document.querySelector('.fd-side'); if (side) side.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    })();
+  </script>
+</Layout>
