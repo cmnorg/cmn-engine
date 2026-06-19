@@ -1,0 +1,131 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { useStoryblokApi } from '@storyblok/astro';
+
+function u(v) { if (!v) return ''; if (typeof v === 'string') return v; return v.url || v.cached_url || ''; }
+
+let settings = {};
+try {
+  const api = useStoryblokApi();
+  const { data } = await api.get('cdn/stories/settings', { version: 'draft' });
+  settings = (data && data.story && data.story.content) || {};
+} catch (e) { settings = {}; }
+
+const email = settings.contact_email || 'hello@cmnorg.org';
+const socials = [
+  { url: u(settings.youtube), label: 'YouTube' },
+  { url: u(settings.facebook), label: 'Facebook' },
+  { url: u(settings.instagram), label: 'Instagram' },
+  { url: u(settings.tiktok), label: 'TikTok' },
+  { url: u(settings.linkedin), label: 'LinkedIn' },
+  { url: u(settings.whatsapp_channel), label: 'WhatsApp' },
+].filter((s) => s.url);
+
+const subjects = [
+  'Question générale', 'Partenariat', 'Demande de prière',
+  'Bénévolat / Mission', 'Presse & médias', 'Faire un don', 'Autre',
+];
+const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '';
+---
+<Layout title="CMN — Contact">
+  <section class="ct">
+    <div class="ct-hero">
+      <div class="wrap">
+        <div class="phead-label disc-label">Contact</div>
+        <h1>Écris-nous</h1>
+        <p>Une question, un projet de partenariat, une demande de prière ? Notre équipe te répond avec joie.</p>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <div class="ct-cols">
+        <!-- Coordonnées -->
+        <aside class="ct-info">
+          <h3>Restons en lien</h3>
+          <p class="ct-info-lead">Nous lisons chaque message et répondons généralement sous 48 h.</p>
+
+          <a class="ct-line" href={`mailto:${email}`}>
+            <span class="ct-ic">✉️</span>
+            <span><strong>E-mail</strong><span>{email}</span></span>
+          </a>
+
+          {socials.length > 0 && (
+            <div class="ct-soc">
+              <strong>Suis-nous</strong>
+              <div class="ct-soc-row">
+                {socials.map((s) => <a href={s.url} target="_blank" rel="noopener">{s.label}</a>)}
+              </div>
+            </div>
+          )}
+
+          <div class="ct-quick">
+            <strong>Accès rapides</strong>
+            <a href="/faire-un-don">💛 Faire un don</a>
+            <a href="/mur-de-priere">🙏 Déposer une prière</a>
+            <a href="/connect">🌍 Rejoindre un groupe</a>
+          </div>
+        </aside>
+
+        <!-- Formulaire -->
+        <form class="ct-form" id="ctForm">
+          <h3>Envoie-nous un message</h3>
+          <input type="text" name="website" class="pw-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <div class="ct-row">
+            <div class="pw-field"><label>Ton nom</label><input type="text" id="ctName" maxlength="80" placeholder="Prénom et nom" /></div>
+            <div class="pw-field"><label>Ton e-mail *</label><input type="email" id="ctEmail" maxlength="120" placeholder="toi@exemple.com" required /></div>
+          </div>
+          <div class="pw-field">
+            <label>Sujet</label>
+            <select id="ctSubject">
+              {subjects.map((s) => <option value={s}>{s}</option>)}
+            </select>
+          </div>
+          <div class="pw-field">
+            <label>Ton message *</label>
+            <textarea id="ctMsg" maxlength="3000" rows="6" placeholder="Écris-nous ici…" required></textarea>
+          </div>
+          <label class="cn-consent"><input type="checkbox" id="ctConsent" /> <span>J'accepte que CMN utilise ces informations pour me répondre.</span></label>
+          {turnstileKey && <div class="cf-turnstile" data-sitekey={turnstileKey} style="margin:4px 0 12px"></div>}
+          <button class="btn btn-gold" type="submit">Envoyer mon message</button>
+          <span class="pw-msg" id="ctMsgOut"></span>
+          <p class="pw-note">🔒 Tes informations restent confidentielles et ne servent qu'à te répondre.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <script is:inline>
+    (function () {
+      var form = document.getElementById('ctForm');
+      var out = document.getElementById('ctMsgOut');
+      function tok() { var i = form.querySelector('[name="cf-turnstile-response"]'); return i ? i.value : ''; }
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var email = document.getElementById('ctEmail').value.trim();
+        var message = document.getElementById('ctMsg').value.trim();
+        if (email.indexOf('@') < 1) { out.textContent = 'Indique une adresse e-mail valide.'; return; }
+        if (message.length < 10) { out.textContent = 'Écris quelques mots de plus.'; return; }
+        if (!document.getElementById('ctConsent').checked) { out.textContent = 'Merci de cocher le consentement.'; return; }
+        if (form.querySelector('.cf-turnstile') && !tok()) { out.textContent = 'Confirme que tu n’es pas un robot.'; return; }
+        out.textContent = 'Envoi…';
+        var body = {
+          name: document.getElementById('ctName').value,
+          email: email,
+          subject: document.getElementById('ctSubject').value,
+          message: message,
+          website: form.website.value,
+          turnstileToken: tok(),
+        };
+        fetch('/api/contact', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
+          .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+          .then(function (res) {
+            if (window.turnstile) { try { turnstile.reset(); } catch (e) {} }
+            if (res.ok) { out.textContent = 'Merci ! Ton message a bien été envoyé. Nous te répondrons bientôt 🙏'; form.reset(); }
+            else { out.textContent = (res.d && res.d.error) || 'Une erreur est survenue.'; }
+          })
+          .catch(function () { out.textContent = 'Une erreur est survenue.'; });
+      });
+    })();
+  </script>
+</Layout>
