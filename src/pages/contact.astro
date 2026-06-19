@@ -11,9 +11,6 @@ try {
   settings = (data && data.story && data.story.content) || {};
 } catch (e) { settings = {}; }
 
-const email = settings.contact_email || 'hello@cmnorg.org';
-const emailUser = email.split('@')[0] || '';
-const emailDomain = email.split('@')[1] || '';
 const socials = [
   { url: u(settings.youtube), label: 'YouTube' },
   { url: u(settings.facebook), label: 'Facebook' },
@@ -46,10 +43,10 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
           <h3>Restons en lien</h3>
           <p class="ct-info-lead">Nous lisons chaque message et répondons généralement sous 48 h.</p>
 
-          <a class="ct-line" id="ctMail" data-u={emailUser} data-d={emailDomain} href="#" rel="nofollow">
+          <div class="ct-line ct-line--static">
             <span class="ct-ic">✉️</span>
-            <span><strong>E-mail</strong><span id="ctMailText">cliquez pour afficher</span></span>
-          </a>
+            <span><strong>Écris-nous</strong><span>Remplis le formulaire, on te répond vite.</span></span>
+          </div>
 
           {socials.length > 0 && (
             <div class="ct-soc">
@@ -122,18 +119,6 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
             console.warn('[Turnstile] le script ne s\'est pas chargé (bloqueur/réseau ?).');
           }
         }, 300);
-      }
-      // Dé-obfuscation de l'e-mail : l'adresse complète n'apparaît jamais dans le HTML brut
-      var ml = document.getElementById('ctMail');
-      if (ml) {
-        var u = ml.getAttribute('data-u'), d = ml.getAttribute('data-d');
-        if (u && d) {
-          var addr = u + '@' + d;
-          ml.href = 'mailto:' + addr;
-          var t = document.getElementById('ctMailText');
-          if (t) t.textContent = addr;
-          ml.removeAttribute('data-u'); ml.removeAttribute('data-d');
-        }
       }
       var form = document.getElementById('ctForm');
       var out = document.getElementById('ctMsgOut');
