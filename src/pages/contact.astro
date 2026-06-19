@@ -87,7 +87,8 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
             <textarea id="ctMsg" maxlength="3000" rows="6" placeholder="Écris-nous ici…" required></textarea>
           </div>
           <label class="cn-consent"><input type="checkbox" id="ctConsent" /> <span>J'accepte que CMN utilise ces informations pour me répondre.</span></label>
-          {turnstileKey && <div class="cf-turnstile" data-sitekey={turnstileKey} style="margin:4px 0 12px"></div>}
+          {turnstileKey && <div id="tsBox" style="margin:4px 0 12px"></div>}
+          {turnstileKey && <p class="pw-msg" id="tsErr" hidden>⚠️ La vérification de sécurité n'a pas pu se charger. Recharge la page (Cmd+Maj+R) ou réessaie dans un instant.</p>}
           <button class="btn btn-gold" type="submit">Envoyer mon message</button>
           <span class="pw-msg" id="ctMsgOut"></span>
           <p class="pw-note">🔒 Tes informations restent confidentielles et ne servent qu'à te répondre.</p>
@@ -96,7 +97,28 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
     </div>
   </section>
 
-  <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <script is:inline define:vars={{ turnstileKey }}>
+    // Rendu explicite de Turnstile : on définit le callback AVANT le chargement du script.
+    window.__tsToken = '';
+    window.__tsRendered = false;
+    window.onloadTurnstile = function () {
+      try {
+        if (!window.turnstile || !document.getElementById('tsBox')) return;
+        window.turnstile.render('#tsBox', {
+          sitekey: turnstileKey,
+          callback: function (t) { window.__tsToken = t; },
+          'expired-callback': function () { window.__tsToken = ''; },
+          'error-callback': function () { window.__tsToken = ''; }
+        });
+        window.__tsRendered = true;
+      } catch (e) {}
+    };
+    // Si le script Cloudflare ne se charge pas (bloqueur, réseau…), on prévient le visiteur.
+    setTimeout(function () {
+      if (!window.__tsRendered) { var e = document.getElementById('tsErr'); if (e) e.hidden = false; }
+    }, 6000);
+  </script>
+  <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstile&render=explicit" async defer></script>
   <script is:inline>
     (function () {
       // Dé-obfuscation de l'e-mail : l'adresse complète n'apparaît jamais dans le HTML brut
@@ -113,7 +135,8 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
       }
       var form = document.getElementById('ctForm');
       var out = document.getElementById('ctMsgOut');
-      function tok() { var i = form.querySelector('[name="cf-turnstile-response"]'); return i ? i.value : ''; }
+      var tsUsed = !!document.getElementById('tsBox');
+      function tok() { return window.__tsToken || ''; }
       form.addEventListener('submit', function (e) {
         e.preventDefault();
         var email = document.getElementById('ctEmail').value.trim();
@@ -121,7 +144,7 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
         if (email.indexOf('@') < 1) { out.textContent = 'Indique une adresse e-mail valide.'; return; }
         if (message.length < 10) { out.textContent = 'Écris quelques mots de plus.'; return; }
         if (!document.getElementById('ctConsent').checked) { out.textContent = 'Merci de cocher le consentement.'; return; }
-        if (form.querySelector('.cf-turnstile') && !tok()) { out.textContent = 'Confirme que tu n’es pas un robot.'; return; }
+        if (tsUsed && !tok()) { out.textContent = 'Vérification de sécurité en cours… réessaie dans une seconde.'; return; }
         out.textContent = 'Envoi…';
         var body = {
           name: document.getElementById('ctName').value,
@@ -134,7 +157,7 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
         fetch('/api/contact', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
           .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
           .then(function (res) {
-            if (window.turnstile) { try { turnstile.reset(); } catch (e) {} }
+            if (window.turnstile) { try { turnstile.reset(); window.__tsToken = ''; } catch (e) {} }
             if (res.ok) { out.textContent = 'Merci ! Ton message a bien été envoyé. Nous te répondrons bientôt 🙏'; form.reset(); }
             else { out.textContent = (res.d && res.d.error) || 'Une erreur est survenue.'; }
           })
