@@ -33,6 +33,7 @@ const donLabel = donItem ? donItem.label : 'Faire un don';
     <nav class="menu">
       {nav.map((m) => { const href = hrefOf(m.link); const act = isActive(href); return <a href={href} class={act ? 'active' : undefined} aria-current={act ? 'page' : undefined}>{m.label}</a>; })}
     </nav>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Basculer le mode jour / nuit"><span class="ti">🌙</span></button>
     <a class="btn btn-gold hd-don" href={donHref}>{donLabel}</a>
   </div>
 </header>
