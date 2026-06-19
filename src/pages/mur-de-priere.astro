@@ -1,5 +1,17 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { useStoryblokApi } from '@storyblok/astro';
+
+function u(v) { if (!v) return ''; if (typeof v === 'string') return v; return v.url || v.cached_url || ''; }
+
+let settings = {};
+try {
+  const api = useStoryblokApi();
+  const { data } = await api.get('cdn/stories/settings', { version: 'draft' });
+  settings = (data && data.story && data.story.content) || {};
+} catch (e) { settings = {}; }
+const prayerImage = u(settings.prayer_image);
+
 const categories = [
   'Santé & guérison', 'Famille', 'Couple & mariage', 'Enfants',
   'Travail & finances', 'Études', 'Ministère & mission', 'Protection',
@@ -21,6 +33,9 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
       <div class="pw-cols">
         <!-- Pourquoi déposer une prière ? -->
         <div class="pw-card2 pw-why">
+          <div class="pw-why-img" style={prayerImage ? `background-image:url(${prayerImage})` : ''}>
+            {!prayerImage && <span class="pw-why-img-emoji">🙏</span>}
+          </div>
           <h3>Pourquoi déposer une prière ?</h3>
           <p>Personne ne devrait porter ses fardeaux seul. Dépose ta requête : une communauté de croyants du monde entier priera avec toi, en toute discrétion.</p>
           <blockquote class="verse">« Priez les uns pour les autres, afin que vous soyez guéris. » <cite>— Jacques 5:16</cite></blockquote>
