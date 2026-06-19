@@ -88,7 +88,6 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
           </div>
           <label class="cn-consent"><input type="checkbox" id="ctConsent" /> <span>J'accepte que CMN utilise ces informations pour me répondre.</span></label>
           {turnstileKey && <div id="tsBox" style="margin:4px 0 12px"></div>}
-          {turnstileKey && <p class="pw-msg" id="tsErr" hidden>⚠️ La vérification de sécurité n'a pas pu se charger. Recharge la page (Cmd+Maj+R) ou réessaie dans un instant.</p>}
           <button class="btn btn-gold" type="submit">Envoyer mon message</button>
           <span class="pw-msg" id="ctMsgOut"></span>
           <p class="pw-note">🔒 Tes informations restent confidentielles et ne servent qu'à te répondre.</p>
@@ -101,7 +100,8 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
   <script is:inline define:vars={{ turnstileKey }}>
     (function () {
       window.__tsToken = '';
-      // Rendu Turnstile robuste : on sonde l'arrivée de l'API (immunisé contre le timing/async/hoisting).
+      // Anti-spam silencieux : on sonde l'arrivée de Turnstile et on le rend si possible.
+      // Aucun message n'est jamais montré au visiteur ; les erreurs vont seulement dans la console.
       var tsBox = document.getElementById('tsBox');
       if (tsBox) {
         var tries = 0;
@@ -114,14 +114,12 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
                 sitekey: turnstileKey,
                 callback: function (t) { window.__tsToken = t; },
                 'expired-callback': function () { window.__tsToken = ''; },
-                'error-callback': function () { var el = document.getElementById('tsErr'); if (el) el.hidden = false; }
+                'error-callback': function (code) { window.__tsToken = ''; console.warn('[Turnstile] erreur:', code); }
               });
-            } catch (e) {
-              var el = document.getElementById('tsErr'); if (el) el.hidden = false;
-            }
-          } else if (tries > 50) { // ~15s : le script ne s'est pas chargé (bloqueur, réseau…)
+            } catch (e) { console.warn('[Turnstile] render() a échoué:', e); }
+          } else if (tries > 40) { // ~12s : le script Cloudflare ne s'est pas chargé
             clearInterval(iv);
-            var el2 = document.getElementById('tsErr'); if (el2) el2.hidden = false;
+            console.warn('[Turnstile] le script ne s\'est pas chargé (bloqueur/réseau ?).');
           }
         }, 300);
       }
@@ -148,7 +146,6 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
         if (email.indexOf('@') < 1) { out.textContent = 'Indique une adresse e-mail valide.'; return; }
         if (message.length < 10) { out.textContent = 'Écris quelques mots de plus.'; return; }
         if (!document.getElementById('ctConsent').checked) { out.textContent = 'Merci de cocher le consentement.'; return; }
-        if (tsUsed && !tok()) { out.textContent = 'Vérification de sécurité en cours… réessaie dans une seconde.'; return; }
         out.textContent = 'Envoi…';
         var body = {
           name: document.getElementById('ctName').value,
