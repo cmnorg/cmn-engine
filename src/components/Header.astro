@@ -3,9 +3,19 @@ const { settings } = Astro.props;
 const logo = settings?.logo?.filename;
 const logoH = Number(settings?.logo_height) > 0 ? Number(settings.logo_height) : 54;
 const menuAll = Array.isArray(settings?.menu) ? settings.menu : [];
-function hrefOf(l){ if(!l) return '#'; if(l.url) return l.url; if(l.cached_url) return '/' + String(l.cached_url).replace(/^\//,''); return '#'; }
+function slugify(s){ return String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9/]+/g,'-').replace(/\/+/g,'/').replace(/-+/g,'-').replace(/^[-/]+|-+$/g,''); }
+function hrefOf(l){ if(!l) return '#'; var raw=String(l.url||l.cached_url||''); if(!raw) return '#'; if(/^https?:/i.test(raw)||raw.charAt(0)==='#'||/^mailto:|^tel:/i.test(raw)) return raw; return '/'+slugify(raw); }
 const isDon = (m) => /faire un don|donate|^don$/i.test((m && m.label) || '');
 const nav = menuAll.filter((m) => !isDon(m));
+
+// Détection de l'onglet actif d'après l'URL courante.
+function norm(p){ return ('/' + String(p || '').replace(/^\/+|\/+$/g, '')).toLowerCase(); }
+const current = norm(Astro.url.pathname);
+function isActive(href){
+  const h = norm(href);
+  if (h === '/') return current === '/';
+  return current === h || current.indexOf(h + '/') === 0;
+}
 const donItem = menuAll.find(isDon);
 const donHref = donItem ? hrefOf(donItem.link) : '#';
 const donLabel = donItem ? donItem.label : 'Faire un don';
@@ -21,7 +31,7 @@ const donLabel = donItem ? donItem.label : 'Faire un don';
       </Fragment>}
     </a>
     <nav class="menu">
-      {nav.map((m) => <a href={hrefOf(m.link)}>{m.label}</a>)}
+      {nav.map((m) => { const href = hrefOf(m.link); const act = isActive(href); return <a href={href} class={act ? 'active' : undefined} aria-current={act ? 'page' : undefined}>{m.label}</a>; })}
     </nav>
     <a class="btn btn-gold hd-don" href={donHref}>{donLabel}</a>
   </div>
