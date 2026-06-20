@@ -1,0 +1,21 @@
+---
+import { useStoryblokApi } from '@storyblok/astro';
+import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
+import Layout from '../../layouts/Layout.astro';
+import { NON_FR } from '../../i18n.js';
+
+export async function getStaticPaths() {
+  return NON_FR.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params;
+const api = useStoryblokApi();
+let story = null;
+try {
+  const { data } = await api.get('cdn/stories/home', { version: 'draft', language: lang });
+  story = data.story;
+} catch (e) { story = null; }
+---
+<Layout title="CMN — Accueil">
+  {story && <StoryblokComponent blok={story.content} />}
+</Layout>
