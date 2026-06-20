@@ -1,0 +1,43 @@
+---
+import { useStoryblokApi } from '@storyblok/astro';
+import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
+import Layout from '../../layouts/Layout.astro';
+import { NON_FR } from '../../i18n.js';
+
+// Versions linguistiques des pages de contenu (Storyblok). /en/nous-decouvrir, etc.
+export async function getStaticPaths() {
+  const api = useStoryblokApi();
+  let stories = [];
+  try {
+    const { data } = await api.get('cdn/stories', {
+      version: 'draft', per_page: 100, excluding_slugs: 'home,settings',
+    });
+    const renderable = ['page', 'track', 'course'];
+    stories = (data.stories || []).filter(
+      (s) => !s.is_folder && s.content && renderable.includes(s.content.component)
+    );
+  } catch (e) { stories = []; }
+
+  const paths = [];
+  for (const lang of NON_FR) {
+    for (const s of stories) {
+      paths.push({ params: { lang, slug: s.full_slug }, props: { lang, baseStory: s } });
+    }
+  }
+  return paths;
+}
+
+const { lang } = Astro.params;
+const { baseStory } = Astro.props;
+const api = useStoryblokApi();
+let story = baseStory;
+try {
+  const { data } = await api.get('cdn/stories/' + baseStory.full_slug, { version: 'draft', language: lang });
+  story = data.story;
+} catch (e) { story = baseStory; }
+
+const pageTitle = story?.content?.seo_title || story?.name || 'CMN';
+---
+<Layout title={`CMN — ${pageTitle}`}>
+  <StoryblokComponent blok={story.content} />
+</Layout>
