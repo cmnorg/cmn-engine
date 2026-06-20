@@ -3,16 +3,18 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { useStoryblokApi } from '@storyblok/astro';
+import { localeFromPath } from '../i18n.js';
 const { title = 'CMN — Christians on Mission for Nations' } = Astro.props;
+const locale = localeFromPath(Astro.url.pathname);
 let settings = null;
 try {
   const api = useStoryblokApi();
-  const { data } = await api.get('cdn/stories/settings', { version: 'draft' });
+  const { data } = await api.get('cdn/stories/settings', { version: 'draft', language: locale });
   settings = data?.story?.content || null;
 } catch (e) { settings = null; }
 ---
 <!doctype html>
-<html lang="fr">
+<html lang={locale}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
