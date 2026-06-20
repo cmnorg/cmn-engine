@@ -1,9 +1,13 @@
 ---
+import { localeFromPath, barePath, localizedHref, t } from '../i18n.js';
 const { settings } = Astro.props;
 const logoF = settings?.logo_footer?.filename;
 const logoFH = Number(settings?.logo_footer_height) > 0 ? Number(settings.logo_footer_height) : 50;
 const menu = Array.isArray(settings?.menu) ? settings.menu : [];
-function hrefOf(l){ if(!l) return '#'; if(l.url) return l.url; if(l.cached_url) return '/' + String(l.cached_url).replace(/^\//,''); return '#'; }
+function slugify(s){ return String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9/]+/g,'-').replace(/\/+/g,'/').replace(/-+/g,'-').replace(/^[-/]+|-+$/g,''); }
+function hrefOf(l){ if(!l) return '#'; var raw=String(l.url||l.cached_url||''); if(!raw) return '#'; if(/^https?:/i.test(raw)||raw.charAt(0)==='#'||/^mailto:|^tel:/i.test(raw)) return raw; return '/'+slugify(raw); }
+const locale = localeFromPath(Astro.url.pathname);
+function menuHref(l){ const h = hrefOf(l); if(/^https?:/i.test(h)||h.charAt(0)==='#'||/^mailto:|^tel:/i.test(h)) return h; return localizedHref(h.replace(/^\/+/,'').replace(/\/+$/,''), locale); }
 function u(v){ if(!v) return ''; if(typeof v==='string') return v; return v.url || v.cached_url || ''; }
 const yt=u(settings?.youtube), fb=u(settings?.facebook), ig=u(settings?.instagram), tk=u(settings?.tiktok), li=u(settings?.linkedin), wa=u(settings?.whatsapp_channel);
 ---
@@ -11,9 +15,9 @@ const yt=u(settings?.youtube), fb=u(settings?.facebook), ig=u(settings?.instagra
   <div class="wrap ft-row">
     <div class="ft-left">
       {logoF ? <img class="ft-logo" src={logoF} alt="CMN" style={`height:${logoFH}px`} /> : <strong class="ft-wm">Christians <span class="g">on Mission</span> for Nations</strong>}
-      <p class="ft-tag">Agir pour transformer, inspirer l'espoir.</p>
+      <p class="ft-tag">{t(locale, "Agir pour transformer, inspirer l'espoir.")}</p>
       <nav class="ft-nav">
-        {menu.map((m) => <a href={hrefOf(m.link)}>{m.label}</a>)}
+        {menu.map((m) => <a href={menuHref(m.link)}>{t(locale, m.label)}</a>)}
       </nav>
       <div class="ft-soc">
     {yt && <a href={yt} target="_blank" rel="noopener" aria-label="YouTube"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.6 15.6V8.4l6.2 3.6z"/></svg></a>}
@@ -25,9 +29,9 @@ const yt=u(settings?.youtube), fb=u(settings?.facebook), ig=u(settings?.instagra
       </div>
     </div>
     <div class="ft-right">
-      <div class="ft-langs">FR · EN · ES · PT · MG · 中文</div>
-      <small>© CMN — Tous droits réservés.</small>
+      <div class="ft-langs">FR · EN · ES · PT · 中文</div>
+      <small>{t(locale, '© CMN — Tous droits réservés.')}</small>
     </div>
   </div>
-  <div class="wrap ft-legal"><a href="#">Confidentialité</a> · <a href="#">Mentions légales</a> · <a href="#">Gérer mes cookies</a></div>
+  <div class="wrap ft-legal"><a href="#">{t(locale, 'Confidentialité')}</a> · <a href="#">{t(locale, 'Mentions légales')}</a> · <a href="#">{t(locale, 'Gérer mes cookies')}</a></div>
 </footer>
