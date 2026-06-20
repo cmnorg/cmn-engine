@@ -3,7 +3,7 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { useStoryblokApi } from '@storyblok/astro';
-import { localeFromPath } from '../i18n.js';
+import { localeFromPath, t } from '../i18n.js';
 const { title = 'CMN — Christians on Mission for Nations' } = Astro.props;
 const locale = localeFromPath(Astro.url.pathname);
 let settings = null;
@@ -38,16 +38,16 @@ try {
     <section class="nlband">
       <div class="wrap nlwrap">
         <div class="nltext">
-          <strong>Restez informé de la mission</strong>
-          <span>Nouvelles du terrain, prières exaucées et temps forts — directement dans votre boîte mail.</span>
+          <strong>{t(locale, 'Restez informé de la mission')}</strong>
+          <span>{t(locale, 'Nouvelles du terrain, prières exaucées et temps forts — directement dans votre boîte mail.')}</span>
         </div>
         <form class="nlform">
-          <input type="email" placeholder="Votre adresse email" aria-label="Adresse email" required />
-          <button class="btn btn-gold" type="submit">S'inscrire</button>
+          <input type="email" placeholder={t(locale, 'Votre adresse email')} aria-label={t(locale, 'Votre adresse email')} required />
+          <button class="btn btn-gold" type="submit">{t(locale, "S'inscrire")}</button>
         </form>
       </div>
       <div class="wrap">
-        <label class="nlconsent"><input type="checkbox" /> <span>J'accepte de recevoir la newsletter de CMN et je peux me désinscrire à tout moment (voir la politique de confidentialité).</span></label>
+        <label class="nlconsent"><input type="checkbox" /> <span>{t(locale, "J'accepte de recevoir la newsletter de CMN et je peux me désinscrire à tout moment (voir la politique de confidentialité).")}</span></label>
       </div>
     </section>
     <Footer settings={settings} />
