@@ -1,10 +1,24 @@
 ---
+import { LANGS, localeFromPath, barePath, localizedHref } from '../i18n.js';
 const { settings } = Astro.props;
 const logo = settings?.logo?.filename;
 const logoH = Number(settings?.logo_height) > 0 ? Number(settings.logo_height) : 54;
 const menuAll = Array.isArray(settings?.menu) ? settings.menu : [];
 function slugify(s){ return String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9/]+/g,'-').replace(/\/+/g,'/').replace(/-+/g,'-').replace(/^[-/]+|-+$/g,''); }
 function hrefOf(l){ if(!l) return '#'; var raw=String(l.url||l.cached_url||''); if(!raw) return '#'; if(/^https?:/i.test(raw)||raw.charAt(0)==='#'||/^mailto:|^tel:/i.test(raw)) return raw; return '/'+slugify(raw); }
+
+const locale = localeFromPath(Astro.url.pathname);
+const bare = barePath(Astro.url.pathname);
+const homeHref = localizedHref('', locale);
+// Lien de menu localisé : externe/ancre inchangé ; interne -> version dans la langue courante.
+function menuHref(l){
+  const h = hrefOf(l);
+  if (/^https?:/i.test(h) || h.charAt(0) === '#' || /^mailto:|^tel:/i.test(h)) return h;
+  return localizedHref(h.replace(/^\/+/, '').replace(/\/+$/, ''), locale);
+}
+// Options du sélecteur de langue (même page, dans chaque langue).
+const langOptions = LANGS.map((L) => ({ label: L.label, code: L.code, href: localizedHref(bare, L.code), active: L.code === locale }));
+
 const isDon = (m) => /faire un don|donate|^don$/i.test((m && m.label) || '');
 const nav = menuAll.filter((m) => !isDon(m));
 
@@ -17,12 +31,12 @@ function isActive(href){
   return current === h || current.indexOf(h + '/') === 0;
 }
 const donItem = menuAll.find(isDon);
-const donHref = donItem ? hrefOf(donItem.link) : '#';
+const donHref = donItem ? menuHref(donItem.link) : '#';
 const donLabel = donItem ? donItem.label : 'Faire un don';
 ---
 <header class="hd">
   <div class="wrap hd-row">
-    <a class="brand" href="/">
+    <a class="brand" href={homeHref}>
       {logo ? <img class="brand-logo" src={logo} alt="CMN" style={`height:${logoH}px`} /> : <Fragment>
         <svg viewBox="0 0 86 122" aria-hidden="true"><g stroke="#C0982E" stroke-linecap="round" fill="none">
           <line x1="8" y1="8" x2="78" y2="8" stroke-width="4.6"/><line x1="11" y1="16" x2="73" y2="16" stroke-width="4.6"/><line x1="14" y1="24" x2="68" y2="24" stroke-width="4.6"/><line x1="17" y1="32" x2="63" y2="32" stroke-width="4.6"/><line x1="20" y1="40" x2="58" y2="40" stroke-width="4.6"/><line x1="23" y1="48" x2="53" y2="48" stroke-width="4.6"/><line x1="26" y1="56" x2="48" y2="56" stroke-width="4.6"/><line x1="29" y1="64" x2="44" y2="64" stroke-width="4.6"/><line x1="32" y1="72" x2="42" y2="72" stroke-width="4.6"/><line x1="33" y1="4" x2="33" y2="68" stroke-width="6.4"/><line x1="21" y1="22" x2="45" y2="22" stroke-width="5.4"/>
@@ -31,8 +45,11 @@ const donLabel = donItem ? donItem.label : 'Faire un don';
       </Fragment>}
     </a>
     <nav class="menu">
-      {nav.map((m) => { const href = hrefOf(m.link); const act = isActive(href); return <a href={href} class={act ? 'active' : undefined} aria-current={act ? 'page' : undefined}>{m.label}</a>; })}
+      {nav.map((m) => { const href = menuHref(m.link); const act = isActive(href); return <a href={href} class={act ? 'active' : undefined} aria-current={act ? 'page' : undefined}>{m.label}</a>; })}
     </nav>
+    <select class="langsel" aria-label="Choisir la langue" onchange="if(this.value)window.location.href=this.value">
+      {langOptions.map((L) => <option value={L.href} selected={L.active}>{L.label}</option>)}
+    </select>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="Basculer le mode jour / nuit"><span class="ti">🌙</span></button>
     <a class="btn btn-gold hd-don" href={donHref}>{donLabel}</a>
   </div>
