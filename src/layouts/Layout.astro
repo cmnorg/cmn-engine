@@ -52,6 +52,43 @@ try {
     </section>
     <Footer settings={settings} />
     <script is:inline>
+      // 1) Choix manuel de langue : on mémorise dans un cookie (respecté par la détection auto).
+      (function () {
+        var ls = document.getElementById('langSel');
+        if (ls) ls.addEventListener('change', function () {
+          var opt = ls.options[ls.selectedIndex];
+          var lang = opt ? opt.getAttribute('data-lang') : '';
+          if (lang) document.cookie = 'cmn_lang=' + lang + ';path=/;max-age=31536000;SameSite=Lax';
+          if (ls.value) window.location.href = ls.value;
+        });
+      })();
+
+      // 2) Pré-remplissage de l'indicatif téléphonique selon le pays du visiteur.
+      (function () {
+        if (!document.querySelector('input[type="tel"]')) return;
+        var DIAL = {
+          FR:'+33', BE:'+32', CH:'+41', LU:'+352', MC:'+377', CA:'+1', HT:'+509',
+          CI:'+225', SN:'+221', ML:'+223', BF:'+226', NE:'+227', TG:'+228', BJ:'+229',
+          GA:'+241', CG:'+242', CD:'+243', CM:'+237', TD:'+235', GN:'+224', MG:'+261',
+          MU:'+230', KM:'+269', RE:'+262',
+          ID:'+62',
+          ES:'+34', MX:'+52', AR:'+54', CO:'+57', PE:'+51', VE:'+58', CL:'+56', EC:'+593',
+          GT:'+502', CU:'+53', BO:'+591', DO:'+1', HN:'+504', PY:'+595', SV:'+503', NI:'+505',
+          CR:'+506', PA:'+507', UY:'+598', PR:'+1',
+          CN:'+86', TW:'+886', HK:'+852', MO:'+853', SG:'+65',
+          US:'+1', GB:'+44', AU:'+61', NZ:'+64', IE:'+353', ZA:'+27', NG:'+234', KE:'+254',
+          GH:'+233', IN:'+91', PH:'+63', DE:'+49', IT:'+39', PT:'+351', NL:'+31', BR:'+55'
+        };
+        fetch('/api/geo').then(function (r) { return r.json(); }).then(function (d) {
+          var dial = DIAL[(d && d.country) || ''];
+          if (!dial) return;
+          document.querySelectorAll('input[type="tel"]').forEach(function (inp) {
+            if (!inp.value) inp.value = dial + ' ';
+          });
+        }).catch(function () {});
+      })();
+    </script>
+    <script is:inline>
       (function () {
         var b = document.getElementById('themeBtn');
         function refresh() {
