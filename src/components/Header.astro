@@ -47,8 +47,8 @@ const donLabel = donItem ? donItem.label : 'Faire un don';
     <nav class="menu">
       {nav.map((m) => { const href = menuHref(m.link); const act = isActive(href); return <a href={href} class={act ? 'active' : undefined} aria-current={act ? 'page' : undefined}>{t(locale, m.label)}</a>; })}
     </nav>
-    <select class="langsel" aria-label="Choisir la langue" onchange="if(this.value)window.location.href=this.value">
-      {langOptions.map((L) => <option value={L.href} selected={L.active}>{L.label}</option>)}
+    <select class="langsel" id="langSel" aria-label="Choisir la langue">
+      {langOptions.map((L) => <option value={L.href} data-lang={L.code} selected={L.active}>{L.label}</option>)}
     </select>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="Basculer le mode jour / nuit"><span class="ti">🌙</span></button>
     <a class="btn btn-gold hd-don" href={donHref}>{t(locale, donLabel)}</a>
