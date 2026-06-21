@@ -100,10 +100,72 @@ const href = {
       cta: { don:'Donate', partner:'Become a partner', prayer:'Prayer wall', events:'See events', academy:'See paths', contact:'Contact us', deposit:'Post my prayer' }
     }
   };
-  // ES / ID / ZH : chrome traduit, réponses détaillées en repli anglais.
-  T.es = Object.assign({}, T.en, { sub:'Asistente espiritual · CMN', tip:'Gaby · ¿Necesitas ayuda?', ph:'Escribe tu mensaje…', greet:'Hola 🙏 Soy Gabriel — Gaby para los amigos. Puedo hablarte de eventos, oración, donaciones, formación, darte un <b>versículo</b> (Louis Segond) o ayudarte a descubrir la fe. ¿Cómo puedo ayudarte?', chips:{ verse:'Un versículo 🙏', prayer:'Oración', give:'Donar', events:'Eventos', academy:'Formación', faith:'Descubrir la fe', human:'Hablar con un responsable' } });
-  T.id = Object.assign({}, T.en, { sub:'Asisten rohani · CMN', tip:'Gaby · Butuh bantuan?', ph:'Tulis pesan Anda…', greet:'Halo 🙏 Saya Gabriel — Gaby. Saya bisa membantu soal acara, doa, donasi, pelatihan, memberi <b>ayat Alkitab</b> (Louis Segond), atau membantu Anda mengenal iman. Ada yang bisa saya bantu?', chips:{ verse:'Sebuah ayat 🙏', prayer:'Doa', give:'Donasi', events:'Acara', academy:'Pelatihan', faith:'Mengenal iman', human:'Bicara dengan pengurus' } });
-  T.zh = Object.assign({}, T.en, { sub:'属灵助手 · CMN', tip:'Gaby · 需要帮助吗？', ph:'写下你的消息…', greet:'您好 🙏 我是 Gabriel——朋友们叫我 Gaby。我可以为您介绍活动、祷告、捐赠、培训，给您一节<b>经文</b>（路易·色根译本），或帮助您认识信仰。我能帮您什么？', chips:{ verse:'一节经文 🙏', prayer:'祷告', give:'捐赠', events:'活动', academy:'培训', faith:'认识信仰', human:'与负责人交谈' } });
+  T.es = {
+    sub:'Asistente espiritual · CMN', tip:'Gaby · ¿Necesitas ayuda?', ph:'Escribe tu mensaje…',
+    disc:'Asistencia automatizada · para acompañamiento personal, contacta a un responsable.',
+    greet:'Hola 🙏 Soy Gabriel — Gaby para los amigos. Puedo hablarte de eventos, oración, donaciones, formación, darte un <b>versículo</b> o ayudarte a descubrir la fe. ¿Cómo puedo ayudarte?',
+    chips:{ verse:'Un versículo 🙏', prayer:'Oración', give:'Donar', events:'Eventos', academy:'Formación', faith:'Descubrir la fe', human:'Hablar con un responsable' },
+    r:{
+      events:'Estos son nuestros próximos encuentros, en línea y sobre el terreno.',
+      give:'Tu generosidad transforma vidas, con total transparencia (72 % terreno y humanitario, 18 % formación y misiones, 10 % funcionamiento). Puedes donar una vez o cada mes — cada donativo cuenta de verdad 🙏',
+      partner:'Hacerte <b>socio mensual</b> es sostener la misión en el tiempo, desde 15 €/mes: es lo que nos permite planificar campañas y proyectos. Y si (todavía) no puedes dar, puedes ser socio de oración 🙏',
+      where:'¡Excelente pregunta! En CMN: <b>72 %</b> terreno y humanitario, <b>18 %</b> formación y misiones, <b>10 %</b> funcionamiento. Las cuentas se auditan cada año y se te envía un recibo. Tu generosidad está en buenas manos.',
+      academy:'CMN Academy ofrece itinerarios para crecer: Descubrir a Jesús, Primeros pasos, Discípulo, Hacer discípulos, Liderazgo.',
+      faith:'Qué hermoso paso 🙏 Descubrir a Jesús transforma una vida. «Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito, para que todo aquel que en él cree no se pierda, mas tenga vida eterna.» (Juan 3:16). Un itinerario y un responsable pueden acompañarte.',
+      human:'Con mucho gusto. Escríbenos a través de la página de Contacto y un responsable te responderá.',
+      about:'CMN — Christians on Mission for Nations — es un movimiento cristiano internacional de fe y acción: evangelización, formación de discípulos, proyectos humanitarios y alianzas, para transformar vidas y naciones (Mateo 28:19). Todo esto vive gracias a personas como tú.',
+      thanks:'Con alegría 🙏 ¡Que Dios te bendiga! ¿Puedo ayudarte en algo más?',
+      care:'Lamento de verdad que estés pasando por esto — no estás solo. Habla cuanto antes con alguien de confianza o con un responsable de CMN a través de la página de Contacto. Si estás en peligro inmediato, contacta a los servicios de emergencia locales. Y si quieres, puedo dejar una petición de oración por ti.',
+      fallback:'Puedo ayudarte con: eventos, oración, donaciones, formación, un <b>versículo</b>, o descubrir la fe. ¿Qué deseas?'
+    },
+    verseIntro:'Aquí tienes una palabra para ti:', verseAsk:'¿Sobre qué tema quieres un versículo? (paz, miedo, esperanza, perdón, sanidad, amor, fuerza, fe, duelo, gratitud, protección, finanzas, sabiduría, soledad)', verseDay:'El versículo del día:',
+    prayOffer:'¿Quieres que publique tu petición en el <b>muro de oración</b> para que la comunidad ore contigo? Solo escribe tu petición o toca el botón.', prayAskText:'Te escucho 🙏 Escribe tu petición de oración y la publico por ti.', praySending:'Publicando tu oración…', prayOk:'¡Listo! 🙏 Tu petición se publicará tras una breve revisión, y la comunidad orará contigo.', prayErr:'No pude publicar tu oración. Puedes publicarla directamente en el muro de oración.',
+    cta:{ don:'Donar', partner:'Hacerme socio', prayer:'Muro de oración', events:'Ver eventos', academy:'Ver itinerarios', contact:'Contáctanos', deposit:'Publicar mi oración' }
+  };
+  T.id = {
+    sub:'Asisten rohani · CMN', tip:'Gaby · Butuh bantuan?', ph:'Tulis pesan Anda…',
+    disc:'Bantuan otomatis · untuk pendampingan pribadi, hubungi seorang pengurus.',
+    greet:'Halo 🙏 Saya Gabriel — Gaby. Saya bisa membantu soal acara, doa, donasi, pelatihan, memberi <b>ayat Alkitab</b>, atau membantu Anda mengenal iman. Ada yang bisa saya bantu?',
+    chips:{ verse:'Sebuah ayat 🙏', prayer:'Doa', give:'Donasi', events:'Acara', academy:'Pelatihan', faith:'Mengenal iman', human:'Bicara dengan pengurus' },
+    r:{
+      events:'Berikut acara kami yang akan datang, daring dan di lapangan.',
+      give:'Kemurahan hati Anda mengubah hidup, dengan transparansi penuh (72% lapangan & kemanusiaan, 18% pelatihan & misi, 10% operasional). Anda bisa memberi sekali atau setiap bulan — setiap pemberian sungguh berarti 🙏',
+      partner:'Menjadi <b>mitra bulanan</b> berarti menopang misi dalam jangka panjang, mulai dari €15/bulan: itulah yang memampukan kami merencanakan kampanye dan proyek. Jika (belum) bisa memberi, Anda bisa menjadi mitra doa 🙏',
+      where:'Pertanyaan yang bagus! Di CMN: <b>72%</b> lapangan & kemanusiaan, <b>18%</b> pelatihan & misi, <b>10%</b> operasional. Akun diaudit setiap tahun dan tanda terima dikirim kepada Anda. Kemurahan hati Anda di tangan yang baik.',
+      academy:'CMN Academy menawarkan jalur untuk bertumbuh: Mengenal Yesus, Langkah Awal, Murid, Menjadikan Murid, Kepemimpinan.',
+      faith:'Langkah yang indah 🙏 Mengenal Yesus mengubah hidup. "Karena begitu besar kasih Allah akan dunia ini, sehingga Ia telah mengaruniakan Anak-Nya yang tunggal, supaya setiap orang yang percaya kepada-Nya tidak binasa, melainkan beroleh hidup yang kekal." (Yohanes 3:16). Sebuah jalur dan seorang pengurus dapat menemani Anda.',
+      human:'Dengan senang hati. Tulislah kepada kami melalui halaman Kontak dan seorang pengurus akan membalas.',
+      about:'CMN — Christians on Mission for Nations — adalah gerakan Kristen internasional yang berlandaskan iman dan tindakan: penginjilan, pemuridan, proyek kemanusiaan, dan kemitraan, untuk mengubah hidup dan bangsa-bangsa (Matius 28:19). Semua ini hidup berkat para pendukung seperti Anda.',
+      thanks:'Dengan sukacita 🙏 Tuhan memberkati Anda! Ada lagi yang bisa saya bantu?',
+      care:'Saya turut prihatin Anda mengalami ini — Anda tidak sendirian. Segeralah berbicara dengan orang yang Anda percayai atau pengurus CMN melalui halaman Kontak. Jika dalam bahaya langsung, hubungi layanan darurat setempat. Jika Anda mau, saya bisa mengirimkan permohonan doa untuk Anda.',
+      fallback:'Saya bisa membantu soal: acara, doa, donasi, pelatihan, sebuah <b>ayat Alkitab</b>, atau mengenal iman. Apa yang Anda inginkan?'
+    },
+    verseIntro:'Inilah firman untuk Anda:', verseAsk:'Tentang tema apa Anda ingin sebuah ayat? (damai, takut, harapan, pengampunan, kesembuhan, kasih, kekuatan, iman, dukacita, syukur, perlindungan, keuangan, hikmat, kesepian)', verseDay:'Ayat hari ini:',
+    prayOffer:'Maukah Anda saya kirimkan permohonan Anda ke <b>dinding doa</b> agar komunitas berdoa bersama Anda? Cukup tulis permohonan Anda atau ketuk tombolnya.', prayAskText:'Saya mendengarkan 🙏 Tuliskan permohonan doa Anda dan saya kirimkan untuk Anda.', praySending:'Mengirim doa Anda…', prayOk:'Selesai 🙏 Permohonan Anda akan ditampilkan setelah ditinjau singkat, dan komunitas akan berdoa bersama Anda.', prayErr:'Saya tidak berhasil mengirim doa Anda. Anda dapat mengirimnya langsung di dinding doa.',
+    cta:{ don:'Donasi', partner:'Jadi mitra', prayer:'Dinding doa', events:'Lihat acara', academy:'Lihat jalur', contact:'Hubungi kami', deposit:'Kirim doa saya' }
+  };
+  T.zh = {
+    sub:'属灵助手 · CMN', tip:'Gaby · 需要帮助吗？', ph:'写下你的消息…',
+    disc:'自动协助 · 如需个人陪伴，请联系负责人。',
+    greet:'您好 🙏 我是 Gabriel——朋友们叫我 Gaby。我可以为您介绍活动、祷告、捐赠、培训，给您一节<b>经文</b>，或帮助您认识信仰。我能帮您什么？',
+    chips:{ verse:'一节经文 🙏', prayer:'祷告', give:'捐赠', events:'活动', academy:'培训', faith:'认识信仰', human:'与负责人交谈' },
+    r:{
+      events:'以下是我们即将举行的聚会，线上与实地都有。',
+      give:'您的慷慨在完全透明中转化生命（72% 实地与人道，18% 培训与宣教，10% 运营）。您可以单次或每月捐赠——每一份奉献都真正重要 🙏',
+      partner:'成为<b>每月伙伴</b>，就是长久地支持使命，每月 15 欧元起：正是这让我们得以规划布道与项目。如果您（暂时）无法捐赠，也可以成为祷告伙伴 🙏',
+      where:'很好的问题！在 CMN：<b>72%</b> 实地与人道，<b>18%</b> 培训与宣教，<b>10%</b> 运营。账目每年审计，并向您开具收据。您的慷慨托付在可靠的手中。',
+      academy:'CMN 学院提供成长课程：认识耶稣、初信之路、门徒、使人作门徒、领导力。',
+      faith:'多么美好的一步 🙏 认识耶稣会转化生命。“神爱世人，甚至将他的独生子赐给他们，叫一切信他的，不致灭亡，反得永生。”（约翰福音 3:16）。课程与负责人都可以亲自陪伴您。',
+      human:'非常乐意。请通过联系页面写信给我们，负责人会回复您。',
+      about:'CMN——Christians on Mission for Nations——是一个国际性的基督教信仰与行动运动：布道、门徒培训、人道项目与伙伴关系，以转化生命与各国（马太福音 28:19）。这一切都因像您这样的支持者而得以存续。',
+      thanks:'满有喜乐 🙏 愿神赐福与您！还有什么我可以帮您的吗？',
+      care:'我真的很难过您正经历这些——您并不孤单。请尽快与一位可信赖的人，或通过联系页面与 CMN 负责人倾诉。若有即时危险，请联系当地紧急服务。如果您愿意，我可以为您代发一个祷告请求。',
+      fallback:'我可以帮您：活动、祷告、捐赠、培训、一节<b>经文</b>，或认识信仰。您想要什么？'
+    },
+    verseIntro:'这是给您的一句话：', verseAsk:'您想要哪个主题的经文？（平安、惧怕、盼望、赦免、医治、爱、力量、信心、哀伤、感恩、保护、钱财、智慧、孤独）', verseDay:'今日经文：',
+    prayOffer:'需要我把您的祷告事项发布到<b>祷告墙</b>，让弟兄姊妹与您一同祷告吗？只需写下您的请求，或点击按钮。', prayAskText:'我在聆听 🙏 写下您的祷告事项，我来为您发布。', praySending:'正在发布您的祷告…', prayOk:'完成了 🙏 您的请求经简短审核后将会发布，弟兄姊妹会与您一同祷告。', prayErr:'我未能发布您的祷告。您可以直接在祷告墙上发布。',
+    cta:{ don:'捐赠', partner:'成为伙伴', prayer:'祷告墙', events:'查看活动', academy:'查看课程', contact:'联系我们', deposit:'发布我的祷告' }
+  };
 
   var L = T[locale] || T.fr;
 
@@ -175,21 +237,21 @@ const href = {
   var VERSE_KEYS = Object.keys(V);
   // Mots-clés (FR/EN/ES) -> thème
   var VK = {
-    paix:['paix','peace','paz','tranquil','calme'],
-    peur:['peur','anxi','angoiss','inquiet','fear','afraid','worry','anxious','miedo','stress'],
-    esperance:['espoir','espér','espera','hope','esperanza','avenir','futur'],
-    pardon:['pardon','forgive','perdon','perdón','culpab','péch','peche','sin'],
-    guerison:['guér','guer','malad','heal','sick','sanidad','santé','sante'],
-    amour:['amour','aim','love','amor'],
-    force:['force','courage','fort','strength','strong','fuerza','épuis','fatigu','faible'],
-    foi:['foi','croire','faith','believe','fe','doute'],
-    deuil:['deuil','tristesse','triste','grief','sad','mourn','duelo','pleur','perte','mort'],
-    reconnaissance:['reconnaiss','gratitude','merci','grâce','grace','thanks','gracias','louange','praise'],
-    protection:['protect','protég','danger','sécur','secur','garde'],
-    finances:['argent','financ','travail','emploi','money','work','job','finanz','besoin','provis'],
-    sagesse:['sagesse','décision','decision','wisdom','sabid','choix','direction','conseil'],
-    solitude:['solitude','seul','solo','lonely','abandon','isolé','isole'],
-    salut:['salut','jésus','jesus','sauv','salvation','éternelle','eternelle','né de nouveau','born again','convert'],
+    paix:['paix','peace','paz','tranquil','calme','damai','平安'],
+    peur:['peur','anxi','angoiss','inquiet','fear','afraid','worry','anxious','miedo','stress','takut','惧怕','恐惧'],
+    esperance:['espoir','espér','espera','hope','esperanza','avenir','futur','harapan','盼望','希望'],
+    pardon:['pardon','forgive','perdon','perdón','culpab','péch','peche','sin','pengampunan','赦免','饶恕'],
+    guerison:['guér','guer','malad','heal','sick','sanidad','santé','sante','kesembuhan','医治'],
+    amour:['amour','aim','love','amor','kasih','爱'],
+    force:['force','courage','fort','strength','strong','fuerza','épuis','fatigu','faible','kekuatan','力量'],
+    foi:['foi','croire','faith','believe','doute','iman','信心','信仰'],
+    deuil:['deuil','tristesse','triste','grief','sad','mourn','duelo','pleur','perte','mort','dukacita','哀伤','悲伤'],
+    reconnaissance:['reconnaiss','gratitude','merci','grâce','grace','thanks','gracias','louange','praise','syukur','感恩'],
+    protection:['protect','protég','danger','sécur','secur','garde','perlindungan','保护'],
+    finances:['argent','financ','travail','emploi','money','work','job','finanz','besoin','provis','keuangan','钱财','金钱'],
+    sagesse:['sagesse','décision','decision','wisdom','sabid','choix','direction','conseil','hikmat','智慧'],
+    solitude:['solitude','seul','solo','lonely','abandon','isolé','isole','kesepian','孤独'],
+    salut:['salut','jésus','jesus','sauv','salvation','éternelle','eternelle','né de nouveau','born again','convert','keselamatan','救恩'],
     repos:['fatigu','épuis','repos','rest','tired','burnout','surmené']
   };
   var DAILY = [];
@@ -314,11 +376,14 @@ const href = {
   }
 
   // ============ UI ============
+  function dismiss(){ try{ localStorage.setItem('gaby_dismissed','1'); }catch(e){} tipEl.style.display='none'; }
+  // Si l'utilisateur a déjà fermé Gaby, on n'affiche plus la bulle d'invitation.
+  try{ if(localStorage.getItem('gaby_dismissed')) tipEl.style.display='none'; }catch(e){}
   function open(){ panel.hidden=false; tipEl.style.display='none'; if(!msgs.childElementCount){ add(L.greet,'bot'); versetDuJour(); } document.getElementById('gabyInput').focus(); }
-  function close(){ panel.hidden=true; }
+  function close(){ panel.hidden=true; dismiss(); }
   launch.addEventListener('click', function(){ panel.hidden?open():close(); });
   document.getElementById('gabyClose').addEventListener('click', close);
-  document.getElementById('gabyTipX').addEventListener('click', function(){ tipEl.style.display='none'; });
+  document.getElementById('gabyTipX').addEventListener('click', dismiss);
   voiceBtn.addEventListener('click', function(){ voiceOn=!voiceOn; voiceBtn.textContent=voiceOn?'🔊':'🔈'; voiceBtn.classList.toggle('on',voiceOn); if(!voiceOn&&window.speechSynthesis) speechSynthesis.cancel(); });
   document.getElementById('gabyForm').addEventListener('submit', function(e){ e.preventDefault(); var i=document.getElementById('gabyInput'); var v=i.value.trim(); if(!v) return; i.value=''; onUser(v); });
   chips();
