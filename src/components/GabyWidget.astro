@@ -1,0 +1,317 @@
+---
+import { localeFromPath, localizedHref } from '../i18n.js';
+const locale = localeFromPath(Astro.url.pathname);
+// Liens localisés (pages CMS préfixées ; pages autonomes à la racine)
+const href = {
+  don: localizedHref('faire-un-don', locale),
+  partners: localizedHref('partenaires', locale),
+  prayer: localizedHref('mur-de-priere', locale),
+  connect: localizedHref('connect', locale),
+  contact: localizedHref('contact', locale),
+  events: localizedHref('actualites', locale),
+  academy: localizedHref('academy', locale),
+};
+---
+<div class="gaby" data-locale={locale}>
+  <div class="gaby-tip" id="gabyTip"><span></span><button class="gaby-tip-x" id="gabyTipX" aria-label="Fermer">✕</button></div>
+  <button class="gaby-launch" id="gabyLaunch" aria-label="Gabriel — assistant CMN">
+    <span class="gaby-ava">🕊️</span>
+  </button>
+
+  <div class="gaby-panel" id="gabyPanel" hidden>
+    <div class="gaby-head">
+      <span class="gaby-ava sm">🕊️</span>
+      <div class="gaby-head-t"><strong>Gabriel</strong><span id="gabySub"></span></div>
+      <button class="gaby-ico" id="gabyVoice" aria-label="Lecture vocale" title="Lecture vocale">🔈</button>
+      <button class="gaby-ico" id="gabyClose" aria-label="Fermer">✕</button>
+    </div>
+    <div class="gaby-msgs" id="gabyMsgs" aria-live="polite"></div>
+    <div class="gaby-chips" id="gabyChips"></div>
+    <form class="gaby-form" id="gabyForm">
+      <input type="text" id="gabyInput" autocomplete="off" />
+      <button type="submit" class="gaby-send" aria-label="Envoyer">➤</button>
+    </form>
+    <p class="gaby-disc" id="gabyDisc"></p>
+  </div>
+</div>
+
+<script is:inline define:vars={{ locale, href }}>
+(function () {
+  // ============ Données multilingues (chrome) ============
+  var T = {
+    fr: {
+      sub: 'Assistant spirituel · CMN',
+      tip: 'Gaby · Besoin d’aide ?',
+      ph: 'Écris ton message…',
+      disc: 'Assistance automatisée · pour un accompagnement, contacte un responsable.',
+      greet: 'Bonjour 🙏 Je suis Gabriel — Gaby pour les amis. Je peux te parler des événements, de la prière, des dons, des formations, te donner un <b>verset biblique</b> (Louis Segond) ou t’aider à découvrir la foi. Comment puis-je t’aider ?',
+      chips: { verse:'Un verset 🙏', prayer:'Prière', give:'Faire un don', events:'Événements', academy:'Formations', faith:'Découvrir la foi', human:'Parler à un responsable' },
+      r: {
+        events: 'Voici nos prochains rendez-vous, en ligne et sur le terrain.',
+        give: 'Ta générosité transforme des vies, en toute transparence (72 % terrain & humanitaire, 18 % formation & missions, 10 % fonctionnement). Tu peux donner une fois ou chaque mois — et chaque don compte vraiment 🙏',
+        partner: 'Devenir <b>partenaire mensuel</b>, c’est porter la mission dans la durée, dès 15 €/mois : c’est ce qui nous permet de planifier les campagnes et les projets. Et si tu ne peux pas (encore) donner, tu peux être partenaire de prière 🙏',
+        where: 'Excellente question ! Chez CMN : <b>72 %</b> terrain & humanitaire, <b>18 %</b> formation & missions, <b>10 %</b> fonctionnement. Les comptes sont audités chaque année et un reçu t’est envoyé. Ta générosité est entre de bonnes mains.',
+        academy: 'CMN Academy propose des parcours pour grandir : Découvrir Jésus, Premiers pas, Disciple, Faire des disciples, Leadership.',
+        faith: 'Quelle belle démarche 🙏 Découvrir Jésus transforme une vie. Voici un point de départ tout simple : « Car Dieu a tant aimé le monde qu’il a donné son Fils unique, afin que quiconque croit en lui ne périsse point, mais qu’il ait la vie éternelle. » (Jean 3:16). Un parcours et un responsable peuvent t’accompagner.',
+        human: 'Avec plaisir. Écris-nous via la page Contact et un responsable te répondra.',
+        about: 'CMN — Christians on Mission for Nations — est un mouvement chrétien international de foi et d’action : évangélisation, formation de disciples, projets humanitaires et partenariats, pour transformer les vies et les nations (Matthieu 28:19). Tout cela vit grâce à des soutiens comme toi.',
+        thanks: 'Avec joie 🙏 Que Dieu te bénisse ! Puis-je faire autre chose pour toi ?',
+        care: 'Je suis vraiment désolé que tu traverses cela — tu n’es pas seul. Parles-en sans attendre à une personne de confiance ou à un responsable CMN via la page Contact. En cas de danger immédiat, contacte les services d’urgence locaux. Et si tu le souhaites, je peux déposer un sujet de prière pour toi.',
+        fallback: 'Je peux t’aider sur : les événements, la prière, les dons, les formations, un <b>verset biblique</b>, ou découvrir la foi. Que souhaites-tu ?'
+      },
+      verseIntro: 'Voici une parole pour toi (Louis Segond) :',
+      verseAsk: 'Sur quel thème veux-tu un verset ? (paix, peur, espérance, pardon, guérison, amour, force, foi, deuil, reconnaissance, protection, finances, sagesse, solitude)',
+      verseDay: 'Le verset du jour (Louis Segond) :',
+      prayOffer: 'Veux-tu que je dépose ton sujet sur le <b>mur de prière</b> pour que la communauté prie avec toi ? Écris simplement ta demande, ou clique sur le bouton.',
+      prayAskText: 'Je t’écoute 🙏 Écris ta demande de prière, je la dépose pour toi.',
+      praySending: 'Je dépose ta prière…',
+      prayOk: 'C’est fait 🙏 Ta requête sera publiée après une courte relecture, et la communauté priera avec toi. Tu peux aussi la voir sur le mur de prière.',
+      prayErr: 'Je n’ai pas réussi à déposer ta prière. Tu peux la déposer directement sur le mur de prière.',
+      cta: { don:'Faire un don', partner:'Devenir partenaire', prayer:'Mur de prière', events:'Voir les événements', academy:'Voir les parcours', contact:'Nous contacter', deposit:'Déposer ma prière' }
+    },
+    en: {
+      sub: 'Spiritual assistant · CMN',
+      tip: 'Gaby · Need help?',
+      ph: 'Type your message…',
+      disc: 'Automated assistance · for personal support, contact a leader.',
+      greet: 'Hello 🙏 I’m Gabriel — Gaby for short. I can tell you about events, prayer, giving, training, give you a <b>Bible verse</b>, or help you discover faith. How can I help?',
+      chips: { verse:'A verse 🙏', prayer:'Prayer', give:'Donate', events:'Events', academy:'Training', faith:'Discover faith', human:'Talk to a leader' },
+      r: {
+        events: 'Here are our upcoming gatherings, online and on the ground.',
+        give: 'Your generosity transforms lives, with full transparency (72% field & humanitarian, 18% training & missions, 10% operations). You can give once or monthly — every gift truly matters 🙏',
+        partner: 'Becoming a <b>monthly partner</b> means carrying the mission over time, from €15/month: it’s what lets us plan campaigns and projects. And if you can’t give (yet), you can be a prayer partner 🙏',
+        where: 'Great question! At CMN: <b>72%</b> field & humanitarian, <b>18%</b> training & missions, <b>10%</b> operations. Accounts are audited yearly and a receipt is sent to you. Your generosity is in good hands.',
+        academy: 'CMN Academy offers paths to grow: Discover Jesus, First Steps, Disciple, Making Disciples, Leadership.',
+        faith: 'What a beautiful step 🙏 Discovering Jesus transforms a life. A simple starting point: “For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.” (John 3:16). A path and a leader can walk with you.',
+        human: 'Gladly. Write to us via the Contact page and a leader will reply.',
+        about: 'CMN — Christians on Mission for Nations — is an international Christian movement of faith and action: evangelism, discipleship, humanitarian projects and partnerships, to transform lives and nations (Matthew 28:19). All of this lives thanks to supporters like you.',
+        thanks: 'With joy 🙏 God bless you! Can I do anything else for you?',
+        care: 'I’m truly sorry you’re going through this — you are not alone. Please reach out right away to someone you trust or a CMN leader via the Contact page. If you’re in immediate danger, contact your local emergency services. If you’d like, I can post a prayer request for you.',
+        fallback: 'I can help with: events, prayer, giving, training, a <b>Bible verse</b>, or discovering faith. What would you like?'
+      },
+      verseIntro: 'Here is a word for you (Louis Segond):',
+      verseAsk: 'On what theme would you like a verse? (peace, fear, hope, forgiveness, healing, love, strength, faith, grief, gratitude, protection, finances, wisdom, loneliness)',
+      verseDay: 'Verse of the day (Louis Segond):',
+      prayOffer: 'Would you like me to post your request on the <b>prayer wall</b> so the community prays with you? Just write your request, or tap the button.',
+      prayAskText: 'I’m listening 🙏 Write your prayer request and I’ll post it for you.',
+      praySending: 'Posting your prayer…',
+      prayOk: 'Done 🙏 Your request will be published after a quick review, and the community will pray with you. You can also see it on the prayer wall.',
+      prayErr: 'I couldn’t post your prayer. You can post it directly on the prayer wall.',
+      cta: { don:'Donate', partner:'Become a partner', prayer:'Prayer wall', events:'See events', academy:'See paths', contact:'Contact us', deposit:'Post my prayer' }
+    }
+  };
+  // ES / ID / ZH : chrome traduit, réponses détaillées en repli anglais.
+  T.es = Object.assign({}, T.en, { sub:'Asistente espiritual · CMN', tip:'Gaby · ¿Necesitas ayuda?', ph:'Escribe tu mensaje…', greet:'Hola 🙏 Soy Gabriel — Gaby para los amigos. Puedo hablarte de eventos, oración, donaciones, formación, darte un <b>versículo</b> (Louis Segond) o ayudarte a descubrir la fe. ¿Cómo puedo ayudarte?', chips:{ verse:'Un versículo 🙏', prayer:'Oración', give:'Donar', events:'Eventos', academy:'Formación', faith:'Descubrir la fe', human:'Hablar con un responsable' } });
+  T.id = Object.assign({}, T.en, { sub:'Asisten rohani · CMN', tip:'Gaby · Butuh bantuan?', ph:'Tulis pesan Anda…', greet:'Halo 🙏 Saya Gabriel — Gaby. Saya bisa membantu soal acara, doa, donasi, pelatihan, memberi <b>ayat Alkitab</b> (Louis Segond), atau membantu Anda mengenal iman. Ada yang bisa saya bantu?', chips:{ verse:'Sebuah ayat 🙏', prayer:'Doa', give:'Donasi', events:'Acara', academy:'Pelatihan', faith:'Mengenal iman', human:'Bicara dengan pengurus' } });
+  T.zh = Object.assign({}, T.en, { sub:'属灵助手 · CMN', tip:'Gaby · 需要帮助吗？', ph:'写下你的消息…', greet:'您好 🙏 我是 Gabriel——朋友们叫我 Gaby。我可以为您介绍活动、祷告、捐赠、培训，给您一节<b>经文</b>（路易·色根译本），或帮助您认识信仰。我能帮您什么？', chips:{ verse:'一节经文 🙏', prayer:'祷告', give:'捐赠', events:'活动', academy:'培训', faith:'认识信仰', human:'与负责人交谈' } });
+
+  var L = T[locale] || T.fr;
+
+  // ============ Versets — Louis Segond (par thème) ============
+  var V = {
+    paix: [
+      { r:'Jean 14:27', t:'Je vous laisse la paix, je vous donne ma paix. Je ne vous donne pas comme le monde donne. Que votre cœur ne se trouble point, et ne s’alarme point.' },
+      { r:'Philippiens 4:6-7', t:'Ne vous inquiétez de rien; mais en toute chose faites connaître vos besoins à Dieu par des prières et des supplications, avec des actions de grâces. Et la paix de Dieu, qui surpasse toute intelligence, gardera vos cœurs et vos pensées en Jésus-Christ.' }
+    ],
+    peur: [
+      { r:'Ésaïe 41:10', t:'Ne crains rien, car je suis avec toi; Ne promène pas des regards inquiets, car je suis ton Dieu; Je te fortifie, je viens à ton secours, Je te soutiens de ma droite triomphante.' },
+      { r:'1 Pierre 5:7', t:'et déchargez-vous sur lui de tous vos soucis, car lui-même prend soin de vous.' }
+    ],
+    esperance: [
+      { r:'Jérémie 29:11', t:'Car je connais les projets que j’ai formés sur vous, dit l’Éternel, projets de paix et non de malheur, afin de vous donner un avenir et de l’espérance.' },
+      { r:'Romains 15:13', t:'Que le Dieu de l’espérance vous remplisse de toute joie et de toute paix dans la foi, pour que vous abondiez en espérance, par la puissance du Saint-Esprit!' }
+    ],
+    pardon: [
+      { r:'1 Jean 1:9', t:'Si nous confessons nos péchés, il est fidèle et juste pour nous les pardonner, et pour nous purifier de toute iniquité.' },
+      { r:'Éphésiens 4:32', t:'Soyez bons les uns envers les autres, compatissants, vous pardonnant réciproquement, comme Dieu vous a pardonné en Christ.' }
+    ],
+    guerison: [
+      { r:'Psaume 103:2-3', t:'Mon âme, bénis l’Éternel, Et n’oublie aucun de ses bienfaits! C’est lui qui pardonne toutes tes iniquités, Qui guérit toutes tes maladies.' },
+      { r:'Ésaïe 53:5', t:'Mais il était blessé pour nos péchés, Brisé pour nos iniquités; Le châtiment qui nous donne la paix est tombé sur lui, Et c’est par ses meurtrissures que nous sommes guéris.' }
+    ],
+    amour: [
+      { r:'Jean 3:16', t:'Car Dieu a tant aimé le monde qu’il a donné son Fils unique, afin que quiconque croit en lui ne périsse point, mais qu’il ait la vie éternelle.' },
+      { r:'1 Jean 4:19', t:'Pour nous, nous l’aimons, parce qu’il nous a aimés le premier.' }
+    ],
+    force: [
+      { r:'Josué 1:9', t:'Ne t’ai-je pas donné cet ordre: Fortifie-toi et prends courage? Ne t’effraie point et ne t’épouvante point, car l’Éternel, ton Dieu, est avec toi dans tout ce que tu entreprendras.' },
+      { r:'Philippiens 4:13', t:'Je puis tout par celui qui me fortifie.' }
+    ],
+    foi: [
+      { r:'Hébreux 11:1', t:'Or la foi est une ferme assurance des choses qu’on espère, une démonstration de celles qu’on ne voit pas.' },
+      { r:'Marc 11:24', t:'C’est pourquoi je vous dis: Tout ce que vous demanderez en priant, croyez que vous l’avez reçu, et vous le verrez s’accomplir.' }
+    ],
+    deuil: [
+      { r:'Psaume 34:19', t:'L’Éternel est près de ceux qui ont le cœur brisé, Et il sauve ceux qui ont l’esprit dans l’abattement.' },
+      { r:'Matthieu 5:4', t:'Heureux les affligés, car ils seront consolés!' }
+    ],
+    reconnaissance: [
+      { r:'1 Thessaloniciens 5:18', t:'Rendez grâces en toutes choses, car c’est à votre égard la volonté de Dieu en Jésus-Christ.' },
+      { r:'Psaume 100:4', t:'Entrez dans ses portes avec des louanges, Dans ses parvis avec des cantiques! Célébrez-le, bénissez son nom!' }
+    ],
+    protection: [
+      { r:'Psaume 91:1-2', t:'Celui qui demeure sous l’abri du Très-Haut Repose à l’ombre du Tout-Puissant. Je dis à l’Éternel: Mon refuge et ma forteresse, Mon Dieu en qui je me confie!' }
+    ],
+    finances: [
+      { r:'Philippiens 4:19', t:'Et mon Dieu pourvoira à tous vos besoins selon sa richesse, avec gloire, en Jésus-Christ.' },
+      { r:'Matthieu 6:33', t:'Cherchez premièrement le royaume et la justice de Dieu; et toutes ces choses vous seront données par-dessus.' }
+    ],
+    sagesse: [
+      { r:'Jacques 1:5', t:'Si quelqu’un d’entre vous manque de sagesse, qu’il la demande à Dieu, qui donne à tous simplement et sans reproche, et elle lui sera donnée.' },
+      { r:'Proverbes 3:5-6', t:'Confie-toi en l’Éternel de tout ton cœur, Et ne t’appuie pas sur ta sagesse; Reconnais-le dans toutes tes voies, Et il aplanira tes sentiers.' }
+    ],
+    solitude: [
+      { r:'Deutéronome 31:6', t:'Fortifiez-vous et ayez du courage! Ne craignez point et ne soyez point effrayés devant eux; car l’Éternel, ton Dieu, marchera lui-même avec toi, il ne te délaissera point, il ne t’abandonnera point.' },
+      { r:'Matthieu 28:20', t:'Et voici, je suis avec vous tous les jours, jusqu’à la fin du monde.' }
+    ],
+    salut: [
+      { r:'Romains 10:9', t:'Si tu confesses de ta bouche le Seigneur Jésus, et si tu crois dans ton cœur que Dieu l’a ressuscité des morts, tu seras sauvé.' },
+      { r:'Apocalypse 3:20', t:'Voici, je me tiens à la porte, et je frappe. Si quelqu’un entend ma voix et ouvre la porte, j’entrerai chez lui, je souperai avec lui, et lui avec moi.' }
+    ],
+    repos: [
+      { r:'Matthieu 11:28', t:'Venez à moi, vous tous qui êtes fatigués et chargés, et je vous donnerai du repos.' }
+    ]
+  };
+  var VERSE_KEYS = Object.keys(V);
+  // Mots-clés (FR/EN/ES) -> thème
+  var VK = {
+    paix:['paix','peace','paz','tranquil','calme'],
+    peur:['peur','anxi','angoiss','inquiet','fear','afraid','worry','anxious','miedo','stress'],
+    esperance:['espoir','espér','espera','hope','esperanza','avenir','futur'],
+    pardon:['pardon','forgive','perdon','perdón','culpab','péch','peche','sin'],
+    guerison:['guér','guer','malad','heal','sick','sanidad','santé','sante'],
+    amour:['amour','aim','love','amor'],
+    force:['force','courage','fort','strength','strong','fuerza','épuis','fatigu','faible'],
+    foi:['foi','croire','faith','believe','fe','doute'],
+    deuil:['deuil','tristesse','triste','grief','sad','mourn','duelo','pleur','perte','mort'],
+    reconnaissance:['reconnaiss','gratitude','merci','grâce','grace','thanks','gracias','louange','praise'],
+    protection:['protect','protég','danger','sécur','secur','garde'],
+    finances:['argent','financ','travail','emploi','money','work','job','finanz','besoin','provis'],
+    sagesse:['sagesse','décision','decision','wisdom','sabid','choix','direction','conseil'],
+    solitude:['solitude','seul','solo','lonely','abandon','isolé','isole'],
+    salut:['salut','jésus','jesus','sauv','salvation','éternelle','eternelle','né de nouveau','born again','convert'],
+    repos:['fatigu','épuis','repos','rest','tired','burnout','surmené']
+  };
+  var DAILY = [];
+  VERSE_KEYS.forEach(function(k){ V[k].forEach(function(v){ DAILY.push(v); }); });
+
+  // ============ Rendu ============
+  var panel = document.getElementById('gabyPanel');
+  var msgs = document.getElementById('gabyMsgs');
+  var launch = document.getElementById('gabyLaunch');
+  var voiceBtn = document.getElementById('gabyVoice');
+  var voiceOn = false;
+  var awaitingPrayer = false;
+
+  document.getElementById('gabySub').textContent = L.sub;
+  document.getElementById('gabyDisc').textContent = L.disc;
+  document.getElementById('gabyInput').placeholder = L.ph;
+  var tipEl = document.getElementById('gabyTip');
+  tipEl.querySelector('span').textContent = L.tip;
+
+  function esc(s){ var d=document.createElement('div'); d.textContent=s==null?'':s; return d.innerHTML; }
+  function speak(text){
+    if (!voiceOn || !window.speechSynthesis) return;
+    try { var u=new SpeechSynthesisUtterance(text.replace(/<[^>]+>/g,'')); u.lang = ({fr:'fr-FR',en:'en-US',es:'es-ES',id:'id-ID',zh:'zh-CN'}[locale]||'fr-FR'); speechSynthesis.cancel(); speechSynthesis.speak(u); } catch(e){}
+  }
+  function add(html, who){
+    var d=document.createElement('div'); d.className='gaby-msg '+(who||'bot'); d.innerHTML=html; msgs.appendChild(d); msgs.scrollTop=msgs.scrollHeight;
+    if (who!=='me') speak(html);
+  }
+  function btns(list){
+    return '<div class="gaby-ctas">'+list.map(function(b){ return '<a class="gaby-cta" href="'+b.h+'">'+esc(b.t)+'</a>'; }).join('')+'</div>';
+  }
+  function verseHtml(v){ return '<div class="gaby-verse">« '+esc(v.t)+' »<span class="gaby-ref">'+esc(v.r)+' · Louis Segond</span></div>'; }
+
+  function giveCtas(){ return btns([{h:href.don,t:L.cta.don},{h:href.partners,t:L.cta.partner}]); }
+
+  function chips(){
+    var c=L.chips, box=document.getElementById('gabyChips');
+    var list=[['verse',c.verse],['prayer',c.prayer],['give',c.give],['events',c.events],['academy',c.academy],['faith',c.faith],['human',c.human]];
+    box.innerHTML=list.map(function(x){ return '<button class="gaby-chip" data-intent="'+x[0]+'">'+esc(x[1])+'</button>'; }).join('');
+    box.querySelectorAll('.gaby-chip').forEach(function(b){ b.addEventListener('click', function(){ handle(b.getAttribute('data-intent'), true); }); });
+  }
+
+  // ============ Détection d'intention ============
+  function findVerseTheme(low){
+    for (var k in VK){ for (var i=0;i<VK[k].length;i++){ if (low.indexOf(VK[k][i])!==-1) return k; } }
+    return null;
+  }
+  function intentOf(text){
+    var low = text.toLowerCase();
+    if (/(suicid|me tuer|mourir|kill myself|self-harm|automutil|plus envie de vivre|end my life)/.test(low)) return 'care';
+    if (/(verset|verse|versícul|versicul|bible|biblique|parole de dieu|écriture|ecriture|ayat)/.test(low)) return 'verse';
+    if (/(prier|prière|priere|prayer|oración|oracion|doa|祷告|intercession|fardeau)/.test(low)) return 'prayer';
+    if (/(où va|ou va|where.*money|transparen|à quoi sert|a quoi sert)/.test(low)) return 'where';
+    if (/(partenaire|partner|mensuel|monthly|socio|mitra|伙伴)/.test(low)) return 'partner';
+    if (/(don|donner|donate|give|dona|捐|offrande|soutenir|aider l|aider la mission|contribu)/.test(low)) return 'give';
+    if (/(événement|evenement|event|acara|evento|活动|croisade|conférence|conference)/.test(low)) return 'events';
+    if (/(formation|academy|cours|course|training|akademi|学院|parcours|discipl)/.test(low)) return 'academy';
+    if (/(découvrir|decouvrir|jésus|jesus|foi|faith|believe|salut|chrétien|chretien|christ)/.test(low)) return 'faith';
+    if (/(humain|responsable|human|contact|parler|leader|hablar|联系)/.test(low)) return 'human';
+    if (/(qui êtes|qui etes|c.est quoi cmn|about|what is cmn|à propos|a propos|quiénes|quienes)/.test(low)) return 'about';
+    if (/(merci|thank|gracias|terima|谢谢|obrigad)/.test(low)) return 'thanks';
+    if (/(bonjour|salut|hello|hi|hola|halo|你好|coucou|bonsoir)/.test(low)) return 'greet';
+    return null;
+  }
+
+  function sendVerse(theme){
+    if (!theme){ add(L.verseAsk,'bot'); return; }
+    var arr=V[theme]||V.paix; var v=arr[Math.floor(Math.random()*arr.length)];
+    add(L.verseIntro+verseHtml(v),'bot');
+  }
+  function versetDuJour(){
+    var now=new Date(); var day=Math.floor((now-new Date(now.getFullYear(),0,0))/86400000);
+    var v=DAILY[day % DAILY.length];
+    add(L.verseDay+verseHtml(v),'bot');
+  }
+
+  function depositPrayer(text){
+    add(L.praySending,'bot');
+    fetch('/api/prieres',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({ text:text, name:'', category:'Gaby' })})
+      .then(function(r){ return r.json(); })
+      .then(function(){ add(L.prayOk+btns([{h:href.prayer,t:L.cta.prayer}]),'bot'); })
+      .catch(function(){ add(L.prayErr+btns([{h:href.prayer,t:L.cta.prayer}]),'bot'); });
+  }
+
+  function handle(intent, isChip){
+    if (intent==='verse'){ sendVerse(null); return; }
+    if (intent==='prayer'){ awaitingPrayer=true; add(L.prayOffer+btns([{h:href.prayer,t:L.cta.prayer}]),'bot'); add(L.prayAskText,'bot'); return; }
+    if (intent==='give'){ add(L.r.give+giveCtas(),'bot'); return; }
+    if (intent==='partner'){ add(L.r.partner+btns([{h:href.partners,t:L.cta.partner},{h:href.don,t:L.cta.don}]),'bot'); return; }
+    if (intent==='where'){ add(L.r.where+giveCtas(),'bot'); return; }
+    if (intent==='events'){ add(L.r.events+btns([{h:href.events,t:L.cta.events}]),'bot'); return; }
+    if (intent==='academy'){ add(L.r.academy+btns([{h:href.academy,t:L.cta.academy}]),'bot'); return; }
+    if (intent==='faith'){ add(L.r.faith+btns([{h:href.academy,t:L.cta.academy},{h:href.contact,t:L.cta.contact}]),'bot'); return; }
+    if (intent==='human'){ add(L.r.human+btns([{h:href.contact,t:L.cta.contact}]),'bot'); return; }
+    if (intent==='about'){ add(L.r.about+giveCtas(),'bot'); return; }
+    if (intent==='care'){ awaitingPrayer=true; add(L.r.care+btns([{h:href.contact,t:L.cta.contact},{h:href.prayer,t:L.cta.prayer}]),'bot'); return; }
+    if (intent==='thanks'){ add(L.r.thanks,'bot'); return; }
+    if (intent==='greet'){ add(L.greet,'bot'); return; }
+    add(L.r.fallback,'bot');
+  }
+
+  function onUser(text){
+    add(esc(text),'me');
+    var low=text.toLowerCase();
+    // Si on attend une demande de prière, on la dépose.
+    if (awaitingPrayer){
+      if (/(non|no|annul|plus tard|cancel)/.test(low) && low.length<14){ awaitingPrayer=false; add(L.r.fallback,'bot'); return; }
+      if (text.trim().length>=5){ awaitingPrayer=false; depositPrayer(text.trim()); return; }
+    }
+    var intent=intentOf(text);
+    if (intent==='verse'){ var th=findVerseTheme(low); sendVerse(th); return; }
+    handle(intent);
+  }
+
+  // ============ UI ============
+  function open(){ panel.hidden=false; tipEl.style.display='none'; if(!msgs.childElementCount){ add(L.greet,'bot'); versetDuJour(); } document.getElementById('gabyInput').focus(); }
+  function close(){ panel.hidden=true; }
+  launch.addEventListener('click', function(){ panel.hidden?open():close(); });
+  document.getElementById('gabyClose').addEventListener('click', close);
+  document.getElementById('gabyTipX').addEventListener('click', function(){ tipEl.style.display='none'; });
+  voiceBtn.addEventListener('click', function(){ voiceOn=!voiceOn; voiceBtn.textContent=voiceOn?'🔊':'🔈'; voiceBtn.classList.toggle('on',voiceOn); if(!voiceOn&&window.speechSynthesis) speechSynthesis.cancel(); });
+  document.getElementById('gabyForm').addEventListener('submit', function(e){ e.preventDefault(); var i=document.getElementById('gabyInput'); var v=i.value.trim(); if(!v) return; i.value=''; onUser(v); });
+  chips();
+})();
+</script>
