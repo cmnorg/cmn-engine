@@ -630,6 +630,8 @@ a{color:inherit}
 .pt-custom>span{font-weight:600;color:var(--char)}
 .pt-custom-row{display:flex;align-items:center;gap:8px}
 .pt-custom-row input{width:130px;padding:11px 13px;border:1px solid var(--line);border-radius:12px;font-size:15px}
+.pt-custom-row input.pt-amt-err{border-color:#c0392b;background:#fdf3f2;box-shadow:0 0 0 3px rgba(192,57,43,.12)}
+.pt-amt-msg{display:block;margin-top:10px;color:#c0392b;font-weight:600;font-size:13.5px}
 .pt-cur{font-weight:700;color:var(--muted)}
 .pt-social{margin:38px auto;max-width:760px;text-align:center}
 .pt-social-ph{width:74px;height:74px;border-radius:50%;object-fit:cover;margin:0 auto 14px;display:block;border:3px solid var(--gold-soft)}
