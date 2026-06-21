@@ -71,6 +71,7 @@ const tiers = [
           <span class="pt-cur">€</span>
           <a class="btn btn-gold" id="ptCustomBtn" href={`${donateUrl}?freq=monthly`}>Donner ce montant</a>
         </div>
+        <span class="pt-amt-msg" id="ptAmtMsg"></span>
       </div>
 
       <!-- Preuve sociale -->
@@ -138,7 +139,27 @@ const tiers = [
       });
 
       var amtEl = document.getElementById('ptAmt');
-      if (amtEl) amtEl.addEventListener('input', syncFreq);
+      var amtMsg = document.getElementById('ptAmtMsg');
+      var customBtn = document.getElementById('ptCustomBtn');
+      var MIN = 1; // montant minimum (modifiable)
+
+      if (amtEl) amtEl.addEventListener('input', function () {
+        amtEl.classList.remove('pt-amt-err');
+        if (amtMsg) amtMsg.textContent = '';
+        syncFreq();
+      });
+
+      if (customBtn) customBtn.addEventListener('click', function (e) {
+        var val = parseInt((amtEl && amtEl.value) || '', 10);
+        if (!(val >= MIN)) {
+          e.preventDefault();
+          if (amtEl) { amtEl.classList.add('pt-amt-err'); amtEl.focus(); }
+          if (amtMsg) amtMsg.textContent = (amtEl && amtEl.value)
+            ? ('Le montant minimum est de ' + MIN + ' €.')
+            : 'Tu as oublié de saisir ton montant 🙂';
+        }
+      });
+
       syncFreq();
     })();
   </script>
