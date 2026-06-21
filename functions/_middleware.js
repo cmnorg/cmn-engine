@@ -10,6 +10,9 @@ const C2L = {
   FR: 'fr', BE: 'fr', CH: 'fr', LU: 'fr', MC: 'fr', HT: 'fr',
   CI: 'fr', SN: 'fr', ML: 'fr', BF: 'fr', NE: 'fr', TG: 'fr', BJ: 'fr',
   GA: 'fr', CG: 'fr', CD: 'fr', CM: 'fr', TD: 'fr', GN: 'fr', MG: 'fr',
+  // Départements / territoires français d'outre-mer -> fr
+  GP: 'fr', MQ: 'fr', RE: 'fr', GF: 'fr', YT: 'fr', PM: 'fr',
+  BL: 'fr', MF: 'fr', WF: 'fr', PF: 'fr', NC: 'fr',
   // Indonésien
   ID: 'id',
   // Hispanophones
