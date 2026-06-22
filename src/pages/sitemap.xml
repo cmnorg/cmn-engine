@@ -1,0 +1,37 @@
+// Sitemap généré à la main (sans dépendance externe). Couvre l'accueil, les pages de contenu
+// (FR + /en/ /id/ /es/ /zh/) et les pages autonomes.
+import { useStoryblokApi } from '@storyblok/astro';
+
+const SITE = 'https://cmn-engine.pages.dev';
+const NON_FR = ['en', 'id', 'es', 'zh'];
+const STANDALONE = ['contact', 'connect', 'mur-de-priere', 'partenaires', 'faire-un-don'];
+
+export async function GET() {
+  let slugs = [];
+  try {
+    const api = useStoryblokApi();
+    const { data } = await api.get('cdn/stories', {
+      version: 'draft', per_page: 100, excluding_slugs: 'home,settings',
+    });
+    const renderable = ['page', 'track', 'course'];
+    slugs = (data.stories || [])
+      .filter((s) => !s.is_folder && s.content && renderable.includes(s.content.component))
+      .map((s) => s.full_slug);
+  } catch (e) { slugs = []; }
+
+  const urls = [];
+  urls.push(SITE + '/');
+  NON_FR.forEach((l) => urls.push(SITE + '/' + l + '/'));
+  slugs.forEach((sl) => {
+    urls.push(SITE + '/' + sl);
+    NON_FR.forEach((l) => urls.push(SITE + '/' + l + '/' + sl));
+  });
+  STANDALONE.forEach((sl) => urls.push(SITE + '/' + sl));
+
+  const body = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    + '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    + urls.map((u) => '  <url><loc>' + u + '</loc></url>').join('\n')
+    + '\n</urlset>\n';
+
+  return new Response(body, { headers: { 'content-type': 'application/xml; charset=utf-8' } });
+}
