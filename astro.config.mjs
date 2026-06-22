@@ -1,6 +1,5 @@
 import { defineConfig } from 'astro/config';
 import storyblok from '@storyblok/astro';
-import sitemap from '@astrojs/sitemap';
 import { loadEnv } from 'vite';
 
 const env = loadEnv(import.meta.env?.MODE || 'production', process.cwd(), '');
@@ -9,7 +8,6 @@ export default defineConfig({
   // Adresse publique du site (à remplacer par ton domaine final, ex. https://cmnorg.org).
   site: 'https://cmn-engine.pages.dev',
   integrations: [
-    sitemap(),
     storyblok({
       accessToken: env.STORYBLOK_TOKEN,
       apiOptions: { region: 'eu' },
