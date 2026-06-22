@@ -4,15 +4,30 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import GabyWidget from '../components/GabyWidget.astro';
 import { useStoryblokApi } from '@storyblok/astro';
-import { localeFromPath, t } from '../i18n.js';
-const { title = 'CMN — Christians on Mission for Nations' } = Astro.props;
+import { localeFromPath, t, LANGS, barePath, localizedHref, STANDALONE } from '../i18n.js';
+const {
+  title = 'CMN — Christians on Mission for Nations',
+  description = "Christians on Mission for Nations (CMN) : mouvement chrétien international de foi et d'action — évangélisation, formation, projets humanitaires et partenariats pour transformer les vies et les nations.",
+} = Astro.props;
 const locale = localeFromPath(Astro.url.pathname);
+const bare = barePath(Astro.url.pathname);
 let settings = null;
 try {
   const api = useStoryblokApi();
   const { data } = await api.get('cdn/stories/settings', { version: 'draft', language: locale });
   settings = data?.story?.content || null;
 } catch (e) { settings = null; }
+
+// ===== SEO =====
+const SITE = (Astro.site && String(Astro.site.href).replace(/\/$/, '')) || 'https://cmn-engine.pages.dev';
+const canonical = SITE + Astro.url.pathname;
+const ogImage = settings?.og_image?.filename || settings?.logo?.filename || '';
+const ogLocale = { fr: 'fr_FR', en: 'en_US', es: 'es_ES', id: 'id_ID', zh: 'zh_CN' }[locale] || 'fr_FR';
+const slug0 = (bare || '').split('/')[0];
+const showAlt = STANDALONE.indexOf(slug0) === -1; // hreflang seulement pour les pages localisées
+const alternates = showAlt
+  ? LANGS.map((Lg) => ({ code: Lg.code, href: SITE + localizedHref(bare, Lg.code) }))
+  : [];
 ---
 <!doctype html>
 <html lang={locale}>
@@ -20,6 +35,30 @@ try {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {alternates.map((a) => <link rel="alternate" hreflang={a.code} href={a.href} />)}
+    {alternates.length > 0 && <link rel="alternate" hreflang="x-default" href={SITE + '/'} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CMN — Christians on Mission for Nations" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={ogLocale} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
+    <script type="application/ld+json" set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'Christians on Mission for Nations',
+      alternateName: 'CMN',
+      url: SITE + '/',
+      logo: ogImage || undefined,
+      description: description,
+    })} />
     <script is:inline>
       // Applique le thème AVANT le rendu (évite tout clignotement).
       (function () {
