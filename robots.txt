@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /admin-prieres
+
+Sitemap: https://cmn-engine.pages.dev/sitemap.xml
