@@ -1,6 +1,7 @@
 ---
 import { localeFromPath, localizedHref } from '../i18n.js';
 const locale = localeFromPath(Astro.url.pathname);
+const tipText = { fr:'Gaby · Besoin d’aide ?', en:'Gaby · Need help?', es:'Gaby · ¿Necesitas ayuda?', id:'Gaby · Butuh bantuan?', zh:'Gaby · 需要帮助吗？' }[locale] || 'Gaby · Besoin d’aide ?';
 // Liens localisés (pages CMS préfixées ; pages autonomes à la racine)
 const href = {
   don: localizedHref('faire-un-don', locale),
@@ -13,7 +14,7 @@ const href = {
 };
 ---
 <div class="gaby" data-locale={locale}>
-  <div class="gaby-tip" id="gabyTip"><span></span><button class="gaby-tip-x" id="gabyTipX" aria-label="Fermer">✕</button></div>
+  <div class="gaby-tip" id="gabyTip"><span>{tipText}</span><button class="gaby-tip-x" id="gabyTipX" aria-label="Fermer">✕</button></div>
   <button class="gaby-launch pulse" id="gabyLaunch" aria-label="Gabriel — assistant CMN">
     <span class="gaby-ava">🕊️</span>
   </button>
