@@ -35,6 +35,10 @@ const alternates = showAlt
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#C0982E" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     {alternates.map((a) => <link rel="alternate" hreflang={a.code} href={a.href} />)}
@@ -63,10 +67,9 @@ const alternates = showAlt
       // Applique le thème AVANT le rendu (évite tout clignotement).
       (function () {
         try {
+          // Clair par défaut (comme la version statique) ; le sombre n'est appliqué que si l'utilisateur l'a choisi.
           var t = localStorage.getItem('cmn_theme');
-          if (t !== 'dark' && t !== 'light') {
-            t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-          }
+          if (t !== 'dark' && t !== 'light') t = 'light';
           document.documentElement.setAttribute('data-theme', t);
         } catch (e) {}
       })();
@@ -92,6 +95,14 @@ const alternates = showAlt
     </section>
     <Footer settings={settings} />
     <GabyWidget />
+    <script is:inline>
+      // PWA : enregistrement du service worker (installable + hors-ligne).
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('/service-worker.js').catch(function () {});
+        });
+      }
+    </script>
     <script is:inline>
       // 1) Choix manuel de langue : on mémorise dans un cookie (respecté par la détection auto).
       (function () {
@@ -134,20 +145,23 @@ const alternates = showAlt
     </script>
     <script is:inline>
       (function () {
-        var b = document.getElementById('themeBtn');
+        var btns = document.querySelectorAll('.theme-btn');
         function refresh() {
           var d = document.documentElement.getAttribute('data-theme') === 'dark';
-          var ic = b && b.querySelector('.ti');
-          if (ic) ic.textContent = d ? '☀️' : '🌙';
-          if (b) b.setAttribute('aria-pressed', d ? 'true' : 'false');
+          btns.forEach(function (b) {
+            var ic = b.querySelector('.ti'); if (ic) ic.textContent = d ? '☀️' : '🌙';
+            b.setAttribute('aria-pressed', d ? 'true' : 'false');
+          });
         }
         refresh();
-        if (b) b.addEventListener('click', function () {
-          var d = document.documentElement.getAttribute('data-theme') === 'dark';
-          var next = d ? 'light' : 'dark';
-          document.documentElement.setAttribute('data-theme', next);
-          try { localStorage.setItem('cmn_theme', next); } catch (e) {}
-          refresh();
+        btns.forEach(function (b) {
+          b.addEventListener('click', function () {
+            var d = document.documentElement.getAttribute('data-theme') === 'dark';
+            var next = d ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            try { localStorage.setItem('cmn_theme', next); } catch (e) {}
+            refresh();
+          });
         });
       })();
     </script>
