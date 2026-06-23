@@ -2,21 +2,78 @@
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import GabyWidget from '../components/GabyWidget.astro';
 import { useStoryblokApi } from '@storyblok/astro';
-const { title = 'CMN — Christians on Mission for Nations' } = Astro.props;
+import { localeFromPath, t, LANGS, barePath, localizedHref, STANDALONE } from '../i18n.js';
+const {
+  title = 'CMN — Christians on Mission for Nations',
+  description = "Christians on Mission for Nations (CMN) : mouvement chrétien international de foi et d'action — évangélisation, formation, projets humanitaires et partenariats pour transformer les vies et les nations.",
+} = Astro.props;
+const locale = localeFromPath(Astro.url.pathname);
+const bare = barePath(Astro.url.pathname);
 let settings = null;
 try {
   const api = useStoryblokApi();
-  const { data } = await api.get('cdn/stories/settings', { version: 'draft' });
+  const { data } = await api.get('cdn/stories/settings', { version: 'draft', language: locale });
   settings = data?.story?.content || null;
 } catch (e) { settings = null; }
+
+// ===== SEO =====
+const SITE = (Astro.site && String(Astro.site.href).replace(/\/$/, '')) || 'https://cmn-engine.pages.dev';
+const canonical = SITE + Astro.url.pathname;
+const ogImage = settings?.og_image?.filename || settings?.logo?.filename || '';
+const ogLocale = { fr: 'fr_FR', en: 'en_US', es: 'es_ES', id: 'id_ID', zh: 'zh_CN' }[locale] || 'fr_FR';
+const slug0 = (bare || '').split('/')[0];
+const showAlt = STANDALONE.indexOf(slug0) === -1; // hreflang seulement pour les pages localisées
+const alternates = showAlt
+  ? LANGS.map((Lg) => ({ code: Lg.code, href: SITE + localizedHref(bare, Lg.code) }))
+  : [];
 ---
 <!doctype html>
-<html lang="fr">
+<html lang={locale}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#C0982E" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {alternates.map((a) => <link rel="alternate" hreflang={a.code} href={a.href} />)}
+    {alternates.length > 0 && <link rel="alternate" hreflang="x-default" href={SITE + '/'} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CMN — Christians on Mission for Nations" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={ogLocale} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
+    <script type="application/ld+json" set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'Christians on Mission for Nations',
+      alternateName: 'CMN',
+      url: SITE + '/',
+      logo: ogImage || undefined,
+      description: description,
+    })} />
+    <script is:inline>
+      // Applique le thème AVANT le rendu (évite tout clignotement).
+      (function () {
+        try {
+          // Clair par défaut (comme la version statique) ; le sombre n'est appliqué que si l'utilisateur l'a choisi.
+          var t = localStorage.getItem('cmn_theme');
+          if (t !== 'dark' && t !== 'light') t = 'light';
+          document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <Header settings={settings} />
@@ -24,18 +81,86 @@ try {
     <section class="nlband">
       <div class="wrap nlwrap">
         <div class="nltext">
-          <strong>Restez informé de la mission</strong>
-          <span>Nouvelles du terrain, prières exaucées et temps forts — directement dans votre boîte mail.</span>
+          <strong>{t(locale, 'Restez informé de la mission')}</strong>
+          <span>{t(locale, 'Nouvelles du terrain, prières exaucées et temps forts — directement dans votre boîte mail.')}</span>
         </div>
         <form class="nlform">
-          <input type="email" placeholder="Votre adresse email" aria-label="Adresse email" required />
-          <button class="btn btn-gold" type="submit">S'inscrire</button>
+          <input type="email" placeholder={t(locale, 'Votre adresse email')} aria-label={t(locale, 'Votre adresse email')} required />
+          <button class="btn btn-gold" type="submit">{t(locale, "S'inscrire")}</button>
         </form>
       </div>
       <div class="wrap">
-        <label class="nlconsent"><input type="checkbox" /> <span>J'accepte de recevoir la newsletter de CMN et je peux me désinscrire à tout moment (voir la politique de confidentialité).</span></label>
+        <label class="nlconsent"><input type="checkbox" /> <span>{t(locale, "J'accepte de recevoir la newsletter de CMN et je peux me désinscrire à tout moment (voir la politique de confidentialité).")}</span></label>
       </div>
     </section>
     <Footer settings={settings} />
+    <GabyWidget />
+    <script is:inline>
+      // PWA : enregistrement du service worker (installable + hors-ligne).
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('/service-worker.js').catch(function () {});
+        });
+      }
+    </script>
+    <script is:inline>
+      // 1) Choix manuel de langue : on mémorise dans un cookie (respecté par la détection auto).
+      (function () {
+        var ls = document.getElementById('langSel');
+        if (ls) ls.addEventListener('change', function () {
+          var opt = ls.options[ls.selectedIndex];
+          var lang = opt ? opt.getAttribute('data-lang') : '';
+          if (lang) document.cookie = 'cmn_lang=' + lang + ';path=/;max-age=31536000;SameSite=Lax';
+          if (ls.value) window.location.href = ls.value;
+        });
+      })();
+
+      // 2) Pré-remplissage de l'indicatif téléphonique selon le pays du visiteur.
+      (function () {
+        if (!document.querySelector('input[type="tel"]')) return;
+        var DIAL = {
+          FR:'+33', BE:'+32', CH:'+41', LU:'+352', MC:'+377', CA:'+1', HT:'+509',
+          CI:'+225', SN:'+221', ML:'+223', BF:'+226', NE:'+227', TG:'+228', BJ:'+229',
+          GA:'+241', CG:'+242', CD:'+243', CM:'+237', TD:'+235', GN:'+224', MG:'+261',
+          MU:'+230', KM:'+269',
+          // DOM-TOM français
+          GP:'+590', MQ:'+596', RE:'+262', GF:'+594', YT:'+262', PM:'+508',
+          BL:'+590', MF:'+590', WF:'+681', PF:'+689', NC:'+687',
+          ID:'+62',
+          ES:'+34', MX:'+52', AR:'+54', CO:'+57', PE:'+51', VE:'+58', CL:'+56', EC:'+593',
+          GT:'+502', CU:'+53', BO:'+591', DO:'+1', HN:'+504', PY:'+595', SV:'+503', NI:'+505',
+          CR:'+506', PA:'+507', UY:'+598', PR:'+1',
+          CN:'+86', TW:'+886', HK:'+852', MO:'+853', SG:'+65',
+          US:'+1', GB:'+44', AU:'+61', NZ:'+64', IE:'+353', ZA:'+27', NG:'+234', KE:'+254',
+          GH:'+233', IN:'+91', PH:'+63', DE:'+49', IT:'+39', PT:'+351', NL:'+31', BR:'+55'
+        };
+        fetch('/api/geo').then(function (r) { return r.json(); }).then(function (d) {
+          var dial = DIAL[(d && d.country) || ''];
+          if (!dial) return;
+          document.querySelectorAll('input[type="tel"]').forEach(function (inp) {
+            if (!inp.value) inp.value = dial + ' ';
+          });
+        }).catch(function () {});
+      })();
+    </script>
+    <script is:inline>
+      (function () {
+        var b = document.getElementById('themeBtn');
+        function refresh() {
+          var d = document.documentElement.getAttribute('data-theme') === 'dark';
+          var ic = b && b.querySelector('.ti');
+          if (ic) ic.textContent = d ? '☀️' : '🌙';
+          if (b) b.setAttribute('aria-pressed', d ? 'true' : 'false');
+        }
+        refresh();
+        if (b) b.addEventListener('click', function () {
+          var d = document.documentElement.getAttribute('data-theme') === 'dark';
+          var next = d ? 'light' : 'dark';
+          document.documentElement.setAttribute('data-theme', next);
+          try { localStorage.setItem('cmn_theme', next); } catch (e) {}
+          refresh();
+        });
+      })();
+    </script>
   </body>
 </html>
