@@ -44,13 +44,25 @@ const donLabel = donItem ? donItem.label : 'Faire un don';
         <span class="wm"><span>Christians</span><span class="g">on Mission</span><span>for Nations</span></span>
       </Fragment>}
     </a>
-    <nav class="menu">
-      {nav.map((m) => { const href = menuHref(m.link); const act = isActive(href); return <a href={href} class={act ? 'active' : undefined} aria-current={act ? 'page' : undefined}>{t(locale, m.label)}</a>; })}
-    </nav>
-    <select class="langsel" id="langSel" aria-label="Choisir la langue">
-      {langOptions.map((L) => <option value={L.href} data-lang={L.code} selected={L.active}>{L.label}</option>)}
-    </select>
-    <button class="theme-btn" id="themeBtn" type="button" aria-label="Basculer le mode jour / nuit"><span class="ti">🌙</span></button>
-    <a class="btn btn-gold hd-don" href={donHref}>{t(locale, donLabel)}</a>
+    <button class="hd-burger" id="hdBurger" type="button" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <div class="hd-nav" id="hdNav">
+      <nav class="menu">
+        {nav.map((m) => { const href = menuHref(m.link); const act = isActive(href); return <a href={href} class={act ? 'active' : undefined} aria-current={act ? 'page' : undefined}>{t(locale, m.label)}</a>; })}
+      </nav>
+      <select class="langsel" id="langSel" aria-label="Choisir la langue">
+        {langOptions.map((L) => <option value={L.href} data-lang={L.code} selected={L.active}>{L.label}</option>)}
+      </select>
+      <button class="theme-btn" id="themeBtn" type="button" aria-label="Basculer le mode jour / nuit"><span class="ti">🌙</span></button>
+      <a class="btn btn-gold hd-don" href={donHref}>{t(locale, donLabel)}</a>
+    </div>
   </div>
 </header>
+<script is:inline>
+  (function () {
+    var b = document.getElementById('hdBurger'), n = document.getElementById('hdNav');
+    if (!b || !n) return;
+    function set(o){ n.classList.toggle('open', o); b.classList.toggle('open', o); b.setAttribute('aria-expanded', o ? 'true' : 'false'); }
+    b.addEventListener('click', function(){ set(!n.classList.contains('open')); });
+    n.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ set(false); }); });
+  })();
+</script>
