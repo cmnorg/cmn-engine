@@ -48,6 +48,7 @@ export const UI = {
   'Mentions légales': { en: 'Legal notice', id: 'Ketentuan hukum', es: 'Aviso legal', zh: '法律声明', mg: 'Fanamarihana ara-dalàna' },
   'Gérer mes cookies': { en: 'Manage cookies', id: 'Kelola cookie', es: 'Gestionar cookies', zh: '管理 Cookie', mg: 'Hitantana ny cookies' },
   '© CMN — Tous droits réservés.': { en: '© CMN — All rights reserved.', id: '© CMN — Hak cipta dilindungi.', es: '© CMN — Todos los derechos reservados.', zh: '© CMN — 版权所有。', mg: '© CMN — Voatokana ny zo rehetra.' },
+  'Thème': { en: 'Theme', id: 'Tema', es: 'Tema', zh: '主题', mg: 'Lokon-takelaka' },
 };
 
 // Traduit un texte d'interface. Renvoie le français si pas de traduction.
