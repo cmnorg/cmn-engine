@@ -44,15 +44,18 @@ const donLabel = donItem ? donItem.label : 'Faire un don';
         <span class="wm"><span>Christians</span><span class="g">on Mission</span><span>for Nations</span></span>
       </Fragment>}
     </a>
-    <button class="hd-burger" id="hdBurger" type="button" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <div class="hd-quick">
+      <select class="langsel" id="langSel" aria-label="Choisir la langue">
+        {langOptions.map((L) => <option value={L.href} data-lang={L.code} selected={L.active}>{L.label}</option>)}
+      </select>
+      <button class="theme-btn theme-btn--bar" type="button" aria-label="Basculer le mode jour / nuit"><span class="ti">🌙</span></button>
+      <button class="hd-burger" id="hdBurger" type="button" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
     <div class="hd-nav" id="hdNav">
       <nav class="menu">
         {nav.map((m) => { const href = menuHref(m.link); const act = isActive(href); return <a href={href} class={act ? 'active' : undefined} aria-current={act ? 'page' : undefined}>{t(locale, m.label)}</a>; })}
       </nav>
-      <select class="langsel" id="langSel" aria-label="Choisir la langue">
-        {langOptions.map((L) => <option value={L.href} data-lang={L.code} selected={L.active}>{L.label}</option>)}
-      </select>
-      <button class="theme-btn" id="themeBtn" type="button" aria-label="Basculer le mode jour / nuit"><span class="ti">🌙</span></button>
+      <button class="theme-btn theme-btn--menu" type="button" aria-label="Basculer le mode jour / nuit"><span class="ti">🌙</span> <span class="tlabel">{t(locale, 'Thème')}</span></button>
       <a class="btn btn-gold hd-don" href={donHref}>{t(locale, donLabel)}</a>
     </div>
   </div>
