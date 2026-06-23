@@ -32,7 +32,7 @@ html[data-theme="dark"] .hd{background:rgba(255,255,255,.97);border-bottom-color
 .hd .menu a.active::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:3px;border-radius:3px;background:var(--gold)}
 .hd .langsel{background:#fff;color:#2C2C2A;border-color:#e0ded6}
 .hd .theme-btn{background:#fff;color:#2C2C2A;border-color:#e0ded6}
-.theme-btn--menu{display:none}
+.hd .theme-btn--menu{display:none}
 .hd-don{margin:0;white-space:nowrap}
 /* ===== Mobile : barre [logo | langue | thème | hamburger], menu en tiroir ===== */
 @media(max-width:920px){
@@ -48,7 +48,7 @@ html[data-theme="dark"] .hd{background:rgba(255,255,255,.97);border-bottom-color
   .hd-nav .menu a{padding:14px 4px;border-bottom:1px solid #eee;font-size:16px;color:#2C2C2A;font-weight:600}
   .hd-nav .menu a.active{color:#A6791A}
   .hd-nav .menu a.active::after{display:none}
-  .theme-btn--bar{display:none}
+  .hd .theme-btn--bar{display:none}
   .hd-nav .theme-btn--menu{display:flex;align-items:center;gap:10px;width:100%;height:auto;border:0;border-radius:0;background:transparent;border-bottom:1px solid #eee;padding:14px 4px;font-size:16px;color:#2C2C2A;font-weight:600;justify-content:flex-start;cursor:pointer}
   .hd-nav .theme-btn--menu .ti{font-size:18px}
   .hd-nav .hd-don{width:100%;justify-content:center;margin-top:12px}
