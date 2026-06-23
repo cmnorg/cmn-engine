@@ -96,12 +96,24 @@ const alternates = showAlt
     <Footer settings={settings} />
     <GabyWidget />
     <script is:inline>
-      // PWA : enregistrement du service worker (installable + hors-ligne).
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function () {
-          navigator.serviceWorker.register('/service-worker.js').catch(function () {});
-        });
-      }
+      // Nettoyage automatique : on supprime tout ancien service worker + cache (qui servaient
+      // d'anciennes versions), et on recharge UNE seule fois pour afficher la version fraîche.
+      (function () {
+        if (!('serviceWorker' in navigator)) return;
+        navigator.serviceWorker.getRegistrations().then(function (regs) {
+          var had = regs.length > 0;
+          regs.forEach(function (r) { r.unregister(); });
+          if (window.caches && caches.keys) {
+            caches.keys().then(function (keys) { keys.forEach(function (k) { caches.delete(k); }); }).catch(function () {});
+          }
+          var done = false;
+          try { done = sessionStorage.getItem('cmn_sw_cleared') === '1'; } catch (e) {}
+          if (had && !done) {
+            try { sessionStorage.setItem('cmn_sw_cleared', '1'); } catch (e) {}
+            location.reload();
+          }
+        }).catch(function () {});
+      })();
     </script>
     <script is:inline>
       // 1) Choix manuel de langue : on mémorise dans un cookie (respecté par la détection auto).
