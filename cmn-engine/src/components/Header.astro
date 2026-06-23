@@ -1,27 +1,68 @@
 ---
+import { LANGS, localeFromPath, barePath, localizedHref, t } from '../i18n.js';
 const { settings } = Astro.props;
 const logo = settings?.logo?.filename;
+const logoH = Number(settings?.logo_height) > 0 ? Number(settings.logo_height) : 54;
 const menuAll = Array.isArray(settings?.menu) ? settings.menu : [];
-function hrefOf(l){ if(!l) return '#'; if(l.url) return l.url; if(l.cached_url) return '/' + String(l.cached_url).replace(/^\//,''); return '#'; }
+function slugify(s){ return String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9/]+/g,'-').replace(/\/+/g,'/').replace(/-+/g,'-').replace(/^[-/]+|-+$/g,''); }
+function hrefOf(l){ if(!l) return '#'; var raw=String(l.url||l.cached_url||''); if(!raw) return '#'; if(/^https?:/i.test(raw)||raw.charAt(0)==='#'||/^mailto:|^tel:/i.test(raw)) return raw; return '/'+slugify(raw); }
+
+const locale = localeFromPath(Astro.url.pathname);
+const bare = barePath(Astro.url.pathname);
+const homeHref = localizedHref('', locale);
+// Lien de menu localisé : externe/ancre inchangé ; interne -> version dans la langue courante.
+function menuHref(l){
+  const h = hrefOf(l);
+  if (/^https?:/i.test(h) || h.charAt(0) === '#' || /^mailto:|^tel:/i.test(h)) return h;
+  return localizedHref(h.replace(/^\/+/, '').replace(/\/+$/, ''), locale);
+}
+// Options du sélecteur de langue (même page, dans chaque langue).
+const langOptions = LANGS.map((L) => ({ label: L.label, code: L.code, href: localizedHref(bare, L.code), active: L.code === locale }));
+
 const isDon = (m) => /faire un don|donate|^don$/i.test((m && m.label) || '');
 const nav = menuAll.filter((m) => !isDon(m));
+
+// Détection de l'onglet actif d'après l'URL courante.
+function norm(p){ return ('/' + String(p || '').replace(/^\/+|\/+$/g, '')).toLowerCase(); }
+const current = norm(Astro.url.pathname);
+function isActive(href){
+  const h = norm(href);
+  if (h === '/') return current === '/';
+  return current === h || current.indexOf(h + '/') === 0;
+}
 const donItem = menuAll.find(isDon);
-const donHref = donItem ? hrefOf(donItem.link) : '#';
+const donHref = donItem ? menuHref(donItem.link) : '#';
 const donLabel = donItem ? donItem.label : 'Faire un don';
 ---
 <header class="hd">
   <div class="wrap hd-row">
-    <a class="brand" href="/">
-      {logo ? <img class="brand-logo" src={logo} alt="CMN" /> : <Fragment>
+    <a class="brand" href={homeHref}>
+      {logo ? <img class="brand-logo" src={logo} alt="CMN" style={`height:${logoH}px`} /> : <Fragment>
         <svg viewBox="0 0 86 122" aria-hidden="true"><g stroke="#C0982E" stroke-linecap="round" fill="none">
           <line x1="8" y1="8" x2="78" y2="8" stroke-width="4.6"/><line x1="11" y1="16" x2="73" y2="16" stroke-width="4.6"/><line x1="14" y1="24" x2="68" y2="24" stroke-width="4.6"/><line x1="17" y1="32" x2="63" y2="32" stroke-width="4.6"/><line x1="20" y1="40" x2="58" y2="40" stroke-width="4.6"/><line x1="23" y1="48" x2="53" y2="48" stroke-width="4.6"/><line x1="26" y1="56" x2="48" y2="56" stroke-width="4.6"/><line x1="29" y1="64" x2="44" y2="64" stroke-width="4.6"/><line x1="32" y1="72" x2="42" y2="72" stroke-width="4.6"/><line x1="33" y1="4" x2="33" y2="68" stroke-width="6.4"/><line x1="21" y1="22" x2="45" y2="22" stroke-width="5.4"/>
         </g><text x="33" y="112" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="30" fill="#C0982E">CMN</text></svg>
         <span class="wm"><span>Christians</span><span class="g">on Mission</span><span>for Nations</span></span>
       </Fragment>}
     </a>
-    <nav class="menu">
-      {nav.map((m) => <a href={hrefOf(m.link)}>{m.label}</a>)}
-    </nav>
-    <a class="btn btn-gold hd-don" href={donHref}>{donLabel}</a>
+    <button class="hd-burger" id="hdBurger" type="button" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <div class="hd-nav" id="hdNav">
+      <nav class="menu">
+        {nav.map((m) => { const href = menuHref(m.link); const act = isActive(href); return <a href={href} class={act ? 'active' : undefined} aria-current={act ? 'page' : undefined}>{t(locale, m.label)}</a>; })}
+      </nav>
+      <select class="langsel" id="langSel" aria-label="Choisir la langue">
+        {langOptions.map((L) => <option value={L.href} data-lang={L.code} selected={L.active}>{L.label}</option>)}
+      </select>
+      <button class="theme-btn" id="themeBtn" type="button" aria-label="Basculer le mode jour / nuit"><span class="ti">🌙</span></button>
+      <a class="btn btn-gold hd-don" href={donHref}>{t(locale, donLabel)}</a>
+    </div>
   </div>
 </header>
+<script is:inline>
+  (function () {
+    var b = document.getElementById('hdBurger'), n = document.getElementById('hdNav');
+    if (!b || !n) return;
+    function set(o){ n.classList.toggle('open', o); b.classList.toggle('open', o); b.setAttribute('aria-expanded', o ? 'true' : 'false'); }
+    b.addEventListener('click', function(){ set(!n.classList.contains('open')); });
+    n.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ set(false); }); });
+  })();
+</script>
