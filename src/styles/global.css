@@ -93,6 +93,12 @@ html[data-theme="dark"] .hd{background:rgba(255,255,255,.97);border-bottom-color
 @media(max-width:560px){.eco-grid{grid-template-columns:1fr}}
 .eco-card{background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;transition:.18s}
 .eco-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+a.eco-card--link{display:block;text-decoration:none;color:inherit;cursor:pointer}
+a.eco-card--link:hover{border-color:var(--gold-l)}
+a.eco-card--link .eco-bd h3{transition:color .15s}
+a.eco-card--link:hover .eco-bd h3{color:var(--gold-d)}
+a.eco-card--link .eco-bd h3::after{content:" \2192";color:var(--gold);opacity:0;transition:opacity .15s}
+a.eco-card--link:hover .eco-bd h3::after{opacity:1}
 .eco-img{height:160px;background-size:cover;background-position:center;background-color:var(--soft)}
 .eco-bd{padding:20px}
 .eco-bd h3{font-size:18px}
