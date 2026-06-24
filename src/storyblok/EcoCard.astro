@@ -1,11 +1,49 @@
 ---
 import { storyblokEditable } from '@storyblok/astro';
+import { localeFromPath, localizedHref } from '../i18n.js';
 const { blok } = Astro.props;
+const locale = localeFromPath(Astro.url.pathname);
+
+// 1) Lien explicite défini dans Storyblok (champ "link"), s'il existe.
+function rawLink() {
+  const l = blok.link;
+  if (!l) return '';
+  if (typeof l === 'string') return l;
+  return l.url || l.cached_url || '';
+}
+// 2) Repli : on déduit la destination depuis le titre (les noms de marque
+//    « CMN TV / Academy / Prayer / Missions / Impact / Connect » sont identiques
+//    dans toutes les langues), comme sur la version statique.
+function autoLink() {
+  const t = String(blok.title || '').toLowerCase();
+  if (/\btv\b|t[ée]l[ée]/.test(t)) return '/medias';
+  if (/academy|acad[ée]m|akademi|学院/.test(t)) return '/academy';
+  if (/prayer|pri[èe]re|doa|oraci[óo]n|祷告/.test(t)) return '/mur-de-priere';
+  if (/mission|impact|campagne|croisade/.test(t)) return '/actualites';
+  if (/connect|terhubung|社群|mifandray/.test(t)) return '/connect';
+  return '';
+}
+
+let href = rawLink() || autoLink();
+const external = /^https?:|^mailto:|^tel:/i.test(href);
+// Localise les liens internes (ex. /medias -> /en/medias) ; les pages autonomes
+// (mur-de-priere, connect) restent en français via localizedHref.
+if (href && !external && href.charAt(0) === '/') {
+  const bare = href.replace(/^\/+/, '').replace(/\/+$/, '');
+  href = localizedHref(bare, locale);
+}
+const Tag = href ? 'a' : 'div';
 ---
-<div class="eco-card" {...storyblokEditable(blok)}>
+<Tag
+  class:list={['eco-card', href && 'eco-card--link']}
+  href={href || undefined}
+  target={external ? '_blank' : undefined}
+  rel={external ? 'noopener' : undefined}
+  {...storyblokEditable(blok)}
+>
   {blok.image?.filename && <div class="eco-img" style={`background-image:url(${blok.image.filename})`}></div>}
   <div class="eco-bd">
     <h3>{blok.title}</h3>
     <p>{blok.description}</p>
   </div>
-</div>
+</Tag>
