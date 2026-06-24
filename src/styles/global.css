@@ -244,9 +244,9 @@ a.eco-card--link:hover .eco-bd h3::after{opacity:1}
 /* Stats en pastilles dorées dans les onglets (comme le statique) */
 .disc-pane .stats{background:none;border:none}
 .disc-pane .stats-row{gap:10px}
-.disc-pane .stat{background:var(--char);border:none;border-radius:14px;padding:16px 10px}
-.disc-pane .stat .n{font-size:26px;color:#fff}
-.disc-pane .stat .l{font-size:12px;color:rgba(255,255,255,.8)}
+.disc-pane .stat{background:var(--gold);border:none;border-radius:14px;padding:16px 10px}
+.disc-pane .stat .n{font-size:26px;color:var(--char)}
+.disc-pane .stat .l{font-size:12px;color:rgba(44,44,42,.85)}
 .disc-h2{font-size:clamp(24px,3.4vw,32px);line-height:1.15;margin-bottom:16px}
 .disc-tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .disc-tab{background:none;border:none;padding:12px 10px;font-size:15px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:var(--font);transition:color .15s}
