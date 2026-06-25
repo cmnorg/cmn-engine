@@ -1,5 +1,6 @@
 ---
 import { useStoryblokApi, storyblokEditable } from '@storyblok/astro';
+import { sbImg } from '../img.js';
 const { blok } = Astro.props;
 
 function assetUrl(a) {
@@ -31,7 +32,7 @@ const courses = courseStories.map((s) => {
   };
 }).sort((a, b) => a.order - b.order);
 
-const illus = assetUrl(blok.illustration);
+const illus = sbImg(assetUrl(blok.illustration), 1400);
 const backUrl = blok.back_link?.url || blok.back_link?.cached_url || '/academy';
 const first = courses[0];
 ---

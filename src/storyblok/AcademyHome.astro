@@ -1,5 +1,6 @@
 ---
 import { useStoryblokApi, storyblokEditable } from '@storyblok/astro';
+import { sbImg } from '../img.js';
 const { blok } = Astro.props;
 
 function assetUrl(a) {
@@ -120,7 +121,7 @@ const questions = cmsQuestions.length ? cmsQuestions : defaultQuestions;
       {tracks.length === 0 && <p class="ev-empty">Aucun parcours pour le moment.</p>}
       {tracks.map((t, i) => (
         <a class={`track-card accent-${i % 5}`} href={t.url} data-track={t.key} data-count={t.count}>
-          <div class="track-illus" style={t.illustration ? `background-image:url(${t.illustration})` : undefined}></div>
+          <div class="track-illus" style={t.illustration ? `background-image:url(${sbImg(t.illustration, 800)})` : undefined}></div>
           <div class="track-body">
             <span class="track-icon">{t.icon}</span>
             <span class="track-reco-badge" hidden>✨ Recommandé pour toi</span>
