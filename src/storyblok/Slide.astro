@@ -1,7 +1,9 @@
 ---
 import { storyblokEditable } from '@storyblok/astro';
+import { sbImg } from '../img.js';
 const { blok } = Astro.props;
 const img = blok.image?.filename;
+const imgO = sbImg(img, 1600);
 const vid = blok.video?.filename;
 function ytId(raw) {
   if (!raw) return '';
@@ -20,8 +22,8 @@ const ytSrc = yt
   {yt
     ? <div class="slide-yt"><iframe src={ytSrc} title={blok.title || 'Vidéo'} frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>
     : vid
-      ? <video src={vid} autoplay muted loop playsinline preload="metadata" poster={img || undefined}></video>
-      : img && <img src={img} alt={blok.image?.alt || ''} />}
+      ? <video src={vid} autoplay muted loop playsinline preload="metadata" poster={imgO || undefined}></video>
+      : img && <img src={imgO} alt={blok.image?.alt || ''} decoding="async" />}
   <div class="slide-cap">
     {blok.title && <h2>{blok.title}</h2>}
     {blok.text && <p>{blok.text}</p>}
