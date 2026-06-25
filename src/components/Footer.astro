@@ -1,7 +1,8 @@
 ---
 import { localeFromPath, barePath, localizedHref, t } from '../i18n.js';
+import { sbImg } from '../img.js';
 const { settings } = Astro.props;
-const logoF = settings?.logo_footer?.filename;
+const logoF = sbImg(settings?.logo_footer?.filename, 480);
 const logoFH = Number(settings?.logo_footer_height) > 0 ? Number(settings.logo_footer_height) : 50;
 const menu = Array.isArray(settings?.menu) ? settings.menu : [];
 function slugify(s){ return String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9/]+/g,'-').replace(/\/+/g,'/').replace(/-+/g,'-').replace(/^[-/]+|-+$/g,''); }
@@ -14,7 +15,7 @@ const yt=u(settings?.youtube), fb=u(settings?.facebook), ig=u(settings?.instagra
 <footer class="ft">
   <div class="wrap ft-row">
     <div class="ft-left">
-      {logoF ? <img class="ft-logo" src={logoF} alt="CMN" style={`height:${logoFH}px`} /> : <strong class="ft-wm">Christians <span class="g">on Mission</span> for Nations</strong>}
+      {logoF ? <img class="ft-logo" src={logoF} alt="CMN" style={`height:${logoFH}px`} loading="lazy" decoding="async" /> : <strong class="ft-wm">Christians <span class="g">on Mission</span> for Nations</strong>}
       <p class="ft-tag">{t(locale, "Agir pour transformer, inspirer l'espoir.")}</p>
       <nav class="ft-nav">
         {menu.map((m) => <a href={menuHref(m.link)}>{t(locale, m.label)}</a>)}
