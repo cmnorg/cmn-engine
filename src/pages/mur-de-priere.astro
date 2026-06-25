@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { useStoryblokApi } from '@storyblok/astro';
+import { sbImg } from '../img.js';
 
 function u(v) { if (!v) return ''; if (typeof v === 'string') return v; return v.filename || v.url || v.cached_url || ''; }
 
@@ -33,7 +34,7 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOy
       <div class="pw-cols">
         <!-- Pourquoi déposer une prière ? -->
         <div class="pw-card2 pw-why">
-          <div class="pw-why-img" style={prayerImage ? `background-image:url(${prayerImage})` : ''}>
+          <div class="pw-why-img" style={prayerImage ? `background-image:url(${sbImg(prayerImage, 1000)})` : ''}>
             {!prayerImage && <span class="pw-why-img-emoji">🙏</span>}
           </div>
           <h3>Pourquoi déposer une prière ?</h3>

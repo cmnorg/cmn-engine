@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { useStoryblokApi } from '@storyblok/astro';
+import { sbImg } from '../img.js';
 
 function u(v) { if (!v) return ''; if (typeof v === 'string') return v; return v.filename || v.url || v.cached_url || ''; }
 
@@ -50,7 +51,7 @@ const tiers = [
         {tiers.map((t, i) => (
           <article class={`pt-tier accent-${i}${t.popular ? ' feat' : ''}`} data-amount={t.amount}>
             {t.popular && <div class="pt-ribbon">Le plus choisi</div>}
-            <div class="pt-ph" style={t.img ? `background-image:url(${t.img})` : ''}></div>
+            <div class="pt-ph" style={t.img ? `background-image:url(${sbImg(t.img, 800)})` : ''}></div>
             <div class="pt-bd">
               <span class="pt-icon">{t.emoji}</span>
               <div class="pt-badge">{t.name}</div>
@@ -76,7 +77,7 @@ const tiers = [
 
       <!-- Preuve sociale -->
       <div class="pt-social">
-        {partnerPhoto && <img class="pt-social-ph" src={partnerPhoto} alt="Partenaire CMN" />}
+        {partnerPhoto && <img class="pt-social-ph" src={sbImg(partnerPhoto, 900)} alt="Partenaire CMN" loading="lazy" decoding="async" />}
         <blockquote>« Être partenaire mensuel, c'est porter la mission dans la durée. On reçoit des nouvelles du terrain et on voit concrètement l'impact. »</blockquote>
         <cite>— Un partenaire CMN</cite>
       </div>
