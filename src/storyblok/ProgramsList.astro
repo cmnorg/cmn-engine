@@ -1,5 +1,6 @@
 ---
 import { useStoryblokApi, renderRichText, storyblokEditable } from '@storyblok/astro';
+import { sbImg } from '../img.js';
 const { blok } = Astro.props;
 
 function assetUrl(a) {
@@ -47,7 +48,7 @@ const L = {
         {programs.length === 0 && <p class="ev-empty">{L.empty}</p>}
         {programs.map((p) => (
           <article class="evt-card" data-title={p.title} data-duration={p.duration} data-image={p.image}>
-            {p.image && <div class="ph" style={`background-image:url(${p.image})`}></div>}
+            {p.image && <div class="ph" style={`background-image:url(${sbImg(p.image, 800)})`}></div>}
             <div class="bd">
               {p.duration && <span class="badge">{p.duration}</span>}
               <h3>{p.title}</h3>
