@@ -1,7 +1,8 @@
 ---
 import { storyblokEditable } from '@storyblok/astro';
+import { sbImg } from '../img.js';
 const { blok } = Astro.props;
-const bg = blok.background_image?.filename;
+const bg = sbImg(blok.background_image?.filename, 1600);
 ---
 <section class="phead" {...storyblokEditable(blok)} style={bg ? `background-image:linear-gradient(rgba(20,18,14,.55),rgba(20,18,14,.72)),url(${bg})` : undefined}>
   <div class="wrap">
