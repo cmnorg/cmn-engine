@@ -1,5 +1,6 @@
 ---
 import { useStoryblokApi, renderRichText, storyblokEditable } from '@storyblok/astro';
+import { sbImg } from '../img.js';
 const { blok } = Astro.props;
 
 const MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
@@ -83,7 +84,7 @@ const L = {
         {upcoming.length === 0 && <p class="ev-empty">{L.empty}</p>}
         {upcoming.map((e) => (
           <article class="evt-card" data-date={e.date} data-title={e.title} data-place={e.place} data-image={e.image} data-register={e.register ? '1' : ''} data-register-link={e.registerLink}>
-            {e.image && <div class="ph" style={`background-image:url(${e.image})`}></div>}
+            {e.image && <div class="ph" style={`background-image:url(${sbImg(e.image, 800)})`}></div>}
             <div class="bd">
               <span class="badge">{e.date}</span>
               <h3>{e.title}</h3>
@@ -105,7 +106,7 @@ const L = {
         {past.length === 0 && <p class="ev-empty">{L.emptyPast}</p>}
         {past.map((e) => (
           <article class="evt-card" data-date={e.date} data-title={e.title} data-place={e.place} data-image={e.image} data-register={e.register ? '1' : ''} data-register-link={e.registerLink}>
-            {e.image && <div class="ph" style={`background-image:url(${e.image})`}></div>}
+            {e.image && <div class="ph" style={`background-image:url(${sbImg(e.image, 800)})`}></div>}
             <div class="bd">
               <span class="badge">{e.date}</span>
               <h3>{e.title}</h3>
