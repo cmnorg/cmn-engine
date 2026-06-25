@@ -1,5 +1,6 @@
 ---
 import { useStoryblokApi, renderRichText, storyblokEditable } from '@storyblok/astro';
+import { sbImg } from '../img.js';
 const { blok } = Astro.props;
 
 function ytId(raw) {
@@ -90,7 +91,7 @@ const L = {
           {videos.length === 0 && <p class="ev-empty">{L.emptyV}</p>}
           {videos.map((v) => (
             <article class="vid-card" data-yt={v.yt} data-file={v.file} data-title={v.title} data-meta={v.meta} data-theme={v.theme}>
-              <div class="vid-ph" style={v.thumb ? `background-image:url(${v.thumb})` : undefined}></div>
+              <div class="vid-ph" style={v.thumb ? `background-image:url(${sbImg(v.thumb, 800)})` : undefined}></div>
               <div class="bd">
                 {v.theme && <span class="vid-theme">{v.theme}</span>}
                 <h3>{v.title}</h3>
