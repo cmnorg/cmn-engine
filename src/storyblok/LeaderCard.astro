@@ -1,11 +1,14 @@
 ---
 import { storyblokEditable } from '@storyblok/astro';
+import { sbImg } from '../img.js';
 const { blok } = Astro.props;
 const photo = blok.photo?.filename;
+const photoThumb = sbImg(photo, 400);
+const photoFull = sbImg(photo, 900);
 ---
 <button class="lead-card" type="button" {...storyblokEditable(blok)}
-  data-name={blok.name || ''} data-role={blok.role || ''} data-photo={photo || ''}>
-  <div class="lead-photo" style={photo ? `background-image:url(${photo})` : undefined}></div>
+  data-name={blok.name || ''} data-role={blok.role || ''} data-photo={photoFull || ''}>
+  <div class="lead-photo" style={photo ? `background-image:url(${photoThumb})` : undefined}></div>
   {blok.name && <h3>{blok.name}</h3>}
   {blok.role && <div class="lead-role">{blok.role}</div>}
   <span class="lead-arrow" aria-hidden="true">→</span>
