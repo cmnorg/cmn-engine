@@ -1,7 +1,9 @@
 ---
 import { storyblokEditable } from '@storyblok/astro';
 import { localeFromPath, localizedHref } from '../i18n.js';
+import { sbImg } from '../img.js';
 const { blok } = Astro.props;
+const ecoImg = sbImg(blok.image?.filename, 760);
 const locale = localeFromPath(Astro.url.pathname);
 
 // 1) Lien explicite défini dans Storyblok (champ "link"), s'il existe.
@@ -41,7 +43,7 @@ const Tag = href ? 'a' : 'div';
   rel={external ? 'noopener' : undefined}
   {...storyblokEditable(blok)}
 >
-  {blok.image?.filename && <div class="eco-img" style={`background-image:url(${blok.image.filename})`}></div>}
+  {blok.image?.filename && <div class="eco-img" style={`background-image:url(${ecoImg})`}></div>}
   <div class="eco-bd">
     <h3>{blok.title}</h3>
     <p>{blok.description}</p>
