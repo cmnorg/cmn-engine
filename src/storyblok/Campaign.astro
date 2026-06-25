@@ -1,5 +1,6 @@
 ---
 import { storyblokEditable } from '@storyblok/astro';
+import { sbImg } from '../img.js';
 const { blok } = Astro.props;
 const goal = Number(blok.goal) || 0;
 const raised = Number(blok.raised) || 0;
@@ -12,7 +13,7 @@ if (blok.deadline) {
   if (diff > 0) daysLeft = diff;
 }
 function u(l){ if(!l) return '#'; if(l.url) return l.url; if(l.cached_url) return '/' + String(l.cached_url).replace(/^\//,''); return '#'; }
-const img = blok.image?.filename;
+const img = sbImg(blok.image?.filename, 1200);
 ---
 <section class="campaign" {...storyblokEditable(blok)}>
   <div class="wrap">
