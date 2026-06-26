@@ -336,12 +336,15 @@ const href = {
       if (!GABY_VOICE) loadVoice();
       if (GABY_VOICE) u.voice = GABY_VOICE;
       u.rate = 0.85; u.pitch = 0.95;
-      speechSynthesis.cancel(); speechSynthesis.speak(u);
+      // On NE fait PAS cancel() ici : sinon un message ajouté juste après couperait
+      // celui-ci en plein milieu. Les messages se lisent à la suite (file d'attente).
+      speechSynthesis.speak(u);
     } catch(e){}
   }
   function add(html, who){
     var d=document.createElement('div'); d.className='gaby-msg '+(who||'bot'); d.innerHTML=html; msgs.appendChild(d); msgs.scrollTop=msgs.scrollHeight;
-    if (who!=='me') speak(html);
+    if (who==='me'){ if (window.speechSynthesis){ try { speechSynthesis.cancel(); } catch(e){} } }
+    else speak(html);
   }
   function btns(list){
     return '<div class="gaby-ctas">'+list.map(function(b){ return '<a class="gaby-cta" href="'+b.h+'">'+esc(b.t)+'</a>'; }).join('')+'</div>';
@@ -409,6 +412,9 @@ const href = {
   }
 
   function handle(intent, isChip){
+    // Nouvelle interaction : on stoppe une éventuelle lecture en cours, puis les
+    // réponses de cette interaction se liront à la suite, sans se couper.
+    if (window.speechSynthesis){ try { speechSynthesis.cancel(); } catch(e){} }
     if (intent==='verse'){ sendVerse(null); return; }
     if (intent==='prayer'){ awaitingPrayer=true; add(L.prayOffer+btns([{h:href.prayer,t:L.cta.prayer}]),'bot'); add(L.prayAskText,'bot'); return; }
     if (intent==='give'){ add(L.r.give+giveCtas(),'bot'); return; }
