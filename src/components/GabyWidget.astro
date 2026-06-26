@@ -313,10 +313,25 @@ const href = {
   }
   function loadVoice(){ GABY_VOICE = pickVoice(); }
   if (window.speechSynthesis){ loadVoice(); try { speechSynthesis.onvoiceschanged = loadVoice; } catch(e){} }
+  // Nettoie le texte à lire : enlève les boutons/liens, puis les émojis et symboles,
+  // pour que Gaby ne lise QUE le message (ni « mains jointes » ni le texte des boutons).
+  function speakable(html){
+    var tmp = document.createElement('div');
+    tmp.innerHTML = html || '';
+    // On retire les boutons d'action et tout lien/bouton du message.
+    tmp.querySelectorAll('.gaby-ctas, .gaby-chips, a, button').forEach(function(el){ el.remove(); });
+    var txt = tmp.textContent || '';
+    // Supprime les émojis / pictogrammes / symboles et sélecteurs de variante.
+    txt = txt.replace(/[\u{1F000}-\u{1FAFF}\u{1F900}-\u{1F9FF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2300}-\u{23FF}\u{2B00}-\u{2BFF}\u{FE00}-\u{FE0F}\u{200D}\u{1F1E6}-\u{1F1FF}\u{2122}\u{2139}\u{3030}\u{303D}]/gu, ' ');
+    // Normalise les espaces.
+    return txt.replace(/\s{2,}/g, ' ').trim();
+  }
   function speak(text){
     if (!voiceOn || !window.speechSynthesis) return;
     try {
-      var u = new SpeechSynthesisUtterance(text.replace(/<[^>]+>/g,''));
+      var clean = speakable(text);
+      if (!clean) return;
+      var u = new SpeechSynthesisUtterance(clean);
       u.lang = langCode();
       if (!GABY_VOICE) loadVoice();
       if (GABY_VOICE) u.voice = GABY_VOICE;
