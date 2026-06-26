@@ -275,7 +275,8 @@ const href = {
   function esc(s){ var d=document.createElement('div'); d.textContent=s==null?'':s; return d.innerHTML; }
   function langCode(){ return ({fr:'fr-FR',en:'en-US',es:'es-ES',id:'id-ID',zh:'zh-CN'}[locale]||'fr-FR'); }
   var GABY_VOICE = null;
-  // Choisit la voix la plus naturelle disponible pour la langue (Google / Natural / Neural / Siri…).
+  // Gaby = Gabriel : on cherche une voix MASCULINE, la plus naturelle possible,
+  // pour la langue courante. On évite explicitement les voix féminines.
   function pickVoice(){
     if (!window.speechSynthesis) return null;
     var voices = speechSynthesis.getVoices() || [];
@@ -283,9 +284,32 @@ const href = {
     var base = langCode().toLowerCase().split('-')[0];
     var match = voices.filter(function(v){ return (v.lang||'').toLowerCase().indexOf(base)===0; });
     if (!match.length) match = voices;
-    var prefer = /google|natural|neural|enhanced|premium|siri|amélie|amelie|aurélie|thomas|hortense|denise|sandy/i;
-    var good = match.filter(function(v){ return prefer.test(v.name||''); });
-    return good[0] || match[0] || null;
+    // Noms de voix masculines connues selon la plateforme (Apple / Microsoft / Google).
+    var MALE = {
+      fr: /thomas|paul|henri|claude|nicolas|mathieu|rémy|remy/i,
+      en: /daniel|alex|aaron|fred|guy|davis|tony|david|mark|george|james|ryan|eric|arthur|english male/i,
+      es: /jorge|juan|diego|carlos|pablo|alvaro|álvaro|enrique|miguel/i,
+      id: /ardi/i,
+      zh: /yunyang|yunxi|yunjian|kangkang/i
+    };
+    // Voix féminines fréquentes à éviter en repli.
+    var FEMALE = /amelie|amélie|aurelie|aurélie|hortense|denise|sandy|audrey|marie|julie|virginie|chantal|samantha|victoria|karen|moira|tessa|fiona|zira|susan|catherine|monica|paulina|sabina|google fran|damayanti|tingting|mei-?jia|sin-?ji|female/i;
+    var maleRe = MALE[base] || /male/i;
+    var natural = /natural|neural|enhanced|premium|siri/i;
+    var males = match.filter(function(v){ return maleRe.test(v.name||''); });
+    // 1) masculin ET voix naturelle
+    var bestNat = males.filter(function(v){ return natural.test(v.name||''); });
+    if (bestNat.length) return bestNat[0];
+    // 2) masculin (qualité standard)
+    if (males.length) return males[0];
+    // 3) à défaut : une voix naturelle qui n'est pas clairement féminine
+    var notFemNat = match.filter(function(v){ return natural.test(v.name||'') && !FEMALE.test(v.name||''); });
+    if (notFemNat.length) return notFemNat[0];
+    // 4) toute voix non clairement féminine
+    var notFem = match.filter(function(v){ return !FEMALE.test(v.name||''); });
+    if (notFem.length) return notFem[0];
+    // 5) dernier recours
+    return match[0] || null;
   }
   function loadVoice(){ GABY_VOICE = pickVoice(); }
   if (window.speechSynthesis){ loadVoice(); try { speechSynthesis.onvoiceschanged = loadVoice; } catch(e){} }
@@ -296,7 +320,7 @@ const href = {
       u.lang = langCode();
       if (!GABY_VOICE) loadVoice();
       if (GABY_VOICE) u.voice = GABY_VOICE;
-      u.rate = 0.9; u.pitch = 1.0;
+      u.rate = 0.85; u.pitch = 0.95;
       speechSynthesis.cancel(); speechSynthesis.speak(u);
     } catch(e){}
   }
