@@ -16,5 +16,10 @@ export function sbImg(url, width = 1200, quality = 75) {
   // Déjà transformée, ou format vectoriel/animé : on ne touche pas.
   if (url.indexOf('/m/') !== -1) return url;
   if (/\.(svg|gif)(\?|$)/i.test(url)) return url;
-  return url + '/m/' + Math.round(width) + 'x0/filters:format%28webp%29:quality%28' + quality + '%29';
+  // Chemin de l'asset (commence par "f/..."), sans le domaine.
+  const path = url.replace(/^https?:\/\/a\.storyblok\.com\//, '');
+  const transform = '/m/' + Math.round(width) + 'x0/filters:format%28webp%29:quality%28' + quality + '%29';
+  // On passe par notre proxy /img/ (mis en cache par Cloudflare) au lieu du CDN
+  // Storyblok : Storyblok n'est sollicité qu'une seule fois par image.
+  return '/img/' + path + transform;
 }
