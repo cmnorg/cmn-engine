@@ -1,6 +1,7 @@
 ---
-import { useStoryblokApi, renderRichText, storyblokEditable } from '@storyblok/astro';
+import { renderRichText, storyblokEditable } from '@storyblok/astro';
 import { sbImg } from '../img.js';
+import { sbGet } from '../sb.js';
 const { blok } = Astro.props;
 
 const MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
@@ -13,8 +14,7 @@ function dateStr(y, m, d) {
 
 let stories = [];
 try {
-  const api = useStoryblokApi();
-  const { data } = await api.get('cdn/stories', { version: 'draft', content_type: 'event', per_page: 100 });
+  const { data } = await sbGet('cdn/stories', { version: 'draft', content_type: 'event', per_page: 100 });
   stories = data.stories || [];
 } catch (e) { stories = []; }
 

@@ -1,6 +1,7 @@
 ---
-import { useStoryblokApi, storyblokEditable } from '@storyblok/astro';
+import { storyblokEditable } from '@storyblok/astro';
 import { sbImg } from '../img.js';
+import { sbGet } from '../sb.js';
 const { blok } = Astro.props;
 
 function assetUrl(a) {
@@ -12,10 +13,9 @@ function assetUrl(a) {
 
 let trackStories = [], courseStories = [];
 try {
-  const api = useStoryblokApi();
   const [t, c] = await Promise.all([
-    api.get('cdn/stories', { version: 'draft', content_type: 'track', per_page: 100 }),
-    api.get('cdn/stories', { version: 'draft', content_type: 'course', per_page: 100 }),
+    sbGet('cdn/stories', { version: 'draft', content_type: 'track', per_page: 100 }),
+    sbGet('cdn/stories', { version: 'draft', content_type: 'course', per_page: 100 }),
   ]);
   trackStories = t.data.stories || [];
   courseStories = c.data.stories || [];

@@ -1,6 +1,7 @@
 ---
-import { useStoryblokApi, renderRichText, storyblokEditable } from '@storyblok/astro';
+import { renderRichText, storyblokEditable } from '@storyblok/astro';
 import { sbImg } from '../img.js';
+import { sbGet } from '../sb.js';
 const { blok } = Astro.props;
 
 function ytId(raw) {
@@ -20,10 +21,9 @@ function assetUrl(a) {
 
 let vstories = [], rstories = [];
 try {
-  const api = useStoryblokApi();
   const [v, r] = await Promise.all([
-    api.get('cdn/stories', { version: 'draft', content_type: 'video', per_page: 100 }),
-    api.get('cdn/stories', { version: 'draft', content_type: 'report', per_page: 100 }),
+    sbGet('cdn/stories', { version: 'draft', content_type: 'video', per_page: 100 }),
+    sbGet('cdn/stories', { version: 'draft', content_type: 'report', per_page: 100 }),
   ]);
   vstories = v.data.stories || [];
   rstories = r.data.stories || [];
