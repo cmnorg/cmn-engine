@@ -1,0 +1,181 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="CMN — Administration">
+  <section class="pw">
+    <div class="wrap">
+      <h2 class="disc-h2">Administration CMN</h2>
+
+      <div id="adAuth">
+        <p class="sec-lead">Entre la clé d'administration pour accéder à la console.</p>
+        <div class="pw-row" style="max-width:420px">
+          <input type="password" id="adKey" placeholder="Clé d'administration" />
+          <button class="btn btn-gold" id="adGo" type="button">Entrer</button>
+        </div>
+        <p class="pw-msg" id="adMsg"></p>
+      </div>
+
+      <div id="adPanel" hidden>
+        <div class="ad-tabs" id="adTypeTabs">
+          <button class="ev-tab active" data-type="prieres" type="button">🙏 Prières</button>
+          <button class="ev-tab" data-type="temoignages" type="button">✨ Témoignages</button>
+          <button class="ev-tab" data-type="connect" type="button">🤝 Connect</button>
+          <button class="ev-tab" data-type="contact" type="button">✉️ Contact</button>
+          <button class="ev-tab" data-type="newsletter" type="button">📬 Newsletter</button>
+        </div>
+
+        <div class="ad-tabs" id="adStatusTabs">
+          <button class="pw-filter active" data-st="pending" type="button">En attente</button>
+          <button class="pw-filter" data-st="approved" type="button">Publiés</button>
+          <button class="pw-filter" data-st="rejected" type="button">Refusés</button>
+        </div>
+
+        <div id="nlBar" hidden style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:6px 0 14px">
+          <strong id="nlCount">0 inscrit(s)</strong>
+          <button class="btn btn-ghost" id="nlCopy" type="button">📋 Copier les e-mails</button>
+          <button class="btn btn-ghost" id="nlCsv" type="button">⬇️ Exporter CSV</button>
+          <span class="pw-msg" id="nlBarMsg"></span>
+        </div>
+
+        <div id="adList" class="pw-grid"></div>
+        <p class="pw-empty" id="adEmpty" hidden>Rien ici pour le moment.</p>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline>
+    (function () {
+      var key = '';
+      var type = 'prieres';
+      var current = 'pending';
+      var lastItems = [];
+      var auth = document.getElementById('adAuth');
+      var panel = document.getElementById('adPanel');
+      var list = document.getElementById('adList');
+      var emptyEl = document.getElementById('adEmpty');
+      var adMsg = document.getElementById('adMsg');
+      var statusTabs = document.getElementById('adStatusTabs');
+      var nlBar = document.getElementById('nlBar');
+      var nlCount = document.getElementById('nlCount');
+      var nlBarMsg = document.getElementById('nlBarMsg');
+      function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
+      function fmtDate(ms) { try { return new Date(Number(ms)).toLocaleString('fr-FR'); } catch (e) { return ''; } }
+
+      function act(id, action) {
+        fetch('/api/admin?key=' + encodeURIComponent(key), {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ id: id, action: action, type: type }),
+        }).then(function (r) { return r.json(); }).then(function () { load(); });
+      }
+
+      function renderNewsletter(items) {
+        nlCount.textContent = items.length + ' inscrit(s)';
+        list.innerHTML = items.map(function (p) {
+          return '<article class="pw-card"><div class="pw-card-top">'
+            + '<span class="pw-cat">' + esc((p.lang || '—').toUpperCase()) + '</span>'
+            + '<span class="pw-name">' + esc(fmtDate(p.created_at)) + '</span></div>'
+            + '<p class="pw-text"><a href="mailto:' + esc(p.email) + '">✉️ ' + esc(p.email) + '</a></p>'
+            + '<div class="ad-actions"><button class="btn btn-ghost" data-act="delete" data-id="' + esc(p.id) + '">Supprimer</button></div>'
+            + '</article>';
+        }).join('');
+        emptyEl.hidden = items.length > 0;
+        list.querySelectorAll('[data-act]').forEach(function (b) {
+          b.addEventListener('click', function () { act(b.getAttribute('data-id'), b.getAttribute('data-act')); });
+        });
+      }
+
+      function render(items) {
+        if (type === 'newsletter') { renderNewsletter(items); return; }
+        list.innerHTML = items.map(function (p) {
+          var btns = '';
+          if (current !== 'approved') btns += '<button class="btn btn-gold" data-act="approve" data-id="' + esc(p.id) + '">Publier</button> ';
+          if (current !== 'rejected') btns += '<button class="btn btn-ghost" data-act="reject" data-id="' + esc(p.id) + '">Refuser</button> ';
+          btns += '<button class="btn btn-ghost" data-act="delete" data-id="' + esc(p.id) + '">Supprimer</button>';
+          if (type === 'connect') {
+            return '<article class="pw-card"><div class="pw-card-top"><span class="pw-cat">' + esc(p.grp || 'Groupe') + '</span></div>'
+              + '<p class="pw-text">' + (p.message ? esc(p.message) : '(sans message)') + '</p>'
+              + '<p class="pw-name">📱 ' + esc(p.whatsapp || '—') + (p.email ? (' · ✉️ ' + esc(p.email)) : '') + '</p>'
+              + '<div class="ad-actions">' + btns + '</div></article>';
+          }
+          if (type === 'contact') {
+            return '<article class="pw-card"><div class="pw-card-top">'
+              + '<span class="pw-cat">' + esc(p.subject || 'Message') + '</span>'
+              + '<span class="pw-name">' + (p.name ? esc(p.name) : 'Anonyme') + '</span></div>'
+              + '<p class="pw-text">' + esc(p.message) + '</p>'
+              + '<p class="pw-name"><a href="mailto:' + esc(p.email) + '">✉️ ' + esc(p.email) + '</a></p>'
+              + '<div class="ad-actions">' + btns + '</div></article>';
+          }
+          var sub = (p.name ? esc(p.name) : 'Anonyme') + (p.location ? (' · ' + esc(p.location)) : '');
+          return '<article class="pw-card"><div class="pw-card-top">'
+            + (p.category ? ('<span class="pw-cat">' + esc(p.category) + '</span>') : '<span></span>')
+            + '<span class="pw-name">' + sub + '</span></div>'
+            + '<p class="pw-text">' + esc(p.text) + '</p>'
+            + '<div class="ad-actions">' + btns + '</div></article>';
+        }).join('');
+        emptyEl.hidden = items.length > 0;
+        list.querySelectorAll('[data-act]').forEach(function (b) {
+          b.addEventListener('click', function () { act(b.getAttribute('data-id'), b.getAttribute('data-act')); });
+        });
+      }
+
+      function load() {
+        fetch('/api/admin?key=' + encodeURIComponent(key) + '&type=' + type + '&status=' + current)
+          .then(function (r) { if (r.status === 401) throw new Error('unauthorized'); return r.json(); })
+          .then(function (data) { auth.hidden = true; panel.hidden = false; lastItems = data.items || []; render(lastItems); })
+          .catch(function () { adMsg.textContent = 'Clé invalide.'; });
+      }
+
+      // Bascule d'affichage selon le type (newsletter = pas de modération).
+      function applyTypeUI() {
+        if (type === 'newsletter') {
+          statusTabs.hidden = true; nlBar.hidden = false; current = 'active';
+        } else {
+          statusTabs.hidden = false; nlBar.hidden = true;
+          // on remet le statut par défaut "en attente"
+          document.querySelectorAll('#adStatusTabs .pw-filter').forEach(function (x, i) { x.classList.toggle('active', i === 0); });
+          current = 'pending';
+        }
+      }
+
+      document.getElementById('adGo').addEventListener('click', function () {
+        key = document.getElementById('adKey').value.trim();
+        if (!key) { adMsg.textContent = 'Entre la clé.'; return; }
+        load();
+      });
+      document.getElementById('adKey').addEventListener('keydown', function (e) { if (e.key === 'Enter') document.getElementById('adGo').click(); });
+
+      document.querySelectorAll('#adTypeTabs .ev-tab').forEach(function (t) {
+        t.addEventListener('click', function () {
+          document.querySelectorAll('#adTypeTabs .ev-tab').forEach(function (x) { x.classList.remove('active'); });
+          t.classList.add('active'); type = t.getAttribute('data-type'); applyTypeUI(); load();
+        });
+      });
+      document.querySelectorAll('#adStatusTabs .pw-filter').forEach(function (t) {
+        t.addEventListener('click', function () {
+          document.querySelectorAll('#adStatusTabs .pw-filter').forEach(function (x) { x.classList.remove('active'); });
+          t.classList.add('active'); current = t.getAttribute('data-st'); load();
+        });
+      });
+
+      // Newsletter : copier les e-mails + export CSV
+      document.getElementById('nlCopy').addEventListener('click', function () {
+        var emails = lastItems.map(function (p) { return p.email; }).filter(Boolean).join('\n');
+        if (!emails) { nlBarMsg.textContent = 'Aucun e-mail.'; return; }
+        (navigator.clipboard ? navigator.clipboard.writeText(emails) : Promise.reject())
+          .then(function () { nlBarMsg.textContent = '✅ E-mails copiés !'; })
+          .catch(function () { nlBarMsg.textContent = 'Copie impossible (copie manuelle).'; });
+      });
+      document.getElementById('nlCsv').addEventListener('click', function () {
+        var rows = [['email', 'langue', 'date']].concat(lastItems.map(function (p) {
+          return [p.email || '', p.lang || '', fmtDate(p.created_at)];
+        }));
+        var csv = rows.map(function (r) { return r.map(function (c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(','); }).join('\n');
+        var blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'newsletter-cmn.csv';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      });
+    })();
+  </script>
+</Layout>
