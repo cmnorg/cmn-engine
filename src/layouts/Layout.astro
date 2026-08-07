@@ -83,17 +83,81 @@ const alternates = showAlt
           <strong>{t(locale, 'Restez informé de la mission')}</strong>
           <span>{t(locale, 'Nouvelles du terrain, prières exaucées et temps forts — directement dans votre boîte mail.')}</span>
         </div>
-        <form class="nlform">
-          <input type="email" placeholder={t(locale, 'Votre adresse email')} aria-label={t(locale, 'Votre adresse email')} required />
+        <form class="nlform" id="nlForm"
+          data-lang={locale}
+          data-ok={t(locale, "Merci ! Ton inscription à la newsletter est bien enregistrée.")}
+          data-invalid={t(locale, 'Indique une adresse e-mail valide.')}
+          data-consent={t(locale, 'Merci de cocher la case de consentement.')}
+          data-err={t(locale, 'Une erreur est survenue. Réessaie dans un instant.')}>
+          <input type="text" name="website" class="pw-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <input type="email" id="nlEmail" placeholder={t(locale, 'Votre adresse email')} aria-label={t(locale, 'Votre adresse email')} required />
           <button class="btn btn-gold" type="submit">{t(locale, "S'inscrire")}</button>
         </form>
       </div>
       <div class="wrap">
-        <label class="nlconsent"><input type="checkbox" /> <span>{t(locale, "J'accepte de recevoir la newsletter de CMN et je peux me désinscrire à tout moment (voir la politique de confidentialité).")}</span></label>
+        <label class="nlconsent"><input type="checkbox" id="nlConsent" /> <span>{t(locale, "J'accepte de recevoir la newsletter de CMN et je peux me désinscrire à tout moment (voir la politique de confidentialité).")}</span></label>
+        <p id="nlMsg" role="status" aria-live="polite" style="margin:8px 0 0;font-size:13px;font-weight:600"></p>
       </div>
     </section>
     <Footer settings={settings} />
     <GabyWidget />
+    <script define:vars={{ cc: { text: t(locale, 'Ce site utilise uniquement des cookies techniques nécessaires à son fonctionnement. Aucun cookie publicitaire.'), accept: t(locale, "J'accepte"), refuse: t(locale, 'Refuser'), more: t(locale, 'En savoir plus') } }}>
+      // Bandeau de consentement cookies (affiché une seule fois, choix mémorisé 1 an).
+      (function () {
+        function getC(n) { return (document.cookie.match('(?:^|; )' + n + '=([^;]*)') || [])[1]; }
+        if (getC('cmn_cookie_consent')) return;
+        function setC(v) { try { document.cookie = 'cmn_cookie_consent=' + v + ';path=/;max-age=31536000;SameSite=Lax'; } catch (e) {} }
+        var bar = document.createElement('div');
+        bar.setAttribute('role', 'dialog'); bar.setAttribute('aria-label', 'Cookies');
+        bar.style.cssText = 'position:fixed;left:12px;right:12px;bottom:12px;z-index:1000;max-width:760px;margin:0 auto;background:#fff;color:#2C2C2A;border:1px solid #e6e4dc;border-radius:14px;box-shadow:0 14px 40px rgba(30,26,16,.18);padding:14px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:14px';
+        var txt = document.createElement('div'); txt.style.cssText = 'flex:1 1 260px;line-height:1.5';
+        txt.innerHTML = cc.text + ' <a href="/cookies" style="color:#A6791A;text-decoration:underline">' + cc.more + '</a>';
+        var actions = document.createElement('div'); actions.style.cssText = 'display:flex;gap:8px;flex:0 0 auto';
+        var acc = document.createElement('button'); acc.type = 'button'; acc.textContent = cc.accept;
+        acc.style.cssText = 'background:#C0982E;color:#2C2C2A;border:none;border-radius:10px;padding:10px 16px;font-weight:600;cursor:pointer';
+        var ref = document.createElement('button'); ref.type = 'button'; ref.textContent = cc.refuse;
+        ref.style.cssText = 'background:transparent;color:#2C2C2A;border:1.5px solid #cfcdc4;border-radius:10px;padding:10px 16px;font-weight:600;cursor:pointer';
+        function done(v) { setC(v); if (bar.parentNode) bar.parentNode.removeChild(bar); }
+        acc.addEventListener('click', function () { done('accepted'); });
+        ref.addEventListener('click', function () { done('essential'); });
+        actions.appendChild(acc); actions.appendChild(ref);
+        bar.appendChild(txt); bar.appendChild(actions);
+        document.body.appendChild(bar);
+      })();
+    </script>
+    <script is:inline>
+      // Inscription newsletter : validation + consentement, envoi vers /api/newsletter.
+      (function () {
+        var f = document.getElementById('nlForm');
+        if (!f) return;
+        var email = document.getElementById('nlEmail');
+        var consent = document.getElementById('nlConsent');
+        var msg = document.getElementById('nlMsg');
+        var EMAIL_RE = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
+        function show(t, color) { if (msg) { msg.textContent = t; msg.style.color = color; } }
+        f.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var v = (email.value || '').trim();
+          email.style.borderColor = '';
+          if (!EMAIL_RE.test(v)) { show(f.dataset.invalid, '#c0392b'); email.style.borderColor = '#c0392b'; email.focus(); return; }
+          if (!consent.checked) { show(f.dataset.consent, '#c0392b'); return; }
+          show('…', '#6f6e68');
+          var btn = f.querySelector('button[type=submit]'); if (btn) btn.disabled = true;
+          fetch('/api/newsletter', {
+            method: 'POST', headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ email: v, consent: true, lang: f.dataset.lang || '', website: (f.website ? f.website.value : '') })
+          }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+            .then(function (res) {
+              if (btn) btn.disabled = false;
+              if (res.ok) { show(f.dataset.ok, '#1a7f37'); f.reset(); }
+              else if (res.d && res.d.error === 'invalid_email') { show(f.dataset.invalid, '#c0392b'); email.style.borderColor = '#c0392b'; }
+              else if (res.d && res.d.error === 'invalid_domain') { show(f.dataset.invalid, '#c0392b'); email.style.borderColor = '#c0392b'; }
+              else if (res.d && res.d.error === 'consent_required') { show(f.dataset.consent, '#c0392b'); }
+              else { show(f.dataset.err, '#c0392b'); }
+            }).catch(function () { if (btn) btn.disabled = false; show(f.dataset.err, '#c0392b'); });
+        });
+      })();
+    </script>
     <script is:inline>
       // Nettoyage automatique : on supprime tout ancien service worker + cache (qui servaient
       // d'anciennes versions), et on recharge UNE seule fois pour afficher la version fraîche.
