@@ -4,7 +4,7 @@ import { useStoryblokApi } from '@storyblok/astro';
 
 const SITE = 'https://cmn-engine.pages.dev';
 const NON_FR = ['en', 'id', 'es', 'zh'];
-const STANDALONE = ['contact', 'connect', 'mur-de-priere', 'partenaires', 'faire-un-don'];
+const STANDALONE = ['contact', 'connect', 'mur-de-priere', 'partenaires', 'faire-un-don', 'mentions-legales', 'confidentialite', 'cookies'];
 
 export async function GET() {
   let slugs = [];
