@@ -2,14 +2,29 @@
 import { storyblokEditable, renderRichText } from '@storyblok/astro';
 const { blok } = Astro.props;
 const titleHtml = blok.title ? renderRichText(blok.title) : '';
+
+// Résout un lien Storyblok (champ Link ou texte) en URL utilisable.
+function hrefOf(l) {
+  if (!l) return '';
+  if (typeof l === 'string') l = { url: l, cached_url: l };
+  var raw = l.url || l.cached_url || '';
+  if (!raw) return '';
+  if (/^https?:|^mailto:|^tel:|^#/i.test(raw)) return raw;   // externe / ancre
+  return '/' + String(raw).replace(/^\/+/, '');               // interne -> chemin absolu
+}
+// On lit le lien quel que soit le nom du champ utilisé dans Storyblok.
+const cta1 = hrefOf(blok.cta1_link || blok.cta1_url || blok.cta1_href || blok.link1);
+const cta2 = hrefOf(blok.cta2_link || blok.cta2_url || blok.cta2_href || blok.link2);
+const ext1 = /^https?:/i.test(cta1);
+const ext2 = /^https?:/i.test(cta2);
 ---
 <section class="hero" {...storyblokEditable(blok)}>
   <div class="wrap">
     <h1 set:html={titleHtml}></h1>
     <p class="sub">{blok.subtitle}</p>
     <div class="cta">
-      {blok.cta1_label && <a class="btn btn-gold">{blok.cta1_label}</a>}
-      {blok.cta2_label && <a class="btn btn-outline">{blok.cta2_label}</a>}
+      {blok.cta1_label && <a class="btn btn-gold" href={cta1 || undefined} target={ext1 ? '_blank' : undefined} rel={ext1 ? 'noopener' : undefined}>{blok.cta1_label}</a>}
+      {blok.cta2_label && <a class="btn btn-outline" href={cta2 || undefined} target={ext2 ? '_blank' : undefined} rel={ext2 ? 'noopener' : undefined}>{blok.cta2_label}</a>}
     </div>
   </div>
 </section>
