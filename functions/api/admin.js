@@ -15,6 +15,7 @@ function tableFor(type) {
   if (type === 'temoignages') return 'temoignages';
   if (type === 'connect') return 'connect_requests';
   if (type === 'contact') return 'contact_messages';
+  if (type === 'newsletter') return 'newsletter_subscribers';
   return 'prieres';
 }
 
