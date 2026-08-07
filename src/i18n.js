@@ -9,7 +9,7 @@ export const LANGS = [
 export const NON_FR = ['en', 'id', 'es', 'zh'];
 
 // Pages autonomes (formulaires interactifs) pas encore localisées : elles restent en français.
-export const STANDALONE = ['contact', 'connect', 'mur-de-priere', 'partenaires', 'faire-un-don', 'don-merci', 'admin-prieres'];
+export const STANDALONE = ['contact', 'connect', 'mur-de-priere', 'partenaires', 'faire-un-don', 'don-merci', 'admin-prieres', 'admin', 'mentions-legales', 'confidentialite', 'cookies'];
 
 // Détecte la langue depuis le chemin de l'URL.
 export function localeFromPath(pathname) {
@@ -49,6 +49,16 @@ export const UI = {
   'Gérer mes cookies': { en: 'Manage cookies', id: 'Kelola cookie', es: 'Gestionar cookies', zh: '管理 Cookie', mg: 'Hitantana ny cookies' },
   '© CMN — Tous droits réservés.': { en: '© CMN — All rights reserved.', id: '© CMN — Hak cipta dilindungi.', es: '© CMN — Todos los derechos reservados.', zh: '© CMN — 版权所有。', mg: '© CMN — Voatokana ny zo rehetra.' },
   'Thème': { en: 'Theme', id: 'Tema', es: 'Tema', zh: '主题', mg: 'Lokon-takelaka' },
+  // Newsletter (messages du formulaire)
+  "Merci ! Ton inscription à la newsletter est bien enregistrée.": { en: "Thanks! You're now subscribed to the newsletter.", id: 'Terima kasih! Kamu sudah berlangganan newsletter.', es: '¡Gracias! Ya estás suscrito(a) al boletín.', zh: '谢谢！您已成功订阅通讯。', mg: "Misaotra! Voasoratra anarana amin'ny gazety ianao." },
+  'Indique une adresse e-mail valide.': { en: 'Please enter a valid email address.', id: 'Masukkan alamat email yang valid.', es: 'Introduce un correo electrónico válido.', zh: '请输入有效的电子邮箱地址。', mg: 'Ampidiro adiresy mailaka manan-kery.' },
+  'Merci de cocher la case de consentement.': { en: 'Please tick the consent box.', id: 'Centang kotak persetujuan.', es: 'Marca la casilla de consentimiento.', zh: '请勾选同意框。', mg: 'Mariho ny efajoro fanekena.' },
+  'Une erreur est survenue. Réessaie dans un instant.': { en: 'Something went wrong. Please try again shortly.', id: 'Terjadi kesalahan. Coba lagi sebentar.', es: 'Se produjo un error. Inténtalo de nuevo en un momento.', zh: '出现错误，请稍后重试。', mg: 'Nisy olana. Andramo indray afaka kelikely.' },
+  // Bandeau cookies
+  'Ce site utilise uniquement des cookies techniques nécessaires à son fonctionnement. Aucun cookie publicitaire.': { en: 'This site only uses technical cookies necessary for it to work. No advertising cookies.', id: 'Situs ini hanya memakai cookie teknis yang diperlukan agar berfungsi. Tanpa cookie iklan.', es: 'Este sitio solo usa cookies técnicas necesarias para funcionar. Sin cookies publicitarias.', zh: '本网站仅使用运行所必需的技术性 Cookie，不使用广告 Cookie。', mg: "Mampiasa cookies ara-teknika ilaina fotsiny ity tranonkala ity. Tsy misy cookie dokam-barotra." },
+  "J'accepte": { en: 'I accept', id: 'Saya setuju', es: 'Acepto', zh: '我接受', mg: 'Ekeko' },
+  'Refuser': { en: 'Decline', id: 'Tolak', es: 'Rechazar', zh: '拒绝', mg: 'Lavina' },
+  'En savoir plus': { en: 'Learn more', id: 'Selengkapnya', es: 'Saber más', zh: '了解更多', mg: 'Fanazavana bebe kokoa' },
 };
 
 // Traduit un texte d'interface. Renvoie le français si pas de traduction.
