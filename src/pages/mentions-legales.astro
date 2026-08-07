@@ -1,0 +1,76 @@
+---
+import Layout from '../layouts/Layout.astro';
+const updated = '2 juillet 2026';
+---
+<Layout title="CMN — Mentions légales" description="Mentions légales du site de Christians on Mission for Nations (CMN).">
+  <section class="legal">
+    <div class="wrap">
+      <h1>Mentions légales</h1>
+      <p class="legal-upd">Dernière mise à jour : {updated}</p>
+
+      <h2>Éditeur du site</h2>
+      <p>
+        Le présent site <strong>cmn-ministries.org</strong> est édité par&nbsp;:<br />
+        <strong>[À COMPLÉTER : nom juridique exact de l'association, ex. « Christians on Mission for Nations »]</strong><br />
+        Association régie par la loi du 1<sup>er</sup> juillet 1901.<br />
+        Siège social : [À COMPLÉTER : adresse complète du siège].<br />
+        Numéro RNA : [À COMPLÉTER : n° RNA, format W suivi de 9 chiffres] — SIRET : [À COMPLÉTER si applicable].<br />
+        Adresse e-mail : <a href="mailto:hello@cmnorg.org">hello@cmnorg.org</a>.<br />
+        Téléphone : [À COMPLÉTER si tu souhaites l'afficher].
+      </p>
+
+      <h2>Directeur de la publication</h2>
+      <p>
+        Le directeur de la publication est <strong>[À COMPLÉTER : nom du représentant légal, généralement le président]</strong>,
+        en sa qualité de président de l'association.
+      </p>
+
+      <h2>Hébergement</h2>
+      <p>
+        Le site est hébergé par&nbsp;:<br />
+        <strong>Cloudflare, Inc.</strong> — 101 Townsend Street, San Francisco, CA 94107, États-Unis.<br />
+        Site web : <a href="https://www.cloudflare.com" target="_blank" rel="noopener">www.cloudflare.com</a>.
+      </p>
+      <p>
+        La gestion des contenus s'appuie sur le service <strong>Storyblok GmbH</strong> (Autriche, Union européenne),
+        les paiements sur <strong>Stripe</strong>, et l'envoi d'e-mails sur <strong>Brevo (Sendinblue SAS, France)</strong>.
+        Voir la <a href="/confidentialite">Politique de confidentialité</a> pour le détail.
+      </p>
+
+      <h2>Propriété intellectuelle</h2>
+      <p>
+        L'ensemble des contenus présents sur ce site (textes, logo « CMN », images, vidéos, éléments graphiques,
+        mise en page) est, sauf mention contraire, la propriété de l'association ou de ses partenaires, et est
+        protégé par le droit d'auteur. Toute reproduction, représentation, modification ou exploitation, totale ou
+        partielle, sans autorisation écrite préalable, est interdite.
+      </p>
+      <p>
+        Certaines photographies peuvent appartenir à leurs auteurs respectifs et sont utilisées avec leur accord.
+      </p>
+
+      <h2>Responsabilité</h2>
+      <p>
+        L'association s'efforce d'assurer l'exactitude des informations diffusées sur ce site, mais ne saurait être
+        tenue responsable des omissions, inexactitudes ou d'une indisponibilité temporaire du service. Les liens vers
+        des sites externes (réseaux sociaux, partenaires) sont fournis à titre indicatif&nbsp;; l'association n'est pas
+        responsable de leur contenu.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Pour toute question relative au site ou à ces mentions légales, écris-nous via le
+        <a href="/contact">formulaire de contact</a> ou à <a href="mailto:hello@cmnorg.org">hello@cmnorg.org</a>.
+      </p>
+    </div>
+  </section>
+
+  <style>
+    .legal { padding: 40px 0 60px; }
+    .legal .wrap { max-width: 820px; }
+    .legal h1 { font-size: clamp(26px, 3.4vw, 36px); font-weight: 800; }
+    .legal .legal-upd { color: var(--muted); font-size: 14px; margin: 6px 0 24px; }
+    .legal h2 { font-size: 20px; font-weight: 700; margin: 28px 0 8px; color: var(--gold-d); }
+    .legal p { margin: 0 0 12px; line-height: 1.7; }
+    .legal a { color: var(--gold-d); text-decoration: underline; }
+  </style>
+</Layout>
