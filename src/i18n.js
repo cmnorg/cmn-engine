@@ -2,24 +2,21 @@
 export const LANGS = [
   { code: 'fr', label: 'FR' },
   { code: 'en', label: 'EN' },
-  { code: 'id', label: 'ID' },
-  { code: 'es', label: 'ES' },
-  { code: 'zh', label: '中文' },
 ];
-export const NON_FR = ['en', 'id', 'es', 'zh'];
+export const NON_FR = ['en'];
 
 // Pages autonomes (formulaires interactifs) pas encore localisées : elles restent en français.
 export const STANDALONE = ['contact', 'connect', 'mur-de-priere', 'partenaires', 'faire-un-don', 'don-merci', 'admin-prieres', 'admin', 'mentions-legales', 'confidentialite', 'cookies'];
 
 // Détecte la langue depuis le chemin de l'URL.
 export function localeFromPath(pathname) {
-  const m = (pathname || '').match(/^\/(en|id|es|zh)(\/|$)/);
+  const m = (pathname || '').match(/^\/(en)(\/|$)/);
   return m ? m[1] : 'fr';
 }
 
 // Retourne le "slug nu" (sans préfixe de langue, sans slash autour). '' = accueil.
 export function barePath(pathname) {
-  let p = (pathname || '/').replace(/^\/(en|id|es|zh)(?=\/|$)/, '');
+  let p = (pathname || '/').replace(/^\/(en)(?=\/|$)/, '');
   return p.replace(/^\/+/, '').replace(/\/+$/, '');
 }
 
