@@ -1,0 +1,192 @@
+---
+// Page Contact bilingue (rendue par /contact en FR et /en/contact en EN).
+import Layout from '../layouts/Layout.astro';
+import { useStoryblokApi } from '@storyblok/astro';
+import { localeFromPath, t } from '../i18n.js';
+
+const locale = localeFromPath(Astro.url.pathname);
+function u(v) { if (!v) return ''; if (typeof v === 'string') return v; return v.filename || v.url || v.cached_url || ''; }
+
+let settings = {};
+try {
+  const api = useStoryblokApi();
+  const { data } = await api.get('cdn/stories/settings', { version: 'draft' });
+  settings = (data && data.story && data.story.content) || {};
+} catch (e) { settings = {}; }
+
+const socials = [
+  { url: u(settings.youtube), label: 'YouTube' },
+  { url: u(settings.facebook), label: 'Facebook' },
+  { url: u(settings.instagram), label: 'Instagram' },
+  { url: u(settings.tiktok), label: 'TikTok' },
+  { url: u(settings.linkedin), label: 'LinkedIn' },
+  { url: u(settings.whatsapp_channel), label: 'WhatsApp' },
+].filter((s) => s.url);
+
+// Les VALEURS des sujets restent en français (cohérence back-office + pré-remplissage) ;
+// seul le LIBELLÉ affiché est traduit.
+const subjects = [
+  'Question générale', 'Partenariat', 'Demande de prière',
+  'Bénévolat / Mission', 'Proposer un groupe (Connect)', 'Presse & médias', 'Faire un don', 'Autre',
+];
+const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY || '0x4AAAAAADnaOySkkvvQhUrg';
+
+// Messages du script, traduits.
+const M = {
+  emailInvalid: t(locale, 'Indique une adresse e-mail valide.'),
+  msgShort: t(locale, 'Écris quelques mots de plus (au moins 10 caractères).'),
+  consent: t(locale, 'Merci de cocher le consentement.'),
+  sending: t(locale, 'Envoi…'),
+  ok: t(locale, 'Merci ! Ton message a bien été envoyé. Nous te répondrons bientôt 🙏'),
+  err: t(locale, 'Une erreur est survenue.'),
+};
+---
+<Layout title="CMN — Contact">
+  <section class="ct">
+    <div class="ct-hero">
+      <div class="wrap">
+        <div class="phead-label disc-label">{t(locale, 'Contact')}</div>
+        <h1>{t(locale, 'Écris-nous')}</h1>
+        <p>{t(locale, 'Une question, un projet de partenariat, une demande de prière ? Notre équipe te répond avec joie.')}</p>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <div class="ct-cols">
+        <aside class="ct-info">
+          <h3>{t(locale, 'Restons en lien')}</h3>
+          <p class="ct-info-lead">{t(locale, 'Nous lisons chaque message et répondons généralement sous 48 h.')}</p>
+
+          <div class="ct-line ct-line--static">
+            <span class="ct-ic">✉️</span>
+            <span><strong>{t(locale, 'Écris-nous')}</strong><span>{t(locale, 'Remplis le formulaire, on te répond vite.')}</span></span>
+          </div>
+
+          {socials.length > 0 && (
+            <div class="ct-soc">
+              <strong>{t(locale, 'Suis-nous')}</strong>
+              <div class="ct-soc-row">
+                {socials.map((s) => <a href={s.url} target="_blank" rel="noopener">{s.label}</a>)}
+              </div>
+            </div>
+          )}
+
+          <div class="ct-quick">
+            <strong>{t(locale, 'Accès rapides')}</strong>
+            <a href="/faire-un-don">💛 {t(locale, 'Faire un don')}</a>
+            <a href="/mur-de-priere">🙏 {t(locale, 'Déposer une prière')}</a>
+            <a href="/connect">🌍 {t(locale, 'Rejoindre un groupe')}</a>
+          </div>
+        </aside>
+
+        <form class="ct-form" id="ctForm">
+          <h3>{t(locale, 'Envoie-nous un message')}</h3>
+          <input type="text" name="website" class="pw-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <div class="ct-row">
+            <div class="pw-field"><label>{t(locale, 'Ton nom')}</label><input type="text" id="ctName" maxlength="80" placeholder={t(locale, 'Prénom et nom')} /></div>
+            <div class="pw-field"><label>{t(locale, 'Ton e-mail *')}</label><input type="email" id="ctEmail" maxlength="120" placeholder="toi@exemple.com" required /></div>
+          </div>
+          <div class="pw-field">
+            <label>{t(locale, 'Sujet')}</label>
+            <select id="ctSubject">
+              {subjects.map((s) => <option value={s}>{t(locale, s)}</option>)}
+            </select>
+          </div>
+          <div class="pw-field">
+            <label>{t(locale, 'Ton message *')}</label>
+            <textarea id="ctMsg" maxlength="3000" rows="6" placeholder={t(locale, 'Écris-nous ici…')} required></textarea>
+          </div>
+          <label class="cn-consent"><input type="checkbox" id="ctConsent" /> <span>{t(locale, "J'accepte que CMN utilise ces informations pour me répondre.")}</span></label>
+          {turnstileKey && <div id="tsBox" style="margin:4px 0 12px"></div>}
+          <button class="btn btn-gold" type="submit">{t(locale, 'Envoyer mon message')}</button>
+          <span class="pw-msg" id="ctMsgOut"></span>
+          <p class="pw-note">{t(locale, "🔒 Tes informations restent confidentielles et ne servent qu'à te répondre.")}</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <script is:inline define:vars={{ turnstileKey, M }}>
+    (function () {
+      window.__tsToken = '';
+      var tsBox = document.getElementById('tsBox');
+      if (tsBox) {
+        var tries = 0;
+        var iv = setInterval(function () {
+          tries++;
+          if (window.turnstile && typeof window.turnstile.render === 'function') {
+            clearInterval(iv);
+            try {
+              window.turnstile.render('#tsBox', {
+                sitekey: turnstileKey,
+                callback: function (t) { window.__tsToken = t; },
+                'expired-callback': function () { window.__tsToken = ''; },
+                'error-callback': function (code) { window.__tsToken = ''; console.warn('[Turnstile] erreur:', code); }
+              });
+            } catch (e) { console.warn('[Turnstile] render() a échoué:', e); }
+          } else if (tries > 40) { clearInterval(iv); console.warn('[Turnstile] script non chargé.'); }
+        }, 300);
+      }
+      var form = document.getElementById('ctForm');
+      var out = document.getElementById('ctMsgOut');
+      var emailEl = document.getElementById('ctEmail');
+      var msgEl = document.getElementById('ctMsg');
+
+      try {
+        var sujet = new URLSearchParams(window.location.search).get('sujet');
+        if (sujet) {
+          var sel = document.getElementById('ctSubject');
+          var matched = false;
+          for (var i = 0; i < sel.options.length; i++) {
+            if (sel.options[i].value === sujet) { sel.selectedIndex = i; matched = true; break; }
+          }
+          if (!matched) {
+            for (var j = 0; j < sel.options.length; j++) { if (sel.options[j].value === 'Autre') { sel.selectedIndex = j; break; } }
+          }
+          if (sujet.indexOf('groupe') !== -1 && !msgEl.value) {
+            msgEl.value = 'Bonjour, je souhaite proposer / animer un groupe CMN Connect.\n\nNom du groupe envisagé : \nPays ou thématique : \nQuelques mots sur le projet : ';
+          }
+          setTimeout(function () { form.scrollIntoView({ behavior: 'smooth', block: 'center' }); document.getElementById('ctName').focus(); }, 150);
+        }
+      } catch (e) {}
+      function tok() { return window.__tsToken || ''; }
+      function fieldError(el, text) { out.textContent = text; if (el) { el.classList.add('field-error'); el.focus(); } }
+      function clearErrors() { emailEl.classList.remove('field-error'); msgEl.classList.remove('field-error'); }
+      emailEl.addEventListener('input', function () { emailEl.classList.remove('field-error'); });
+      msgEl.addEventListener('input', function () { msgEl.classList.remove('field-error'); });
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        clearErrors();
+        var email = emailEl.value.trim();
+        var message = msgEl.value.trim();
+        if (email.indexOf('@') < 1) { fieldError(emailEl, M.emailInvalid); return; }
+        if (message.length < 10) { fieldError(msgEl, M.msgShort); return; }
+        if (!document.getElementById('ctConsent').checked) { out.textContent = M.consent; return; }
+        out.textContent = M.sending;
+        var body = {
+          name: document.getElementById('ctName').value,
+          email: email,
+          subject: document.getElementById('ctSubject').value,
+          message: message,
+          website: form.website.value,
+          turnstileToken: tok(),
+        };
+        fetch('/api/contact', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
+          .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+          .then(function (res) {
+            if (window.turnstile) { try { turnstile.reset(); window.__tsToken = ''; } catch (e) {} }
+            if (res.ok) { out.textContent = M.ok; form.reset(); }
+            else {
+              var msg = (res.d && res.d.error) || M.err;
+              if (/mail|domaine|email/i.test(msg)) fieldError(emailEl, msg);
+              else if (/message|caract/i.test(msg)) fieldError(msgEl, msg);
+              else out.textContent = msg;
+            }
+          })
+          .catch(function () { out.textContent = M.err; });
+      });
+    })();
+  </script>
+</Layout>
