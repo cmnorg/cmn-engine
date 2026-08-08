@@ -2,7 +2,7 @@
 // (FR + /en/ /id/ /es/ /zh/) et les pages autonomes.
 import { useStoryblokApi } from '@storyblok/astro';
 
-const SITE = 'https://cmn-engine.pages.dev';
+const SITE = 'https://cmn-ministries.org';
 const NON_FR = ['en', 'id', 'es', 'zh'];
 const STANDALONE = ['contact', 'connect', 'mur-de-priere', 'partenaires', 'faire-un-don', 'mentions-legales', 'confidentialite', 'cookies'];
 
