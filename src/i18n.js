@@ -55,6 +55,11 @@ export const UI = {
   'collectés sur': { en: 'raised of', id: 'terkumpul dari', es: 'recaudados de', zh: '已筹集，目标', mg: 'voaangona amin\'ny' },
   'donateurs': { en: 'donors', id: 'donatur', es: 'donantes', zh: '位捐赠者', mg: 'mpanome' },
   'jours restants': { en: 'days left', id: 'hari tersisa', es: 'días restantes', zh: '天剩余', mg: 'andro sisa' },
+  // Gouvernance (libellés issus du code)
+  '← Retour à la gouvernance': { en: '← Back to governance', id: '← Kembali ke tata kelola', es: '← Volver a la gobernanza', zh: '← 返回治理', mg: "← Hiverina amin'ny fitantanana" },
+  '« Allez, faites de toutes les nations des disciples. »': { en: '"Go therefore and make disciples of all nations."', id: '"Karena itu pergilah, jadikanlah semua bangsa murid-Ku."', es: '"Id y haced discípulos a todas las naciones."', zh: '"所以你们要去，使万民作我的门徒。"', mg: '"Koa mandehana ianareo, ataovy mpianatra ny firenena rehetra."' },
+  'Matthieu 28:19': { en: 'Matthew 28:19', id: 'Matius 28:19', es: 'Mateo 28:19', zh: '马太福音 28:19', mg: 'Matio 28:19' },
+  'Contacter le bureau': { en: 'Contact the board', id: 'Hubungi pengurus', es: 'Contactar a la junta', zh: '联系理事会', mg: 'Hifandray amin\'ny birao' },
   // Bandeau cookies
   'Ce site utilise uniquement des cookies techniques nécessaires à son fonctionnement. Aucun cookie publicitaire.': { en: 'This site only uses technical cookies necessary for it to work. No advertising cookies.', id: 'Situs ini hanya memakai cookie teknis yang diperlukan agar berfungsi. Tanpa cookie iklan.', es: 'Este sitio solo usa cookies técnicas necesarias para funcionar. Sin cookies publicitarias.', zh: '本网站仅使用运行所必需的技术性 Cookie，不使用广告 Cookie。', mg: "Mampiasa cookies ara-teknika ilaina fotsiny ity tranonkala ity. Tsy misy cookie dokam-barotra." },
   "J'accepte": { en: 'I accept', id: 'Saya setuju', es: 'Acepto', zh: '我接受', mg: 'Ekeko' },
