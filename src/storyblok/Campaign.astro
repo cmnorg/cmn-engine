@@ -1,7 +1,9 @@
 ---
 import { storyblokEditable } from '@storyblok/astro';
 import { sbImg } from '../img.js';
+import { localeFromPath, t } from '../i18n.js';
 const { blok } = Astro.props;
+const locale = localeFromPath(Astro.url.pathname);
 const goal = Number(blok.goal) || 0;
 const raised = Number(blok.raised) || 0;
 const pct = goal > 0 ? Math.min(100, Math.round((raised / goal) * 100)) : 0;
@@ -26,14 +28,14 @@ const img = sbImg(blok.image?.filename, 1200);
         <p>{blok.text}</p>
         <div class="camp-bar"><div class="camp-fill" style={`width:${pct}%`}></div></div>
         <div class="camp-stats">
-          <span><b>{fmt(raised)} {cur}</b> collectés sur <b>{fmt(goal)} {cur}</b></span>
+          <span><b>{fmt(raised)} {cur}</b> {t(locale, 'collectés sur')} <b>{fmt(goal)} {cur}</b></span>
           <span class="camp-pct">{pct}%</span>
         </div>
-        <div class="camp-meta"><b>{blok.donors}</b> donateurs</div>
+        <div class="camp-meta"><b>{blok.donors}</b> {t(locale, 'donateurs')}</div>
         {(blok.deadline_label || daysLeft) &&
           <div class="camp-deadline">
             {blok.deadline_label && <span>{blok.deadline_label}</span>}
-            {daysLeft && <span class="camp-days"> · {daysLeft} jours restants</span>}
+            {daysLeft && <span class="camp-days"> · {daysLeft} {t(locale, 'jours restants')}</span>}
           </div>}
         <div class="camp-cta">
           {blok.button_label && <a class="btn btn-gold" href={u(blok.button_link)}>{blok.button_label}</a>}
