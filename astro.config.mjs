@@ -5,8 +5,8 @@ import { loadEnv } from 'vite';
 const env = loadEnv(import.meta.env?.MODE || 'production', process.cwd(), '');
 
 export default defineConfig({
-  // Adresse publique du site (à remplacer par ton domaine final, ex. https://cmnorg.org).
-  site: 'https://cmn-engine.pages.dev',
+  // Adresse publique du site (domaine final).
+  site: 'https://cmn-ministries.org',
   integrations: [
     storyblok({
       accessToken: env.STORYBLOK_TOKEN,
