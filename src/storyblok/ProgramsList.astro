@@ -2,7 +2,10 @@
 import { renderRichText, storyblokEditable } from '@storyblok/astro';
 import { sbImg } from '../img.js';
 import { sbGet } from '../sb.js';
+import { localeFromPath } from '../i18n.js';
 const { blok } = Astro.props;
+const locale = localeFromPath(Astro.url.pathname);
+const langParam = locale === 'fr' ? {} : { language: locale };
 
 function assetUrl(a) {
   if (!a) return '';
@@ -13,7 +16,7 @@ function assetUrl(a) {
 
 let stories = [];
 try {
-  const { data } = await sbGet('cdn/stories', { version: 'draft', content_type: 'program', per_page: 100 });
+  const { data } = await sbGet('cdn/stories', { version: 'draft', content_type: 'program', per_page: 100, ...langParam });
   stories = data.stories || [];
 } catch (e) { stories = []; }
 
