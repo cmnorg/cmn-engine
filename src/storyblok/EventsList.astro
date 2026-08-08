@@ -2,9 +2,15 @@
 import { renderRichText, storyblokEditable } from '@storyblok/astro';
 import { sbImg } from '../img.js';
 import { sbGet } from '../sb.js';
+import { localeFromPath, t } from '../i18n.js';
 const { blok } = Astro.props;
+const locale = localeFromPath(Astro.url.pathname);
+// Libellé : en français on garde l'éventuelle valeur Storyblok ; sinon version traduite.
+function lbl(v, fr) { return locale === 'fr' ? (v || fr) : t(locale, fr); }
 
-const MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+const MONTHS_FR = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+const MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const MONTHS = locale === 'fr' ? MONTHS_FR : MONTHS_EN;
 const pad = (n) => (n < 10 ? '0' + n : '' + n);
 function dateStr(y, m, d) {
   if (d && m) return pad(d) + '/' + pad(m) + '/' + y;
@@ -19,7 +25,7 @@ try {
 } catch (e) { stories = []; }
 
 const fallbackReg = blok.register_fallback?.url || blok.register_fallback?.cached_url || '/contact';
-const defaultMore = blok.more_label || 'En savoir plus';
+const defaultMore = lbl(blok.more_label, 'En savoir plus');
 
 const now = new Date();
 const Y = now.getFullYear(), M = now.getMonth() + 1, Dnow = now.getDate();
@@ -59,14 +65,14 @@ const upcoming = all.filter((e) => !e.past).sort((a, b) => a.key - b.key);
 const past = all.filter((e) => e.past).sort((a, b) => b.key - a.key);
 
 const L = {
-  up: blok.label_upcoming || 'À venir',
-  past: blok.label_past || 'Passés',
-  reg: blok.register_label || "Je m'inscris",
-  back: blok.back_label || '← Retour aux actualités',
-  empty: blok.empty_label || 'Aucun événement à venir pour le moment.',
-  emptyPast: blok.empty_past || 'Aucun événement passé.',
-  when: blok.when_label || 'Quand',
-  where: blok.where_label || 'Où',
+  up: lbl(blok.label_upcoming, 'À venir'),
+  past: lbl(blok.label_past, 'Passés'),
+  reg: lbl(blok.register_label, "Je m'inscris"),
+  back: lbl(blok.back_label, '← Retour aux actualités'),
+  empty: lbl(blok.empty_label, 'Aucun événement à venir pour le moment.'),
+  emptyPast: lbl(blok.empty_past, 'Aucun événement passé.'),
+  when: lbl(blok.when_label, 'Quand'),
+  where: lbl(blok.where_label, 'Où'),
 };
 ---
 <section class="events-sec" {...storyblokEditable(blok)} data-events>
