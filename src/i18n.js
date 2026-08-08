@@ -60,6 +60,16 @@ export const UI = {
   '« Allez, faites de toutes les nations des disciples. »': { en: '"Go therefore and make disciples of all nations."', id: '"Karena itu pergilah, jadikanlah semua bangsa murid-Ku."', es: '"Id y haced discípulos a todas las naciones."', zh: '"所以你们要去，使万民作我的门徒。"', mg: '"Koa mandehana ianareo, ataovy mpianatra ny firenena rehetra."' },
   'Matthieu 28:19': { en: 'Matthew 28:19', id: 'Matius 28:19', es: 'Mateo 28:19', zh: '马太福音 28:19', mg: 'Matio 28:19' },
   'Contacter le bureau': { en: 'Contact the board', id: 'Hubungi pengurus', es: 'Contactar a la junta', zh: '联系理事会', mg: 'Hifandray amin\'ny birao' },
+  // Actualités / Événements (libellés issus du code)
+  'À venir': { en: 'Upcoming', id: 'Akan datang', es: 'Próximos', zh: '即将举行', mg: 'Ho avy' },
+  'Passés': { en: 'Past', id: 'Sudah lewat', es: 'Pasados', zh: '往期', mg: 'Lasa' },
+  "Je m'inscris": { en: 'Register', id: 'Daftar', es: 'Inscribirme', zh: '报名', mg: 'Hisoratra anarana' },
+  '← Retour aux actualités': { en: '← Back to news', id: '← Kembali ke berita', es: '← Volver a noticias', zh: '← 返回新闻', mg: '← Hiverina amin\'ny vaovao' },
+  'Aucun événement à venir pour le moment.': { en: 'No upcoming events at the moment.', id: 'Belum ada acara mendatang.', es: 'No hay eventos próximos por ahora.', zh: '暂无即将举行的活动。', mg: 'Tsy misy hetsika ho avy aloha.' },
+  'Aucun événement passé.': { en: 'No past events.', id: 'Tidak ada acara yang lalu.', es: 'No hay eventos pasados.', zh: '暂无往期活动。', mg: 'Tsy misy hetsika lasa.' },
+  'Quand': { en: 'When', id: 'Kapan', es: 'Cuándo', zh: '时间', mg: 'Rahoviana' },
+  'Où': { en: 'Where', id: 'Di mana', es: 'Dónde', zh: '地点', mg: 'Aiza' },
+  'En savoir plus': { en: 'Learn more', id: 'Selengkapnya', es: 'Saber más', zh: '了解更多', mg: 'Fantaro bebe kokoa' },
   // Bandeau cookies
   'Ce site utilise uniquement des cookies techniques nécessaires à son fonctionnement. Aucun cookie publicitaire.': { en: 'This site only uses technical cookies necessary for it to work. No advertising cookies.', id: 'Situs ini hanya memakai cookie teknis yang diperlukan agar berfungsi. Tanpa cookie iklan.', es: 'Este sitio solo usa cookies técnicas necesarias para funcionar. Sin cookies publicitarias.', zh: '本网站仅使用运行所必需的技术性 Cookie，不使用广告 Cookie。', mg: "Mampiasa cookies ara-teknika ilaina fotsiny ity tranonkala ity. Tsy misy cookie dokam-barotra." },
   "J'accepte": { en: 'I accept', id: 'Saya setuju', es: 'Acepto', zh: '我接受', mg: 'Ekeko' },
