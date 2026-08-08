@@ -1,11 +1,13 @@
 ---
 import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
 import { storyblokEditable } from '@storyblok/astro';
+import { localeFromPath, t } from '../i18n.js';
 const { blok } = Astro.props;
-const backLabel = blok.back_label || '← Retour à la gouvernance';
-const verseText = blok.verse_text || '« Allez, faites de toutes les nations des disciples. »';
-const verseRef = blok.verse_ref || 'Matthieu 28:19';
-const contactLabel = blok.contact_label || 'Contacter le bureau';
+const locale = localeFromPath(Astro.url.pathname);
+const backLabel = blok.back_label || t(locale, '← Retour à la gouvernance');
+const verseText = blok.verse_text || t(locale, '« Allez, faites de toutes les nations des disciples. »');
+const verseRef = blok.verse_ref || t(locale, 'Matthieu 28:19');
+const contactLabel = blok.contact_label || t(locale, 'Contacter le bureau');
 const contactLink = blok.contact_link?.url || blok.contact_link?.cached_url || '/contact';
 ---
 <section class="leaders-sec" {...storyblokEditable(blok)} data-leaders>
