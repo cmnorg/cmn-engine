@@ -3,7 +3,7 @@
 import { useStoryblokApi } from '@storyblok/astro';
 
 const SITE = 'https://cmn-ministries.org';
-const NON_FR = ['en', 'id', 'es', 'zh'];
+const NON_FR = ['en'];
 const STANDALONE = ['contact', 'connect', 'mur-de-priere', 'partenaires', 'faire-un-don', 'mentions-legales', 'confidentialite', 'cookies'];
 
 export async function GET() {
