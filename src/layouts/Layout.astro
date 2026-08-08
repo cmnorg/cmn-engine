@@ -18,7 +18,7 @@ try {
 } catch (e) { settings = null; }
 
 // ===== SEO =====
-const SITE = (Astro.site && String(Astro.site.href).replace(/\/$/, '')) || 'https://cmn-engine.pages.dev';
+const SITE = (Astro.site && String(Astro.site.href).replace(/\/$/, '')) || 'https://cmn-ministries.org';
 const canonical = SITE + Astro.url.pathname;
 const ogImage = settings?.og_image?.filename || settings?.logo?.filename || '';
 const ogLocale = { fr: 'fr_FR', en: 'en_US', es: 'es_ES', id: 'id_ID', zh: 'zh_CN' }[locale] || 'fr_FR';
