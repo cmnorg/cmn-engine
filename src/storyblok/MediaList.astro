@@ -2,7 +2,10 @@
 import { renderRichText, storyblokEditable } from '@storyblok/astro';
 import { sbImg } from '../img.js';
 import { sbGet } from '../sb.js';
+import { localeFromPath } from '../i18n.js';
 const { blok } = Astro.props;
+const locale = localeFromPath(Astro.url.pathname);
+const langParam = locale === 'fr' ? {} : { language: locale };
 
 function ytId(raw) {
   if (!raw) return '';
@@ -22,8 +25,8 @@ function assetUrl(a) {
 let vstories = [], rstories = [];
 try {
   const [v, r] = await Promise.all([
-    sbGet('cdn/stories', { version: 'draft', content_type: 'video', per_page: 100 }),
-    sbGet('cdn/stories', { version: 'draft', content_type: 'report', per_page: 100 }),
+    sbGet('cdn/stories', { version: 'draft', content_type: 'video', per_page: 100, ...langParam }),
+    sbGet('cdn/stories', { version: 'draft', content_type: 'report', per_page: 100, ...langParam }),
   ]);
   vstories = v.data.stories || [];
   rstories = r.data.stories || [];
