@@ -51,6 +51,10 @@ export const UI = {
   'Indique une adresse e-mail valide.': { en: 'Please enter a valid email address.', id: 'Masukkan alamat email yang valid.', es: 'Introduce un correo electrónico válido.', zh: '请输入有效的电子邮箱地址。', mg: 'Ampidiro adiresy mailaka manan-kery.' },
   'Merci de cocher la case de consentement.': { en: 'Please tick the consent box.', id: 'Centang kotak persetujuan.', es: 'Marca la casilla de consentimiento.', zh: '请勾选同意框。', mg: 'Mariho ny efajoro fanekena.' },
   'Une erreur est survenue. Réessaie dans un instant.': { en: 'Something went wrong. Please try again shortly.', id: 'Terjadi kesalahan. Coba lagi sebentar.', es: 'Se produjo un error. Inténtalo de nuevo en un momento.', zh: '出现错误，请稍后重试。', mg: 'Nisy olana. Andramo indray afaka kelikely.' },
+  // Campagne (libellés issus du code)
+  'collectés sur': { en: 'raised of', id: 'terkumpul dari', es: 'recaudados de', zh: '已筹集，目标', mg: 'voaangona amin\'ny' },
+  'donateurs': { en: 'donors', id: 'donatur', es: 'donantes', zh: '位捐赠者', mg: 'mpanome' },
+  'jours restants': { en: 'days left', id: 'hari tersisa', es: 'días restantes', zh: '天剩余', mg: 'andro sisa' },
   // Bandeau cookies
   'Ce site utilise uniquement des cookies techniques nécessaires à son fonctionnement. Aucun cookie publicitaire.': { en: 'This site only uses technical cookies necessary for it to work. No advertising cookies.', id: 'Situs ini hanya memakai cookie teknis yang diperlukan agar berfungsi. Tanpa cookie iklan.', es: 'Este sitio solo usa cookies técnicas necesarias para funcionar. Sin cookies publicitarias.', zh: '本网站仅使用运行所必需的技术性 Cookie，不使用广告 Cookie。', mg: "Mampiasa cookies ara-teknika ilaina fotsiny ity tranonkala ity. Tsy misy cookie dokam-barotra." },
   "J'accepte": { en: 'I accept', id: 'Saya setuju', es: 'Acepto', zh: '我接受', mg: 'Ekeko' },
