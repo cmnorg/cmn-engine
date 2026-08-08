@@ -20,7 +20,7 @@ function dateStr(y, m, d) {
 
 let stories = [];
 try {
-  const { data } = await sbGet('cdn/stories', { version: 'draft', content_type: 'event', per_page: 100 });
+  const { data } = await sbGet('cdn/stories', { version: 'draft', content_type: 'event', per_page: 100, ...(locale === 'fr' ? {} : { language: locale }) });
   stories = data.stories || [];
 } catch (e) { stories = []; }
 
