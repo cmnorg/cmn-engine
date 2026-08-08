@@ -2,7 +2,7 @@
 // Sur la page d'accueil "/" : si la langue officielle du pays est disponible -> redirige vers /<lang>/ ;
 // sinon anglais. Le français reste à la racine. Un cookie "cmn_lang" mémorise le choix (manuel ou auto).
 
-const NON_FR = ['en', 'id', 'es', 'zh'];
+const NON_FR = ['en'];
 
 // Pays -> langue du site. Tout pays non listé tombe sur l'anglais.
 const C2L = {
@@ -13,17 +13,7 @@ const C2L = {
   // Départements / territoires français d'outre-mer -> fr
   GP: 'fr', MQ: 'fr', RE: 'fr', GF: 'fr', YT: 'fr', PM: 'fr',
   BL: 'fr', MF: 'fr', WF: 'fr', PF: 'fr', NC: 'fr',
-  // Indonésien
-  ID: 'id',
-  // Hispanophones
-  ES: 'es', MX: 'es', AR: 'es', CO: 'es', PE: 'es', VE: 'es', CL: 'es',
-  EC: 'es', GT: 'es', CU: 'es', BO: 'es', DO: 'es', HN: 'es', PY: 'es',
-  SV: 'es', NI: 'es', CR: 'es', PA: 'es', UY: 'es', PR: 'es',
-  // Sinophones
-  CN: 'zh', TW: 'zh', HK: 'zh', MO: 'zh',
-  // Anglophones (et par défaut, tout le reste)
-  US: 'en', GB: 'en', CA: 'en', AU: 'en', NZ: 'en', IE: 'en', ZA: 'en',
-  NG: 'en', KE: 'en', GH: 'en', IN: 'en', PH: 'en', SG: 'en',
+  // Tous les autres pays tombent sur l'anglais (voir countryToLang ci-dessous).
 };
 
 function countryToLang(cc) {
