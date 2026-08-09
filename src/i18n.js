@@ -6,7 +6,7 @@ export const LANGS = [
 export const NON_FR = ['en'];
 
 // Pages autonomes (formulaires interactifs) pas encore localisées : elles restent en français.
-export const STANDALONE = ['connect', 'mur-de-priere', 'faire-un-don', 'don-merci', 'admin-prieres', 'admin', 'mentions-legales', 'confidentialite', 'cookies'];
+export const STANDALONE = ['mur-de-priere', 'faire-un-don', 'don-merci', 'admin-prieres', 'admin', 'mentions-legales', 'confidentialite', 'cookies'];
 
 // Détecte la langue depuis le chemin de l'URL.
 export function localeFromPath(pathname) {
@@ -151,6 +151,42 @@ export const UI = {
   'Devenir partenaire mensuel': { en: 'Become a monthly partner' },
   'Tu as oublié de saisir ton montant 🙂': { en: 'You forgot to enter your amount 🙂' },
   'Le montant minimum est de {n} €.': { en: 'The minimum amount is {n} €.' },
+  // Page Connect (textes du code)
+  'Une communauté mondiale : rejoins des groupes, échange, prie et sers avec nous.': { en: 'A global community: join groups, connect, pray and serve with us.' },
+  "Canal d'annonces officiel": { en: 'Official announcements channel' },
+  'Reçois nouvelles, événements et sujets de prière de CMN.': { en: 'Get news, events and prayer topics from CMN.' },
+  "S'abonner au canal": { en: 'Subscribe to the channel' },
+  'Nouveau ici ? Rejoins-nous en 3 étapes': { en: 'New here? Join us in 3 steps' },
+  'Choisis un groupe (pays ou thématique)': { en: 'Choose a group (country or topic)' },
+  'Laisse tes coordonnées pour être ajouté': { en: 'Leave your details to be added' },
+  'Présente-toi, prie et sers avec nous': { en: 'Introduce yourself, pray and serve with us' },
+  'Rechercher un groupe…': { en: 'Search for a group…' },
+  'Tous': { en: 'All' },
+  'Pays': { en: 'Countries' },
+  'Thématiques': { en: 'Topics' },
+  'Aucun groupe ne correspond à ta recherche.': { en: 'No group matches your search.' },
+  'Notre charte': { en: 'Our charter' },
+  "Bienveillance, respect et valeurs chrétiennes. Pas de spam ni de polémique : on s'encourage et on prie les uns pour les autres.": { en: 'Kindness, respect and Christian values. No spam or controversy: we encourage one another and pray for each other.' },
+  'Tu veux animer un groupe ?': { en: 'Want to lead a group?' },
+  'Lance un groupe pour ta ville, ton pays ou ta passion.': { en: 'Start a group for your city, your country or your passion.' },
+  'Proposer un groupe': { en: 'Propose a group' },
+  "Laisse tes coordonnées : un responsable CMN t'accueillera et t'ajoutera au groupe.": { en: 'Leave your details: a CMN leader will welcome you and add you to the group.' },
+  'Groupe choisi': { en: 'Selected group' },
+  'Numéro WhatsApp': { en: 'WhatsApp number' },
+  'E-mail (facultatif)': { en: 'Email (optional)' },
+  'Ton message (obligatoire — présente-toi en quelques mots)': { en: 'Your message (required — introduce yourself in a few words)' },
+  "Bonjour, je m'appelle… et je souhaite rejoindre ce groupe parce que…": { en: "Hello, my name is… and I'd like to join this group because…" },
+  "J'accepte d'être contacté(e) par CMN pour rejoindre ce groupe.": { en: 'I agree to be contacted by CMN to join this group.' },
+  'Envoyer ma demande': { en: 'Send my request' },
+  "🔒 Tes coordonnées ne sont jamais publiées. Elles servent uniquement à t'accueillir dans le groupe.": { en: '🔒 Your details are never published. They are only used to welcome you into the group.' },
+  'Connecte-toi à la branche CMN de ta région.': { en: 'Connect with the CMN branch in your region.' },
+  'Partage et grandis autour de ce qui te passionne.': { en: 'Share and grow around what you are passionate about.' },
+  'membres': { en: 'members' },
+  'Rejoindre le groupe': { en: 'Join the group' },
+  'Indique un numéro WhatsApp ou un e-mail.': { en: 'Enter a WhatsApp number or an email.' },
+  'Merci d’écrire un petit message de présentation.': { en: 'Please write a short introduction.' },
+  'Confirme que tu n’es pas un robot.': { en: "Please confirm you're not a robot." },
+  'Merci ! Un responsable te contactera bientôt pour t’accueillir 🙏': { en: 'Thank you! A leader will contact you soon to welcome you 🙏' },
   // Bandeau cookies
   'Ce site utilise uniquement des cookies techniques nécessaires à son fonctionnement. Aucun cookie publicitaire.': { en: 'This site only uses technical cookies necessary for it to work. No advertising cookies.', id: 'Situs ini hanya memakai cookie teknis yang diperlukan agar berfungsi. Tanpa cookie iklan.', es: 'Este sitio solo usa cookies técnicas necesarias para funcionar. Sin cookies publicitarias.', zh: '本网站仅使用运行所必需的技术性 Cookie，不使用广告 Cookie。', mg: "Mampiasa cookies ara-teknika ilaina fotsiny ity tranonkala ity. Tsy misy cookie dokam-barotra." },
   "J'accepte": { en: 'I accept', id: 'Saya setuju', es: 'Acepto', zh: '我接受', mg: 'Ekeko' },
