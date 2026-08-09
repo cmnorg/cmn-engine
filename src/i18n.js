@@ -6,7 +6,7 @@ export const LANGS = [
 export const NON_FR = ['en'];
 
 // Pages autonomes (formulaires interactifs) pas encore localisées : elles restent en français.
-export const STANDALONE = ['contact', 'connect', 'mur-de-priere', 'partenaires', 'faire-un-don', 'don-merci', 'admin-prieres', 'admin', 'mentions-legales', 'confidentialite', 'cookies'];
+export const STANDALONE = ['connect', 'mur-de-priere', 'partenaires', 'faire-un-don', 'don-merci', 'admin-prieres', 'admin', 'mentions-legales', 'confidentialite', 'cookies'];
 
 // Détecte la langue depuis le chemin de l'URL.
 export function localeFromPath(pathname) {
@@ -70,6 +70,40 @@ export const UI = {
   'Quand': { en: 'When', id: 'Kapan', es: 'Cuándo', zh: '时间', mg: 'Rahoviana' },
   'Où': { en: 'Where', id: 'Di mana', es: 'Dónde', zh: '地点', mg: 'Aiza' },
   'En savoir plus': { en: 'Learn more', id: 'Selengkapnya', es: 'Saber más', zh: '了解更多', mg: 'Fantaro bebe kokoa' },
+  // Page Contact (textes du code)
+  'Écris-nous': { en: 'Write to us' },
+  'Une question, un projet de partenariat, une demande de prière ? Notre équipe te répond avec joie.': { en: 'A question, a partnership idea, a prayer request? Our team will gladly reply.' },
+  'Restons en lien': { en: "Let's stay connected" },
+  'Nous lisons chaque message et répondons généralement sous 48 h.': { en: 'We read every message and usually reply within 48 hours.' },
+  'Remplis le formulaire, on te répond vite.': { en: "Fill in the form and we'll reply quickly." },
+  'Suis-nous': { en: 'Follow us' },
+  'Accès rapides': { en: 'Quick links' },
+  'Déposer une prière': { en: 'Post a prayer' },
+  'Rejoindre un groupe': { en: 'Join a group' },
+  'Envoie-nous un message': { en: 'Send us a message' },
+  'Ton nom': { en: 'Your name' },
+  'Prénom et nom': { en: 'First and last name' },
+  'Ton e-mail *': { en: 'Your email *' },
+  'Sujet': { en: 'Subject' },
+  'Ton message *': { en: 'Your message *' },
+  'Écris-nous ici…': { en: 'Write to us here…' },
+  "J'accepte que CMN utilise ces informations pour me répondre.": { en: 'I agree that CMN may use this information to reply to me.' },
+  'Envoyer mon message': { en: 'Send my message' },
+  "🔒 Tes informations restent confidentielles et ne servent qu'à te répondre.": { en: '🔒 Your information stays confidential and is only used to reply to you.' },
+  // Sujets du formulaire
+  'Question générale': { en: 'General question' },
+  'Partenariat': { en: 'Partnership' },
+  'Demande de prière': { en: 'Prayer request' },
+  'Bénévolat / Mission': { en: 'Volunteering / Mission' },
+  'Proposer un groupe (Connect)': { en: 'Propose a group (Connect)' },
+  'Presse & médias': { en: 'Press & media' },
+  'Autre': { en: 'Other' },
+  // Messages JS du formulaire
+  'Écris quelques mots de plus (au moins 10 caractères).': { en: 'Please write a little more (at least 10 characters).' },
+  'Merci de cocher le consentement.': { en: 'Please tick the consent box.' },
+  'Envoi…': { en: 'Sending…' },
+  'Merci ! Ton message a bien été envoyé. Nous te répondrons bientôt 🙏': { en: "Thank you! Your message has been sent. We'll reply soon 🙏" },
+  'Une erreur est survenue.': { en: 'Something went wrong.' },
   // Bandeau cookies
   'Ce site utilise uniquement des cookies techniques nécessaires à son fonctionnement. Aucun cookie publicitaire.': { en: 'This site only uses technical cookies necessary for it to work. No advertising cookies.', id: 'Situs ini hanya memakai cookie teknis yang diperlukan agar berfungsi. Tanpa cookie iklan.', es: 'Este sitio solo usa cookies técnicas necesarias para funcionar. Sin cookies publicitarias.', zh: '本网站仅使用运行所必需的技术性 Cookie，不使用广告 Cookie。', mg: "Mampiasa cookies ara-teknika ilaina fotsiny ity tranonkala ity. Tsy misy cookie dokam-barotra." },
   "J'accepte": { en: 'I accept', id: 'Saya setuju', es: 'Acepto', zh: '我接受', mg: 'Ekeko' },
