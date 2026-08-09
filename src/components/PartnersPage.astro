@@ -1,0 +1,169 @@
+---
+// Page Partenaires bilingue (rendue par /partenaires en FR et /en/partenaires en EN).
+import Layout from '../layouts/Layout.astro';
+import { useStoryblokApi } from '@storyblok/astro';
+import { sbImg } from '../img.js';
+import { localeFromPath, t } from '../i18n.js';
+
+const locale = localeFromPath(Astro.url.pathname);
+function u(v) { if (!v) return ''; if (typeof v === 'string') return v; return v.filename || v.url || v.cached_url || ''; }
+
+let settings = {};
+try {
+  const api = useStoryblokApi();
+  const { data } = await api.get('cdn/stories/settings', { version: 'draft' });
+  settings = (data && data.story && data.story.content) || {};
+} catch (e) { settings = {}; }
+
+const donateUrl = '/faire-un-don';
+const contactHref = (locale === 'fr' ? '/contact' : '/en/contact') + '?sujet=Partenariat';
+const heroImg = u(settings.part_hero);
+const partnerPhoto = u(settings.part_photo);
+
+const tiers = [
+  { key: 'ami', name: 'Ami', amount: 15, emoji: '🤝', img: u(settings.part_img_ami), impact: 'Tu soutiens la diffusion de l’Évangile en ligne.', concrete: '≈ 150 personnes touchées en ligne / mois' },
+  { key: 'compagnon', name: 'Compagnon', amount: 30, emoji: '🌱', img: u(settings.part_img_compagnon), impact: 'Tu aides à former un disciple chaque mois.', concrete: '= 1 disciple formé chaque mois' },
+  { key: 'batisseur', name: 'Bâtisseur', amount: 75, emoji: '🧱', img: u(settings.part_img_batisseur), impact: 'Tu soutiens une action humanitaire de terrain.', concrete: '= 1 famille aidée sur le terrain', popular: true },
+  { key: 'pilier', name: 'Pilier', amount: 150, emoji: '🏛️', img: u(settings.part_img_pilier), impact: 'Tu portes une campagne d’évangélisation entière.', concrete: 'contribue à une croisade complète' },
+];
+
+const M = {
+  perMonth: t(locale, '/mois'),
+  min: t(locale, 'Le montant minimum est de {n} €.'),
+  forgot: t(locale, 'Tu as oublié de saisir ton montant 🙂'),
+};
+---
+<Layout title="CMN — Devenir partenaire">
+  <section class="pt">
+    <div class={`pt-hero${heroImg ? ' pt-hero--img' : ''}`} style={heroImg ? `background-image:linear-gradient(rgba(28,28,26,.72),rgba(28,28,26,.72)),url(${heroImg})` : ''}>
+      <div class="wrap">
+        <div class="disc-label">{t(locale, 'Partenaires')}</div>
+        <h1>{t(locale, 'Deviens partenaire de la mission')}</h1>
+        <p>{t(locale, 'Un partenaire mensuel se tient à nos côtés, mois après mois. Ton soutien régulier nous permet de planifier les campagnes, former des disciples et faire vivre les projets humanitaires dans la durée.')}</p>
+        <div class="pt-trust">
+          <span>{t(locale, '🔒 Paiement sécurisé')}</span>
+          <span>{t(locale, '🧾 Reçu fiscal automatique')}</span>
+          <span>{t(locale, '✋ Résiliable à tout moment')}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <div class="pt-freq" role="group" aria-label="Fréquence du don">
+        <button class="pt-freq-btn active" data-freq="monthly" type="button">{t(locale, 'Mensuel')} <small>{t(locale, 'recommandé')}</small></button>
+        <button class="pt-freq-btn" data-freq="once" type="button">{t(locale, 'Ponctuel')}</button>
+      </div>
+
+      <div class="pt-tiers">
+        {tiers.map((tier, i) => (
+          <article class={`pt-tier accent-${i}${tier.popular ? ' feat' : ''}`} data-amount={tier.amount}>
+            {tier.popular && <div class="pt-ribbon">{t(locale, 'Le plus choisi')}</div>}
+            <div class="pt-ph" style={tier.img ? `background-image:url(${sbImg(tier.img, 800)})` : ''}></div>
+            <div class="pt-bd">
+              <span class="pt-icon">{tier.emoji}</span>
+              <div class="pt-badge">{t(locale, tier.name)}</div>
+              <div class="pt-amt"><strong>{tier.amount} €</strong><span class="pt-per">{t(locale, '/mois')}</span></div>
+              <div class="pt-concrete">{t(locale, tier.concrete)}</div>
+              <p class="pt-impact">{t(locale, tier.impact)}</p>
+              <a class={`btn ${tier.popular ? 'btn-gold' : 'btn-ghost'} pt-pick`} href={`${donateUrl}?amount=${tier.amount}&freq=monthly`} data-amount={tier.amount}>{t(locale, 'Devenir partenaire')}</a>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div class="pt-custom">
+        <span>{t(locale, 'Tu préfères choisir ton montant ?')}</span>
+        <div class="pt-custom-row">
+          <input type="number" id="ptAmt" min="1" step="1" placeholder={t(locale, 'Montant')} inputmode="numeric" />
+          <span class="pt-cur">€</span>
+          <a class="btn btn-gold" id="ptCustomBtn" href={`${donateUrl}?freq=monthly`}>{t(locale, 'Donner ce montant')}</a>
+        </div>
+        <span class="pt-amt-msg" id="ptAmtMsg"></span>
+      </div>
+
+      <div class="pt-social">
+        {partnerPhoto && <img class="pt-social-ph" src={sbImg(partnerPhoto, 900)} alt="Partenaire CMN" loading="lazy" decoding="async" />}
+        <blockquote>{t(locale, "« Être partenaire mensuel, c'est porter la mission dans la durée. On reçoit des nouvelles du terrain et on voit concrètement l'impact. »")}</blockquote>
+        <cite>{t(locale, '— Un partenaire CMN')}</cite>
+      </div>
+
+      <h2 class="pt-h2">{t(locale, 'Ce que vivent nos partenaires')}</h2>
+      <div class="pt-benefits">
+        <div class="pt-ben"><div class="pt-ben-ic">📨</div><h3>{t(locale, 'Nouvelles de la mission')}</h3><p>{t(locale, 'Reçois les rapports du terrain et les prières exaucées.')}</p></div>
+        <div class="pt-ben"><div class="pt-ben-ic">🙏</div><h3>{t(locale, 'Prière')}</h3><p>{t(locale, 'Nous prions régulièrement pour nos partenaires.')}</p></div>
+        <div class="pt-ben"><div class="pt-ben-ic">🧾</div><h3>{t(locale, 'Transparence')}</h3><p>{t(locale, 'Reçu fiscal et impact détaillé de tes dons.')} <a href={donateUrl}>{t(locale, 'Voir où va ton don →')}</a></p></div>
+      </div>
+
+      <div class="pt-other">
+        <div class="pt-other-card">
+          <h3>{t(locale, '🙏 Partenaire de prière')}</h3>
+          <p>{t(locale, 'Pas (encore) en mesure de donner ? Deviens partenaire de prière : ton intercession est précieuse.')}</p>
+          <a class="btn btn-ghost" href="/mur-de-priere">{t(locale, 'Rejoindre la prière')}</a>
+        </div>
+        <div class="pt-other-card">
+          <h3>{t(locale, '🤝 Partenariats & organisations')}</h3>
+          <p>{t(locale, 'Église, entreprise ou ONG ? Construisons un partenariat stratégique.')}</p>
+          <a class="btn btn-ghost" href={contactHref}>{t(locale, 'Nous contacter')}</a>
+        </div>
+      </div>
+
+      <div class="pt-band">
+        <h3>{t(locale, 'Tiens-toi à nos côtés, épaule contre épaule, pour transformer les nations.')}</h3>
+        <a class="btn btn-gold pt-pick" href={`${donateUrl}?amount=75&freq=monthly`} data-amount="75">{t(locale, 'Devenir partenaire mensuel')}</a>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline define:vars={{ donateUrl, M }}>
+    (function () {
+      var freq = 'monthly';
+      var freqBtns = document.querySelectorAll('.pt-freq-btn');
+      var pers = document.querySelectorAll('.pt-per');
+      var picks = document.querySelectorAll('.pt-pick');
+
+      function syncFreq() {
+        pers.forEach(function (p) { p.textContent = freq === 'monthly' ? M.perMonth : ''; });
+        picks.forEach(function (a) {
+          var amt = a.getAttribute('data-amount');
+          a.href = donateUrl + (amt ? ('?amount=' + amt + '&freq=' + freq) : ('?freq=' + freq));
+        });
+        var cb = document.getElementById('ptCustomBtn');
+        var amt = (document.getElementById('ptAmt') || {}).value;
+        if (cb) cb.href = donateUrl + (amt ? ('?amount=' + amt + '&freq=' + freq) : ('?freq=' + freq));
+      }
+
+      freqBtns.forEach(function (b) {
+        b.addEventListener('click', function () {
+          freqBtns.forEach(function (x) { x.classList.remove('active'); });
+          b.classList.add('active');
+          freq = b.getAttribute('data-freq');
+          syncFreq();
+        });
+      });
+
+      var amtEl = document.getElementById('ptAmt');
+      var amtMsg = document.getElementById('ptAmtMsg');
+      var customBtn = document.getElementById('ptCustomBtn');
+      var MIN = 1;
+
+      if (amtEl) amtEl.addEventListener('input', function () {
+        amtEl.classList.remove('pt-amt-err');
+        if (amtMsg) amtMsg.textContent = '';
+        syncFreq();
+      });
+
+      if (customBtn) customBtn.addEventListener('click', function (e) {
+        var val = parseInt((amtEl && amtEl.value) || '', 10);
+        if (!(val >= MIN)) {
+          e.preventDefault();
+          if (amtEl) { amtEl.classList.add('pt-amt-err'); amtEl.focus(); }
+          if (amtMsg) amtMsg.textContent = (amtEl && amtEl.value)
+            ? M.min.replace('{n}', MIN)
+            : M.forgot;
+        }
+      });
+
+      syncFreq();
+    })();
+  </script>
+</Layout>
