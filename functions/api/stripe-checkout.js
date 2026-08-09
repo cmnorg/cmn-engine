@@ -27,6 +27,7 @@ export async function onRequestPost({ env, request }) {
   const name = String(body.name || '').trim().slice(0, 120);
   const country = String(body.country || '').trim().slice(0, 60);
   const phone = String(body.phone || '').trim().slice(0, 30);
+  const lang = String(body.lang || '').trim().toLowerCase();
 
   if (!(amount > 0) || amount > 1000000) return json({ error: 'Montant invalide.' }, 400);
   if (ALLOWED_CUR.indexOf(currency) === -1) return json({ error: 'Devise non prise en charge.' }, 400);
@@ -34,19 +35,20 @@ export async function onRequestPost({ env, request }) {
 
   const unit = ZERO_DECIMAL.indexOf(currency) !== -1 ? amount : amount * 100;
   const origin = new URL(request.url).origin;
+  const prefix = lang === 'en' ? '/en' : ''; // redirige vers les pages anglaises si besoin
 
   // Construction des paramètres x-www-form-urlencoded attendus par l'API Stripe.
   const p = new URLSearchParams();
   p.set('mode', monthly ? 'subscription' : 'payment');
   p.set('locale', 'auto'); // page de paiement auto-traduite
-  p.set('success_url', origin + '/don-merci?ok=1');
-  p.set('cancel_url', origin + '/faire-un-don?annule=1');
+  p.set('success_url', origin + prefix + '/don-merci?ok=1');
+  p.set('cancel_url', origin + prefix + '/faire-un-don?annule=1');
   if (email) p.set('customer_email', email);
 
   p.set('line_items[0][quantity]', '1');
   p.set('line_items[0][price_data][currency]', currency.toLowerCase());
   p.set('line_items[0][price_data][unit_amount]', String(unit));
-  p.set('line_items[0][price_data][product_data][name]', monthly ? 'Don mensuel — CMN' : 'Don — CMN');
+  p.set('line_items[0][price_data][product_data][name]', monthly ? (lang === 'en' ? 'Monthly gift — CMN' : 'Don mensuel — CMN') : (lang === 'en' ? 'Gift — CMN' : 'Don — CMN'));
   if (monthly) p.set('line_items[0][price_data][recurring][interval]', 'month');
 
   // Informations utiles côté Stripe (reçu / suivi).
