@@ -32,8 +32,13 @@ const currencies = [
   { code: 'EUR', sym: '€' }, { code: 'USD', sym: '$' }, { code: 'CAD', sym: '$' },
   { code: 'GBP', sym: '£' }, { code: 'CHF', sym: 'CHF' }, { code: 'XOF', sym: 'FCFA' },
 ];
-const topCountries = ['France', 'Belgique', 'Suisse', 'Canada', 'Luxembourg', 'Togo', 'Bénin', 'Madagascar', "Côte d'Ivoire", 'Cameroun', 'RD Congo', 'Sénégal', 'États-Unis', 'Royaume-Uni'];
-const allCountries = ['Afghanistan','Afrique du Sud','Albanie','Algérie','Allemagne','Andorre','Angola','Antigua-et-Barbuda','Arabie saoudite','Argentine','Arménie','Australie','Autriche','Azerbaïdjan','Bahamas','Bahreïn','Bangladesh','Barbade','Belgique','Belize','Bénin','Bhoutan','Biélorussie','Birmanie (Myanmar)','Bolivie','Bosnie-Herzégovine','Botswana','Brésil','Brunei','Bulgarie','Burkina Faso','Burundi','Cambodge','Cameroun','Canada','Cap-Vert','Chili','Chine','Chypre','Colombie','Comores','Congo','Corée du Nord','Corée du Sud','Costa Rica',"Côte d'Ivoire",'Croatie','Cuba','Danemark','Djibouti','Dominique','Égypte','Émirats arabes unis','Équateur','Érythrée','Espagne','Estonie','Eswatini','États-Unis','Éthiopie','Fidji','Finlande','France','Gabon','Gambie','Géorgie','Ghana','Grèce','Grenade','Guatemala','Guinée','Guinée équatoriale','Guinée-Bissau','Guyana','Haïti','Honduras','Hongrie','Inde','Indonésie','Irak','Iran','Irlande','Islande','Israël','Italie','Jamaïque','Japon','Jordanie','Kazakhstan','Kenya','Kirghizistan','Kiribati','Koweït','Laos','Lesotho','Lettonie','Liban','Liberia','Libye','Liechtenstein','Lituanie','Luxembourg','Macédoine du Nord','Madagascar','Malaisie','Malawi','Maldives','Mali','Malte','Maroc','Marshall (Îles)','Maurice','Mauritanie','Mexique','Micronésie','Moldavie','Monaco','Mongolie','Monténégro','Mozambique','Namibie','Nauru','Népal','Nicaragua','Niger','Nigeria','Norvège','Nouvelle-Zélande','Oman','Ouganda','Ouzbékistan','Pakistan','Palaos','Palestine','Panama','Papouasie-Nouvelle-Guinée','Paraguay','Pays-Bas','Pérou','Philippines','Pologne','Portugal','Qatar','RD Congo','République centrafricaine','République dominicaine','République tchèque','Roumanie','Royaume-Uni','Russie','Rwanda','Saint-Christophe-et-Niévès','Saint-Marin','Saint-Vincent-et-les-Grenadines','Sainte-Lucie','Salomon (Îles)','Salvador','Samoa','São Tomé-et-Principe','Sénégal','Serbie','Seychelles','Sierra Leone','Singapour','Slovaquie','Slovénie','Somalie','Soudan','Soudan du Sud','Sri Lanka','Suède','Suisse','Suriname','Syrie','Tadjikistan','Tanzanie','Tchad','Thaïlande','Timor oriental','Togo','Tonga','Trinité-et-Tobago','Tunisie','Turkménistan','Turquie','Tuvalu','Ukraine','Uruguay','Vanuatu','Vatican','Venezuela','Vietnam','Yémen','Zambie','Zimbabwe'];
+// Pays gérés par codes ISO : le nom s'affiche automatiquement dans la langue du visiteur.
+const regionNames = new Intl.DisplayNames([locale], { type: 'region' });
+function cname(code) { try { return regionNames.of(code) || code; } catch (e) { return code; } }
+const topCodes = ['FR', 'BE', 'CH', 'CA', 'LU', 'TG', 'BJ', 'MG', 'CI', 'CM', 'CD', 'SN', 'US', 'GB'];
+const allCodes = ['AF','ZA','AL','DZ','DE','AD','AO','AG','SA','AR','AM','AU','AT','AZ','BS','BH','BD','BB','BE','BZ','BJ','BT','BY','BO','BA','BW','BR','BN','BG','BF','BI','KH','CM','CA','CV','CL','CN','CY','CO','KM','CG','CD','KP','KR','CR','CI','HR','CU','DK','DJ','DM','EG','AE','EC','ER','ES','EE','SZ','US','ET','FJ','FI','FR','GA','GM','GE','GH','GR','GD','GT','GN','GQ','GW','GY','HT','HN','HU','IN','ID','IQ','IR','IE','IS','IL','IT','JM','JP','JO','KZ','KE','KG','KI','KW','LA','LS','LV','LB','LR','LY','LI','LT','LU','MK','MG','MY','MW','MV','ML','MT','MA','MH','MU','MR','MX','FM','MD','MC','MN','ME','MZ','MM','NA','NR','NP','NI','NE','NG','NO','NZ','OM','UG','UZ','PK','PW','PS','PA','PG','PY','NL','PE','PH','PL','PT','QA','CF','DO','CZ','RO','GB','RU','RW','KN','SM','VC','LC','SB','SV','WS','ST','SN','RS','SC','SL','SG','SK','SI','SO','SD','SS','LK','SE','CH','SR','SY','TJ','TZ','TD','TH','TL','TG','TO','TT','TN','TM','TR','TV','UA','UY','VU','VA','VE','VN','YE','ZM','ZW'];
+const topCountries = topCodes.map((c) => ({ code: c, name: cname(c) }));
+const allCountries = Array.from(new Set(allCodes)).map((c) => ({ code: c, name: cname(c) })).sort((a, b) => a.name.localeCompare(b.name, locale));
 const amounts = [25, 50, 100, 250];
 const contactHref = (locale === 'fr' ? '/contact' : '/en/contact') + '?sujet=Faire un don';
 
@@ -102,10 +107,10 @@ const M = {
             <select id="fdCountry">
               <option value="">{t(locale, '— Choisir —')}</option>
               <optgroup label={t(locale, 'Fréquents')}>
-                {topCountries.map((c) => <option value={c}>{c}</option>)}
+                {topCountries.map((c) => <option value={c.code}>{c.name}</option>)}
               </optgroup>
               <optgroup label={t(locale, 'Tous les pays')}>
-                {allCountries.map((c) => <option value={c}>{c}</option>)}
+                {allCountries.map((c) => <option value={c.code}>{c.name}</option>)}
               </optgroup>
             </select>
           </div>
@@ -182,7 +187,7 @@ const M = {
     </div>
   </section>
 
-  <script is:inline define:vars={{ M }}>
+  <script is:inline define:vars={{ M, lang: locale }}>
     (function () {
       var freq = 'monthly';
       var amount = 50;
@@ -288,6 +293,7 @@ const M = {
             email: em, name: (document.getElementById('fdFirst').value + ' ' + document.getElementById('fdLast').value).trim(),
             country: document.getElementById('fdCountry').value,
             phone: document.getElementById('fdPhone').value,
+            lang: lang,
             website: form.website.value,
           }),
         }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
