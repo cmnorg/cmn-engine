@@ -6,7 +6,7 @@ export const LANGS = [
 export const NON_FR = ['en'];
 
 // Pages autonomes (formulaires interactifs) pas encore localisées : elles restent en français.
-export const STANDALONE = ['connect', 'mur-de-priere', 'partenaires', 'faire-un-don', 'don-merci', 'admin-prieres', 'admin', 'mentions-legales', 'confidentialite', 'cookies'];
+export const STANDALONE = ['connect', 'mur-de-priere', 'faire-un-don', 'don-merci', 'admin-prieres', 'admin', 'mentions-legales', 'confidentialite', 'cookies'];
 
 // Détecte la langue depuis le chemin de l'URL.
 export function localeFromPath(pathname) {
@@ -104,6 +104,53 @@ export const UI = {
   'Envoi…': { en: 'Sending…' },
   'Merci ! Ton message a bien été envoyé. Nous te répondrons bientôt 🙏': { en: "Thank you! Your message has been sent. We'll reply soon 🙏" },
   'Une erreur est survenue.': { en: 'Something went wrong.' },
+  // Page Partenaires (textes du code)
+  'Deviens partenaire de la mission': { en: 'Become a partner in the mission' },
+  'Un partenaire mensuel se tient à nos côtés, mois après mois. Ton soutien régulier nous permet de planifier les campagnes, former des disciples et faire vivre les projets humanitaires dans la durée.': { en: 'A monthly partner stands with us, month after month. Your regular support lets us plan campaigns, train disciples and sustain humanitarian projects over the long term.' },
+  '🔒 Paiement sécurisé': { en: '🔒 Secure payment' },
+  '🧾 Reçu fiscal automatique': { en: '🧾 Automatic tax receipt' },
+  '✋ Résiliable à tout moment': { en: '✋ Cancel anytime' },
+  'Mensuel': { en: 'Monthly' },
+  'recommandé': { en: 'recommended' },
+  'Ponctuel': { en: 'One-time' },
+  '/mois': { en: '/month' },
+  'Le plus choisi': { en: 'Most chosen' },
+  'Ami': { en: 'Friend' },
+  'Compagnon': { en: 'Companion' },
+  'Bâtisseur': { en: 'Builder' },
+  'Pilier': { en: 'Pillar' },
+  '≈ 150 personnes touchées en ligne / mois': { en: '≈ 150 people reached online / month' },
+  '= 1 disciple formé chaque mois': { en: '= 1 disciple trained each month' },
+  '= 1 famille aidée sur le terrain': { en: '= 1 family helped in the field' },
+  'contribue à une croisade complète': { en: 'helps fund a full crusade' },
+  'Tu soutiens la diffusion de l’Évangile en ligne.': { en: 'You support spreading the Gospel online.' },
+  'Tu aides à former un disciple chaque mois.': { en: 'You help train a disciple every month.' },
+  'Tu soutiens une action humanitaire de terrain.': { en: 'You support humanitarian work in the field.' },
+  'Tu portes une campagne d’évangélisation entière.': { en: 'You carry an entire evangelization campaign.' },
+  'Devenir partenaire': { en: 'Become a partner' },
+  'Tu préfères choisir ton montant ?': { en: 'Prefer to choose your own amount?' },
+  'Montant': { en: 'Amount' },
+  'Donner ce montant': { en: 'Give this amount' },
+  "« Être partenaire mensuel, c'est porter la mission dans la durée. On reçoit des nouvelles du terrain et on voit concrètement l'impact. »": { en: '"Being a monthly partner means carrying the mission over time. You receive news from the field and see the impact for yourself."' },
+  '— Un partenaire CMN': { en: '— A CMN partner' },
+  'Ce que vivent nos partenaires': { en: 'What our partners experience' },
+  'Nouvelles de la mission': { en: 'Mission news' },
+  'Reçois les rapports du terrain et les prières exaucées.': { en: 'Receive field reports and answered prayers.' },
+  'Prière': { en: 'Prayer' },
+  'Nous prions régulièrement pour nos partenaires.': { en: 'We pray regularly for our partners.' },
+  'Transparence': { en: 'Transparency' },
+  'Reçu fiscal et impact détaillé de tes dons.': { en: 'Tax receipt and detailed impact of your gifts.' },
+  'Voir où va ton don →': { en: 'See where your gift goes →' },
+  '🙏 Partenaire de prière': { en: '🙏 Prayer partner' },
+  'Pas (encore) en mesure de donner ? Deviens partenaire de prière : ton intercession est précieuse.': { en: 'Not (yet) able to give? Become a prayer partner: your intercession is precious.' },
+  'Rejoindre la prière': { en: 'Join in prayer' },
+  '🤝 Partenariats & organisations': { en: '🤝 Partnerships & organizations' },
+  'Église, entreprise ou ONG ? Construisons un partenariat stratégique.': { en: "Church, business or NGO? Let's build a strategic partnership." },
+  'Nous contacter': { en: 'Contact us' },
+  'Tiens-toi à nos côtés, épaule contre épaule, pour transformer les nations.': { en: 'Stand with us, shoulder to shoulder, to transform nations.' },
+  'Devenir partenaire mensuel': { en: 'Become a monthly partner' },
+  'Tu as oublié de saisir ton montant 🙂': { en: 'You forgot to enter your amount 🙂' },
+  'Le montant minimum est de {n} €.': { en: 'The minimum amount is {n} €.' },
   // Bandeau cookies
   'Ce site utilise uniquement des cookies techniques nécessaires à son fonctionnement. Aucun cookie publicitaire.': { en: 'This site only uses technical cookies necessary for it to work. No advertising cookies.', id: 'Situs ini hanya memakai cookie teknis yang diperlukan agar berfungsi. Tanpa cookie iklan.', es: 'Este sitio solo usa cookies técnicas necesarias para funcionar. Sin cookies publicitarias.', zh: '本网站仅使用运行所必需的技术性 Cookie，不使用广告 Cookie。', mg: "Mampiasa cookies ara-teknika ilaina fotsiny ity tranonkala ity. Tsy misy cookie dokam-barotra." },
   "J'accepte": { en: 'I accept', id: 'Saya setuju', es: 'Acepto', zh: '我接受', mg: 'Ekeko' },
