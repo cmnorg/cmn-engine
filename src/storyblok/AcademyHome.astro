@@ -2,10 +2,11 @@
 import { storyblokEditable } from '@storyblok/astro';
 import { sbImg } from '../img.js';
 import { sbGet } from '../sb.js';
-import { localeFromPath } from '../i18n.js';
+import { localeFromPath, t } from '../i18n.js';
 const { blok } = Astro.props;
 const locale = localeFromPath(Astro.url.pathname);
 const langParam = locale === 'fr' ? {} : { language: locale };
+function lbl(v, fr) { return locale === 'fr' ? (v || fr) : t(locale, fr); }
 
 function assetUrl(a) {
   if (!a) return '';
@@ -41,7 +42,7 @@ const tracks = trackStories.map((s) => {
     illustration: assetUrl(c.illustration),
     level: c.level || '',
     duration: c.duration || '',
-    cta: c.cta_label || 'Commencer',
+    cta: c.cta_label || t(locale, 'Commencer'),
     url: '/' + s.full_slug,
     count: (trackCourses[key] || []).length,
     advice: c.advice || '',
@@ -85,7 +86,15 @@ const cmsQuestions = (blok.orientation || []).map((q) => ({
   q: q.question || '',
   options: (q.options || []).map((o) => ({ t: o.label || '', s: Number(o.stage) || 0 })),
 })).filter((q) => q.q && q.options.length);
-const questions = cmsQuestions.length ? cmsQuestions : defaultQuestions;
+const questions = cmsQuestions.length ? cmsQuestions : defaultQuestions.map((q) => ({ q: t(locale, q.q), options: q.options.map((o) => ({ t: t(locale, o.t), s: o.s })) }));
+const M = {
+  recoLabel: t(locale, 'Parcours recommandé'),
+  startPath: t(locale, 'Commencer ce parcours'),
+  completed: t(locale, 'terminés'),
+  msg0: t(locale, 'Bienvenue ! C’est une belle décision de vouloir découvrir Jésus. Voici par où commencer :'),
+  msg1: t(locale, 'Félicitations pour ce nouveau départ avec Dieu ! Voici les fondations pour bien grandir :'),
+  msgDefault: t(locale, 'Voici le parcours qui correspond à là où tu en es aujourd’hui :'),
+};
 ---
 <section class="acad" {...storyblokEditable(blok)} data-academy>
   <div class="wrap">
@@ -98,8 +107,8 @@ const questions = cmsQuestions.length ? cmsQuestions : defaultQuestions;
         <div class="quiz-head">
           <span class="quiz-emoji">🧭</span>
           <div>
-            <h3>{blok.quiz_title || 'Trouve ton parcours'}</h3>
-            <p>{blok.quiz_sub || 'Réponds à 3 questions, on te recommande par où commencer.'}</p>
+            <h3>{lbl(blok.quiz_title, 'Trouve ton parcours')}</h3>
+            <p>{lbl(blok.quiz_sub, 'Réponds à 3 questions, on te recommande par où commencer.')}</p>
           </div>
         </div>
         <div class="quiz-body">
@@ -121,30 +130,30 @@ const questions = cmsQuestions.length ? cmsQuestions : defaultQuestions;
     )}
 
     <div class="track-grid">
-      {tracks.length === 0 && <p class="ev-empty">Aucun parcours pour le moment.</p>}
-      {tracks.map((t, i) => (
-        <a class={`track-card accent-${i % 5}`} href={t.url} data-track={t.key} data-count={t.count}>
-          <div class="track-illus" style={t.illustration ? `background-image:url(${sbImg(t.illustration, 800)})` : undefined}></div>
+      {tracks.length === 0 && <p class="ev-empty">{t(locale, 'Aucun parcours pour le moment.')}</p>}
+      {tracks.map((tr, i) => (
+        <a class={`track-card accent-${i % 5}`} href={tr.url} data-track={tr.key} data-count={tr.count}>
+          <div class="track-illus" style={tr.illustration ? `background-image:url(${sbImg(tr.illustration, 800)})` : undefined}></div>
           <div class="track-body">
-            <span class="track-icon">{t.icon}</span>
-            <span class="track-reco-badge" hidden>✨ Recommandé pour toi</span>
-            <h3>{t.title}</h3>
-            {t.subtitle && <p>{t.subtitle}</p>}
+            <span class="track-icon">{tr.icon}</span>
+            <span class="track-reco-badge" hidden>{t(locale, '✨ Recommandé pour toi')}</span>
+            <h3>{tr.title}</h3>
+            {tr.subtitle && <p>{tr.subtitle}</p>}
             <div class="track-meta">
-              <span>{t.count} cours</span>
-              {t.level && <span>· {t.level}</span>}
-              {t.duration && <span>· {t.duration}</span>}
+              <span>{tr.count} {t(locale, 'cours')}</span>
+              {tr.level && <span>· {tr.level}</span>}
+              {tr.duration && <span>· {tr.duration}</span>}
             </div>
-            {t.advice && <div class="track-advice">{t.advice}</div>}
+            {tr.advice && <div class="track-advice">{tr.advice}</div>}
             <div class="track-prog" data-track-prog hidden><div class="track-prog-bar"><i></i></div><span class="track-prog-txt"></span></div>
-            <span class="btn btn-gold track-cta">{t.cta}</span>
+            <span class="btn btn-gold track-cta">{tr.cta}</span>
           </div>
         </a>
       ))}
     </div>
   </div>
 </section>
-<script define:vars={{ recoMap, stageKeys, trackCourses }}>
+<script define:vars={{ recoMap, stageKeys, trackCourses, M }}>
   function readDone() {
     try { return JSON.parse(localStorage.getItem('cmn_academy_done') || '{}'); } catch (e) { return {}; }
   }
@@ -162,7 +171,7 @@ const questions = cmsQuestions.length ? cmsQuestions : defaultQuestions;
           var box = card.querySelector('[data-track-prog]');
           box.hidden = false;
           box.querySelector('i').style.width = Math.round((d / slugs.length) * 100) + '%';
-          box.querySelector('.track-prog-txt').textContent = d + '/' + slugs.length + ' terminés';
+          box.querySelector('.track-prog-txt').textContent = d + '/' + slugs.length + ' ' + M.completed;
         }
       });
       // quiz d'orientation (adaptatif)
@@ -181,18 +190,18 @@ const questions = cmsQuestions.length ? cmsQuestions : defaultQuestions;
       }
       function setLaterVisible(v) { laterQs.forEach(function (q) { q.hidden = !v; }); }
       function messageFor(stage) {
-        if (stage === 0) return 'Bienvenue ! C’est une belle décision de vouloir découvrir Jésus. Voici par où commencer :';
-        if (stage === 1) return 'Félicitations pour ce nouveau départ avec Dieu ! Voici les fondations pour bien grandir :';
-        return 'Voici le parcours qui correspond à là où tu en es aujourd’hui :';
+        if (stage === 0) return M.msg0;
+        if (stage === 1) return M.msg1;
+        return M.msgDefault;
       }
       function showReco(stage) {
         var key = stageKeys[stage] || stageKeys[0];
         var reco = recoMap[key] || Object.values(recoMap)[0];
         if (!reco) return;
         inner.innerHTML = '<div class="quiz-reco-msg">' + messageFor(stage) + '</div>'
-          + '<div class="quiz-reco-label">Parcours recommandé</div>'
+          + '<div class="quiz-reco-label">' + M.recoLabel + '</div>'
           + '<div class="quiz-reco-title">' + (reco.icon || '') + ' ' + reco.title + '</div>'
-          + '<a class="btn btn-gold" href="' + reco.url + '">Commencer ce parcours</a>';
+          + '<a class="btn btn-gold" href="' + reco.url + '">' + M.startPath + '</a>';
         result.hidden = false;
         // mettre en avant la carte du parcours recommandé
         root.querySelectorAll('.track-card').forEach(function (c) {
