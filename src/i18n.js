@@ -6,7 +6,7 @@ export const LANGS = [
 export const NON_FR = ['en'];
 
 // Pages autonomes (formulaires interactifs) pas encore localisées : elles restent en français.
-export const STANDALONE = ['don-merci', 'admin-prieres', 'admin', 'mentions-legales', 'confidentialite', 'cookies'];
+export const STANDALONE = ['admin-prieres', 'admin', 'mentions-legales', 'confidentialite', 'cookies'];
 
 // Détecte la langue depuis le chemin de l'URL.
 export function localeFromPath(pathname) {
@@ -299,6 +299,12 @@ export const UI = {
   'Redirection vers le paiement sécurisé…': { en: 'Redirecting to secure payment…' },
   "Le paiement par carte / PayPal est en cours d'activation. En attendant, choisis « Mobile money » ou « Virement bancaire » ci-dessus pour donner dès maintenant. 🙏": { en: 'Card / PayPal payment is being activated. In the meantime, choose "Mobile money" or "Bank transfer" above to give right now. 🙏' },
   'Une erreur est survenue. Réessaie.': { en: 'Something went wrong. Please try again.' },
+  // Page de remerciement après don
+  'Merci pour ton don': { en: 'Thank you for your gift' },
+  'Merci du fond du cœur': { en: 'Thank you from the bottom of our hearts' },
+  'Ton don a bien été pris en compte. Un reçu te sera envoyé par e-mail par notre prestataire de paiement sécurisé. Grâce à toi, la mission continue : évangélisation, formation des disciples et projets humanitaires sur le terrain.': { en: 'Your gift has been received. A receipt will be emailed to you by our secure payment provider. Thanks to you, the mission continues: evangelization, discipleship training and humanitarian projects in the field.' },
+  "« Que chacun donne comme il l'a résolu en son cœur, sans tristesse ni contrainte ; car Dieu aime celui qui donne avec joie. » — 2 Corinthiens 9:7": { en: '"Each of you should give what you have decided in your heart to give, not reluctantly or under compulsion, for God loves a cheerful giver." — 2 Corinthians 9:7' },
+  "Retour à l'accueil": { en: 'Back to home' },
   // Bandeau cookies
   'Ce site utilise uniquement des cookies techniques nécessaires à son fonctionnement. Aucun cookie publicitaire.': { en: 'This site only uses technical cookies necessary for it to work. No advertising cookies.', id: 'Situs ini hanya memakai cookie teknis yang diperlukan agar berfungsi. Tanpa cookie iklan.', es: 'Este sitio solo usa cookies técnicas necesarias para funcionar. Sin cookies publicitarias.', zh: '本网站仅使用运行所必需的技术性 Cookie，不使用广告 Cookie。', mg: "Mampiasa cookies ara-teknika ilaina fotsiny ity tranonkala ity. Tsy misy cookie dokam-barotra." },
   "J'accepte": { en: 'I accept', id: 'Saya setuju', es: 'Acepto', zh: '我接受', mg: 'Ekeko' },
