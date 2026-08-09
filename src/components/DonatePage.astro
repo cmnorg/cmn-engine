@@ -1,0 +1,310 @@
+---
+// Page Faire un don bilingue (rendue par /faire-un-don en FR et /en/faire-un-don en EN).
+import Layout from '../layouts/Layout.astro';
+import { useStoryblokApi } from '@storyblok/astro';
+import { localeFromPath, t } from '../i18n.js';
+
+const locale = localeFromPath(Astro.url.pathname);
+
+let settings = {};
+try {
+  const api = useStoryblokApi();
+  const { data } = await api.get('cdn/stories/settings', { version: 'draft' });
+  settings = (data && data.story && data.story.content) || {};
+} catch (e) { settings = {}; }
+
+const bankLines = [
+  { label: 'Titulaire', val: settings.bank_holder },
+  { label: 'Banque', val: settings.bank_name },
+  { label: 'IBAN', val: settings.bank_iban },
+  { label: 'BIC / SWIFT', val: settings.bank_bic },
+].filter((x) => x.val);
+const momo = [
+  { label: 'Orange Money', val: settings.momo_orange },
+  { label: 'MTN MoMo', val: settings.momo_mtn },
+  { label: 'Moov Money', val: settings.momo_moov },
+  { label: 'M-Pesa', val: settings.momo_mpesa },
+  { label: 'Airtel / Wave', val: settings.momo_airtel },
+].filter((x) => x.val);
+const hasCoords = bankLines.length > 0 || momo.length > 0;
+
+const currencies = [
+  { code: 'EUR', sym: '€' }, { code: 'USD', sym: '$' }, { code: 'CAD', sym: '$' },
+  { code: 'GBP', sym: '£' }, { code: 'CHF', sym: 'CHF' }, { code: 'XOF', sym: 'FCFA' },
+];
+const topCountries = ['France', 'Belgique', 'Suisse', 'Canada', 'Luxembourg', 'Togo', 'Bénin', 'Madagascar', "Côte d'Ivoire", 'Cameroun', 'RD Congo', 'Sénégal', 'États-Unis', 'Royaume-Uni'];
+const allCountries = ['Afghanistan','Afrique du Sud','Albanie','Algérie','Allemagne','Andorre','Angola','Antigua-et-Barbuda','Arabie saoudite','Argentine','Arménie','Australie','Autriche','Azerbaïdjan','Bahamas','Bahreïn','Bangladesh','Barbade','Belgique','Belize','Bénin','Bhoutan','Biélorussie','Birmanie (Myanmar)','Bolivie','Bosnie-Herzégovine','Botswana','Brésil','Brunei','Bulgarie','Burkina Faso','Burundi','Cambodge','Cameroun','Canada','Cap-Vert','Chili','Chine','Chypre','Colombie','Comores','Congo','Corée du Nord','Corée du Sud','Costa Rica',"Côte d'Ivoire",'Croatie','Cuba','Danemark','Djibouti','Dominique','Égypte','Émirats arabes unis','Équateur','Érythrée','Espagne','Estonie','Eswatini','États-Unis','Éthiopie','Fidji','Finlande','France','Gabon','Gambie','Géorgie','Ghana','Grèce','Grenade','Guatemala','Guinée','Guinée équatoriale','Guinée-Bissau','Guyana','Haïti','Honduras','Hongrie','Inde','Indonésie','Irak','Iran','Irlande','Islande','Israël','Italie','Jamaïque','Japon','Jordanie','Kazakhstan','Kenya','Kirghizistan','Kiribati','Koweït','Laos','Lesotho','Lettonie','Liban','Liberia','Libye','Liechtenstein','Lituanie','Luxembourg','Macédoine du Nord','Madagascar','Malaisie','Malawi','Maldives','Mali','Malte','Maroc','Marshall (Îles)','Maurice','Mauritanie','Mexique','Micronésie','Moldavie','Monaco','Mongolie','Monténégro','Mozambique','Namibie','Nauru','Népal','Nicaragua','Niger','Nigeria','Norvège','Nouvelle-Zélande','Oman','Ouganda','Ouzbékistan','Pakistan','Palaos','Palestine','Panama','Papouasie-Nouvelle-Guinée','Paraguay','Pays-Bas','Pérou','Philippines','Pologne','Portugal','Qatar','RD Congo','République centrafricaine','République dominicaine','République tchèque','Roumanie','Royaume-Uni','Russie','Rwanda','Saint-Christophe-et-Niévès','Saint-Marin','Saint-Vincent-et-les-Grenadines','Sainte-Lucie','Salomon (Îles)','Salvador','Samoa','São Tomé-et-Principe','Sénégal','Serbie','Seychelles','Sierra Leone','Singapour','Slovaquie','Slovénie','Somalie','Soudan','Soudan du Sud','Sri Lanka','Suède','Suisse','Suriname','Syrie','Tadjikistan','Tanzanie','Tchad','Thaïlande','Timor oriental','Togo','Tonga','Trinité-et-Tobago','Tunisie','Turkménistan','Turquie','Tuvalu','Ukraine','Uruguay','Vanuatu','Vatican','Venezuela','Vietnam','Yémen','Zambie','Zimbabwe'];
+const amounts = [25, 50, 100, 250];
+const contactHref = (locale === 'fr' ? '/contact' : '/en/contact') + '?sujet=Faire un don';
+
+const M = {
+  perMonth: t(locale, ' / mois'),
+  giftPrefix: t(locale, 'Ton don : '),
+  chooseAmount: t(locale, 'Choisis un montant'),
+  chooseAmountDot: t(locale, 'Choisis un montant.'),
+  nameNeeded: t(locale, 'Indique ton prénom et ton nom.'),
+  emailInvalid: t(locale, 'Indique un e-mail valide.'),
+  emailMismatch: t(locale, 'Les deux e-mails ne correspondent pas.'),
+  phoneNeeded: t(locale, 'Indique un téléphone.'),
+  validateBtn: t(locale, 'Je valide mon don'),
+  seeDetails: t(locale, 'Voir les coordonnées'),
+  momoWord: t(locale, 'mobile money'),
+  bankWord: t(locale, 'virement bancaire'),
+  useCoords: t(locale, 'Parfait ! Utilise les coordonnées ci-contre ({m}), indique ton nom en référence, puis écris-nous pour recevoir ton reçu. 🙏'),
+  redirecting: t(locale, 'Redirection vers le paiement sécurisé…'),
+  stripePending: t(locale, "Le paiement par carte / PayPal est en cours d'activation. En attendant, choisis « Mobile money » ou « Virement bancaire » ci-dessus pour donner dès maintenant. 🙏"),
+  err: t(locale, 'Une erreur est survenue. Réessaie.'),
+};
+---
+<Layout title="CMN — Faire un don">
+  <section class="fd">
+    <div class="fd-hero">
+      <div class="wrap">
+        <div class="disc-label">{t(locale, 'Faire un don')}</div>
+        <h1>{t(locale, 'Soutenir la mission')}</h1>
+        <p>{t(locale, 'Ta générosité transforme des vies, en toute transparence. Don ponctuel ou mensuel, en quelques secondes.')}</p>
+        <div class="fd-trust">
+          <span>{t(locale, '🔒 Paiement 100 % sécurisé')}</span>
+          <span>{t(locale, '🧾 Reçu envoyé par e-mail')}</span>
+          <span>{t(locale, '✋ Don mensuel modifiable ou arrêtable à tout moment')}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="wrap fd-cols">
+      <form class="fd-form" id="fdForm" novalidate>
+        <input type="text" name="website" class="pw-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+        <div class="fd-step">
+          <h3><span class="fd-num">1</span> {t(locale, 'Mon soutien')}</h3>
+          <div class="fd-freq" role="group">
+            <button type="button" class="fd-freq-btn active" data-freq="monthly">{t(locale, 'Mensuel')} <small>{t(locale, 'recommandé')}</small></button>
+            <button type="button" class="fd-freq-btn" data-freq="once">{t(locale, 'Ponctuel')}</button>
+          </div>
+
+          <div class="fd-line">
+            <label for="fdCur">{t(locale, 'Devise')}</label>
+            <select id="fdCur">
+              {currencies.map((c) => <option value={c.code} data-sym={c.sym}>{c.sym} {c.code}</option>)}
+            </select>
+          </div>
+
+          <div class="fd-amts" id="fdAmts">
+            {amounts.map((a) => <button type="button" class={`fd-amt${a === 50 ? ' active' : ''}`} data-v={a}><span class="fd-amt-v">{a}</span><span class="fd-amt-sym">€</span></button>)}
+          </div>
+          <div class="fd-custom-wrap">
+            <input id="fdCustom" type="number" min="1" step="1" placeholder={t(locale, 'Autre montant')} inputmode="numeric" />
+            <span class="fd-custom-sym">€</span>
+          </div>
+
+          <div class="fd-field">
+            <label for="fdCountry">{t(locale, 'Mon pays de résidence')}</label>
+            <select id="fdCountry">
+              <option value="">{t(locale, '— Choisir —')}</option>
+              <optgroup label={t(locale, 'Fréquents')}>
+                {topCountries.map((c) => <option value={c}>{c}</option>)}
+              </optgroup>
+              <optgroup label={t(locale, 'Tous les pays')}>
+                {allCountries.map((c) => <option value={c}>{c}</option>)}
+              </optgroup>
+            </select>
+          </div>
+        </div>
+
+        <div class="fd-step">
+          <h3><span class="fd-num">2</span> {t(locale, 'Mes coordonnées')}</h3>
+          <div class="fd-civ">
+            <label class="fd-pill"><input type="radio" name="civ" value="Mme" /> {t(locale, 'Mme')}</label>
+            <label class="fd-pill"><input type="radio" name="civ" value="M." /> {t(locale, 'M.')}</label>
+            <label class="fd-pill"><input type="radio" name="civ" value="-" checked /> {t(locale, 'Non renseigné')}</label>
+          </div>
+          <div class="fd-grid2">
+            <div class="fd-field"><label>{t(locale, 'Prénom *')}</label><input id="fdFirst" maxlength="60" required /></div>
+            <div class="fd-field"><label>{t(locale, 'Nom *')}</label><input id="fdLast" maxlength="60" required /></div>
+          </div>
+          <div class="fd-field"><label>{t(locale, 'E-mail *')}</label><input id="fdEmail" type="email" maxlength="120" required /></div>
+          <div class="fd-field"><label>{t(locale, 'Confirme ton e-mail *')}</label><input id="fdEmail2" type="email" maxlength="120" required /></div>
+          <div class="fd-field"><label>{t(locale, 'Téléphone *')}</label><input id="fdPhone" type="tel" maxlength="30" required /></div>
+          <label class="fd-check"><input type="checkbox" id="fdConsent" /> <span>{t(locale, "J'autorise CMN à m'envoyer par e-mail les informations importantes concernant mon don.")}</span></label>
+        </div>
+
+        <div class="fd-step">
+          <h3><span class="fd-num">3</span> {t(locale, 'Mode de paiement')}</h3>
+          <div class="fd-pays" id="fdPays">
+            <label class="fd-payopt active"><input type="radio" name="pay" value="online" checked /> <span class="fd-pay-ic">💳</span> {t(locale, 'Carte ou PayPal')}</label>
+            <label class="fd-payopt"><input type="radio" name="pay" value="momo" /> <span class="fd-pay-ic">📱</span> {t(locale, 'Mobile money')} <small>{t(locale, '(Afrique)')}</small></label>
+            <label class="fd-payopt"><input type="radio" name="pay" value="bank" /> <span class="fd-pay-ic">🏦</span> {t(locale, 'Virement bancaire')}</label>
+          </div>
+          <p class="fd-pay-hint" set:html={t(locale, '💳 Tu choisiras <strong>Carte</strong> ou <strong>PayPal</strong> sur la page de paiement sécurisée.')}></p>
+          <div class="fd-recap" id="fdRecap">—</div>
+          <p class="fd-terms">{t(locale, 'En validant, tu acceptes nos conditions de don et notre')} <a href="/confidentialite">{t(locale, 'politique de confidentialité')}</a>.</p>
+          <button class="btn btn-gold fd-validate" type="submit">{t(locale, 'Je valide mon don')}</button>
+          <p class="fd-secure">{t(locale, '🔒 Transaction sécurisée — nous ne stockons jamais tes données bancaires.')}</p>
+          <p class="fd-msg" id="fdMsg"></p>
+        </div>
+      </form>
+
+      <aside class="fd-side">
+        <div class="fd-card">
+          <h3>{t(locale, 'Où vont tes dons')}</h3>
+          <div class="fd-leg"><span class="fd-sw" style="background:var(--gold-d)"></span>{t(locale, 'Terrain & humanitaire')}<b>72 %</b></div>
+          <div class="fd-leg"><span class="fd-sw" style="background:var(--gold)"></span>{t(locale, 'Formation & missions')}<b>18 %</b></div>
+          <div class="fd-leg"><span class="fd-sw" style="background:var(--gold-l)"></span>{t(locale, 'Fonctionnement')}<b>10 %</b></div>
+          <p class="fd-card-note">{t(locale, "Don 100 % sécurisé. Un reçu t'est envoyé par e-mail. Tu peux modifier ou arrêter un don mensuel à tout moment.")}</p>
+        </div>
+
+        <div class="fd-card">
+          <h3>{t(locale, 'Virement & mobile money')}</h3>
+          <p class="fd-card-note" style="margin:0 0 12px">{t(locale, 'Tu préfères donner autrement ? Voici nos coordonnées.')}</p>
+          {bankLines.length > 0 && (
+            <Fragment>
+              <div class="fd-sub">{t(locale, 'Virement bancaire')}</div>
+              {bankLines.map((b) => <div class="fd-kv"><span>{t(locale, b.label)}</span><strong>{b.val}</strong></div>)}
+            </Fragment>
+          )}
+          {momo.length > 0 && (
+            <Fragment>
+              <div class="fd-sub">{t(locale, 'Mobile money')} <small>{t(locale, '(Afrique)')}</small></div>
+              {momo.map((m) => <div class="fd-kv"><span>{m.label}</span><strong>{m.val}</strong></div>)}
+            </Fragment>
+          )}
+          {hasCoords
+            ? <p class="fd-card-note">{t(locale, 'Indique ton nom en référence, puis écris-nous via le')} <a href={contactHref}>{t(locale, 'formulaire de contact')}</a> {t(locale, 'pour recevoir ton reçu.')}</p>
+            : <p class="fd-card-note" style="border:0;margin:0">{t(locale, 'Coordonnées bientôt disponibles. En attendant, écris-nous via le')} <a href={contactHref}>{t(locale, 'formulaire de contact')}</a>.</p>}
+        </div>
+
+        <div class="fd-card">
+          <h3>{t(locale, 'Une question ?')}</h3>
+          <p class="fd-card-note" style="margin:0 0 12px">{t(locale, "Sur ton don, un reçu fiscal ou un autre moyen de paiement, on est là pour t'aider.")}</p>
+          <a class="btn btn-ghost" href={contactHref}>{t(locale, 'Nous contacter')}</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <script is:inline define:vars={{ M }}>
+    (function () {
+      var freq = 'monthly';
+      var amount = 50;
+      var curEl = document.getElementById('fdCur');
+      var customEl = document.getElementById('fdCustom');
+      var recap = document.getElementById('fdRecap');
+      var msg = document.getElementById('fdMsg');
+      var form = document.getElementById('fdForm');
+
+      function sym() { var o = curEl.options[curEl.selectedIndex]; return o ? o.getAttribute('data-sym') : '€'; }
+      function setSymbols() {
+        var s = sym();
+        document.querySelectorAll('.fd-amt-sym').forEach(function (e) { e.textContent = s; });
+        var cs = document.querySelector('.fd-custom-sym'); if (cs) cs.textContent = s;
+      }
+      function currentAmount() { var c = parseInt(customEl.value, 10); if (c > 0) return c; return amount; }
+      function updateRecap() {
+        var a = currentAmount();
+        var freqWord = freq === 'monthly' ? M.perMonth : '';
+        recap.textContent = a > 0 ? (M.giftPrefix + a + ' ' + sym() + freqWord) : M.chooseAmount;
+      }
+
+      document.querySelectorAll('.fd-freq-btn').forEach(function (b) {
+        b.addEventListener('click', function () {
+          document.querySelectorAll('.fd-freq-btn').forEach(function (x) { x.classList.remove('active'); });
+          b.classList.add('active'); freq = b.getAttribute('data-freq'); updateRecap();
+        });
+      });
+      document.querySelectorAll('.fd-amt').forEach(function (b) {
+        b.addEventListener('click', function () {
+          document.querySelectorAll('.fd-amt').forEach(function (x) { x.classList.remove('active'); });
+          b.classList.add('active'); amount = parseInt(b.getAttribute('data-v'), 10); customEl.value = ''; updateRecap();
+        });
+      });
+      customEl.addEventListener('input', function () {
+        if (customEl.value) document.querySelectorAll('.fd-amt').forEach(function (x) { x.classList.remove('active'); });
+        updateRecap();
+      });
+      curEl.addEventListener('change', function () { setSymbols(); updateRecap(); });
+
+      function payMethod() { var r = form.querySelector('input[name="pay"]:checked'); return r ? r.value : 'card'; }
+      document.querySelectorAll('.fd-payopt').forEach(function (lab) {
+        lab.addEventListener('click', function () {
+          document.querySelectorAll('.fd-payopt').forEach(function (x) { x.classList.remove('active'); });
+          lab.classList.add('active');
+          var btn = document.querySelector('.fd-validate');
+          var m = payMethod();
+          if (btn) btn.textContent = (m === 'momo' || m === 'bank') ? M.seeDetails : M.validateBtn;
+        });
+      });
+
+      try {
+        var p = new URLSearchParams(window.location.search);
+        var qa = parseInt(p.get('amount'), 10);
+        var qf = p.get('freq');
+        if (qf === 'once' || qf === 'monthly') {
+          freq = qf;
+          document.querySelectorAll('.fd-freq-btn').forEach(function (x) { x.classList.toggle('active', x.getAttribute('data-freq') === freq); });
+        }
+        if (qa > 0) {
+          var matched = false;
+          document.querySelectorAll('.fd-amt').forEach(function (x) {
+            var on = parseInt(x.getAttribute('data-v'), 10) === qa;
+            x.classList.toggle('active', on); if (on) matched = true;
+          });
+          if (matched) { amount = qa; } else { customEl.value = qa; }
+        }
+      } catch (e) {}
+
+      setSymbols(); updateRecap();
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (form.website.value) return;
+        msg.style.color = '#c0392b';
+        var a = currentAmount();
+        if (!(a > 0)) { msg.textContent = M.chooseAmountDot; return; }
+        if (!document.getElementById('fdFirst').value.trim() || !document.getElementById('fdLast').value.trim()) { msg.textContent = M.nameNeeded; return; }
+        var em = document.getElementById('fdEmail').value.trim();
+        var em2 = document.getElementById('fdEmail2').value.trim();
+        if (em.indexOf('@') < 1) { msg.textContent = M.emailInvalid; return; }
+        if (em !== em2) { msg.textContent = M.emailMismatch; return; }
+        if (!document.getElementById('fdPhone').value.trim()) { msg.textContent = M.phoneNeeded; return; }
+
+        var cur = curEl.value;
+        var method = payMethod();
+
+        if (method === 'momo' || method === 'bank') {
+          msg.style.color = 'var(--gold-d)';
+          msg.textContent = M.useCoords.replace('{m}', method === 'momo' ? M.momoWord : M.bankWord);
+          var side1 = document.querySelector('.fd-side'); if (side1) side1.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          return;
+        }
+
+        var btn = document.querySelector('.fd-validate');
+        msg.style.color = 'var(--gold-d)';
+        msg.textContent = M.redirecting;
+        if (btn) { btn.disabled = true; }
+        fetch('/api/stripe-checkout', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            amount: a, freq: freq, currency: cur,
+            email: em, name: (document.getElementById('fdFirst').value + ' ' + document.getElementById('fdLast').value).trim(),
+            country: document.getElementById('fdCountry').value,
+            phone: document.getElementById('fdPhone').value,
+            website: form.website.value,
+          }),
+        }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+          .then(function (res) {
+            if (res.ok && res.d && res.d.url) { window.location.href = res.d.url; return; }
+            if (btn) { btn.disabled = false; }
+            msg.style.color = '#c0392b';
+            if (res.d && res.d.error === 'stripe_non_configure') {
+              msg.style.color = 'var(--gold-d)';
+              msg.textContent = M.stripePending;
+              var side2 = document.querySelector('.fd-side'); if (side2) side2.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+              msg.textContent = (res.d && res.d.error) || M.err;
+            }
+          })
+          .catch(function () { if (btn) { btn.disabled = false; } msg.style.color = '#c0392b'; msg.textContent = M.err; });
+      });
+    })();
+  </script>
+</Layout>
